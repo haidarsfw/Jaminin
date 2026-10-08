@@ -687,6 +687,35 @@
     "lanjut": "Simpan dan batalkan pesanan",
     "tersimpan_batal": "Tersimpan. {{count}} pesanan dibatalkan dengan uang kembali penuh."
   },
+  "promo": {
+    "judul": "Promo jam sepi",
+    "isi": "Potongan untuk seluruh isi pesanan pada hari dan jam ambil tertentu, ditanggung tenant. Pesanan berpromo tidak bisa digeser.",
+    "daftar": "Promo yang ada",
+    "kosong": "Belum ada promo.",
+    "tambah": "Tambah promo",
+    "jenis": "Jenis potongan",
+    "persen": "Persen",
+    "rupiah": "Rupiah",
+    "nilai_persen": "Potongan (%)",
+    "nilai_persen_isi": "1 sampai 90. Dibulatkan ke bawah ke rupiah bulat.",
+    "nilai_rupiah": "Potongan (Rp)",
+    "nilai_rupiah_isi": "Tidak melebihi harga makanan di pesanan.",
+    "hari": "Hari",
+    "mulai": "Jam ambil mulai",
+    "selesai": "Sampai sebelum",
+    "ringkas_persen": "Potongan {{value}}%",
+    "ringkas_rupiah": "Potongan {{value}}",
+    "rentang": "{{days}}, {{start}} sampai {{end}}",
+    "aktif": "Aktif",
+    "nonaktif": "Nonaktif",
+    "aktifkan": "Aktifkan",
+    "matikan": "Matikan",
+    "hapus_label": "Hapus promo {{name}}",
+    "galat_nilai_persen": "Isi persen dari 1 sampai 90.",
+    "galat_nilai_rupiah": "Isi potongan rupiah 1 atau lebih.",
+    "galat_hari": "Pilih minimal satu hari.",
+    "galat_jam": "Jam selesai harus setelah jam mulai."
+  },
   "kuota": {
     "mulai": "Mulai",
     "sampai": "Sampai",
@@ -1015,6 +1044,7 @@
     "wrong_pickup_code": "Kode ambil tidak cocok.",
     "date_in_past": "Tanggal itu sudah lewat. Pilih hari ini atau tanggal setelahnya.",
     "cannot_suspend": "Hanya tenant yang sudah disetujui yang bisa ditangguhkan.",
-    "cannot_reactivate": "Tenant ini tidak sedang ditangguhkan."
+    "cannot_reactivate": "Tenant ini tidak sedang ditangguhkan.",
+    "promo_overlap": "Promo ini tumpang tindih dengan promo aktif lain di hari dan jam yang sama."
   }
 }

@@ -705,6 +705,35 @@
     "tersimpan_batal_one": "Saved. {{count}} order was cancelled with a full refund.",
     "tersimpan_batal_other": "Saved. {{count}} orders were cancelled with a full refund."
   },
+  "promo": {
+    "judul": "Quiet-hour promos",
+    "isi": "A discount on the whole order for chosen days and pickup times, paid by the tenant. Promo orders cannot be rescheduled.",
+    "daftar": "Current promos",
+    "kosong": "No promos yet.",
+    "tambah": "Add promo",
+    "jenis": "Discount type",
+    "persen": "Percent",
+    "rupiah": "Rupiah",
+    "nilai_persen": "Discount (%)",
+    "nilai_persen_isi": "1 to 90. Rounded down to whole rupiah.",
+    "nilai_rupiah": "Discount (Rp)",
+    "nilai_rupiah_isi": "Never more than the food price in the order.",
+    "hari": "Days",
+    "mulai": "Pickup from",
+    "selesai": "Until before",
+    "ringkas_persen": "{{value}}% off",
+    "ringkas_rupiah": "{{value}} off",
+    "rentang": "{{days}}, {{start}} to {{end}}",
+    "aktif": "Active",
+    "nonaktif": "Inactive",
+    "aktifkan": "Activate",
+    "matikan": "Turn off",
+    "hapus_label": "Delete promo {{name}}",
+    "galat_nilai_persen": "Enter a percentage from 1 to 90.",
+    "galat_nilai_rupiah": "Enter a rupiah discount of 1 or more.",
+    "galat_hari": "Choose at least one day.",
+    "galat_jam": "The end time must be after the start time."
+  },
   "kuota": {
     "mulai": "From",
     "sampai": "To",
@@ -1040,6 +1069,7 @@
     "wrong_pickup_code": "The pickup code does not match.",
     "date_in_past": "That date has passed. Choose today or a later date.",
     "cannot_suspend": "Only approved tenants can be suspended.",
-    "cannot_reactivate": "This tenant is not suspended."
+    "cannot_reactivate": "This tenant is not suspended.",
+    "promo_overlap": "This promo overlaps another active promo on the same day and time."
   }
 }

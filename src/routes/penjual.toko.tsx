@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, Choice, Dialog, ErrorState, Field, Input, LoadingState, Notice, PageHeader, TextArea } from '@/components/ui'
+import { Button, Card, Choice, Dialog, ErrorState, Field, Input, LoadingState, Notice, PageHeader, StatusText, TextArea } from '@/components/ui'
 import { useSeller, useTenantSettings, type TenantFull } from '@/features/seller'
 import {
   hhmm,
@@ -19,9 +19,9 @@ import {
   type QuotaRule,
 } from '@/features/tenantForm'
 import { useAuth } from '@/lib/auth'
-import { clock, isValidWhatsapp, longDate, normalizeWhatsapp, todayWib } from '@/lib/format'
+import { clock, isValidWhatsapp, longDate, normalizeWhatsapp, rupiah, todayWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
-import { publicImage, rpc, supabase, toAppError, type Enums } from '@/lib/supabase'
+import { publicImage, rpc, supabase, toAppError, type Enums, type Tables } from '@/lib/supabase'
 
 export const Route = createFileRoute('/penjual/toko')({
   component: StorePage,
@@ -79,6 +79,7 @@ function StorePage() {
           <RulesCard tenant={tenant} />
           <HoursCard tenant={tenant} />
           <SpecialDaysCard tenant={tenant} />
+          <PromoCard tenant={tenant} />
           <QuotaCard tenant={tenant} />
           <PayoutCard tenant={tenant} />
         </>
@@ -553,6 +554,169 @@ function SpecialDaysCard({ tenant }: { tenant: TenantFull }) {
           </Button>
         </div>
       </Dialog>
+    </Section>
+  )
+}
+
+// Promo jam sepi (P1 nomor 5): potongan persen atau rupiah untuk hari dan rentang jam ambil tertentu.
+function PromoCard({ tenant }: { tenant: TenantFull }) {
+  const { t } = useTranslation()
+  const lang = currentLang()
+  const queryClient = useQueryClient()
+  const promos = useQuery({
+    queryKey: ['promo', tenant.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('promos').select('*').eq('tenant_id', tenant.id).order('start_time')
+      if (error) throw error
+      return data
+    },
+  })
+  const [kind, setKind] = useState<Enums<'jenis_promo'>>('persen')
+  const [value, setValue] = useState('')
+  const [days, setDays] = useState<number[]>([1, 2, 3, 4, 5])
+  const [start, setStart] = useState('14:00')
+  const [end, setEnd] = useState('16:00')
+  const [formError, setFormError] = useState<string | null>(null)
+  const [state, setState] = useState<{ busy: boolean; ok: boolean; error: string | null }>({ busy: false, ok: false, error: null })
+
+  const refresh = () => Promise.all([queryClient.invalidateQueries({ queryKey: ['promo', tenant.id] }), queryClient.invalidateQueries({ queryKey: ['jam'] })])
+  async function run(fn: () => PromiseLike<{ error: unknown }>) {
+    setState({ busy: true, ok: false, error: null })
+    const { error } = await fn()
+    if (error) {
+      setState({ busy: false, ok: false, error: t(`galat.${toAppError(error).code}`, { defaultValue: t('galat.unknown') }) })
+      return false
+    }
+    await refresh()
+    setState({ busy: false, ok: true, error: null })
+    return true
+  }
+
+  function submit(e: FormEvent) {
+    e.preventDefault()
+    const n = Number(value)
+    let problem: string | null = null
+    if (kind === 'persen' && !(Number.isInteger(n) && n >= 1 && n <= 90)) problem = t('promo.galat_nilai_persen')
+    else if (kind === 'rupiah' && !(Number.isInteger(n) && n >= 1)) problem = t('promo.galat_nilai_rupiah')
+    else if (days.length === 0) problem = t('promo.galat_hari')
+    else if (!start || !end || end <= start) problem = t('promo.galat_jam')
+    setFormError(problem)
+    if (problem) return
+    void run(() =>
+      supabase.from('promos').insert({ tenant_id: tenant.id, kind, value: n, weekdays: [...days].sort(), start_time: start, end_time: end }),
+    ).then((ok) => ok && setValue(''))
+  }
+
+  const describe = (p: Tables<'promos'>) => ({
+    amount: p.kind === 'persen' ? t('promo.ringkas_persen', { value: p.value }) : t('promo.ringkas_rupiah', { value: rupiah(p.value) }),
+    when: t('promo.rentang', {
+      days: p.weekdays.map((d) => t(`hari.${d}`)).join(', '),
+      start: clock(p.start_time, lang),
+      end: clock(p.end_time, lang),
+    }),
+  })
+
+  return (
+    <Section title={t('promo.judul')} description={t('promo.isi')}>
+      <div className="space-y-2">
+        <h3 className="font-semibold">{t('promo.daftar')}</h3>
+        {promos.isPending && <p className="text-sm text-muted">{t('umum.memuat')}</p>}
+        {promos.isError && <ErrorState onRetry={() => void promos.refetch()} />}
+        {promos.data?.length === 0 && <p className="text-sm text-muted">{t('promo.kosong')}</p>}
+        <ul className="space-y-2">
+          {(promos.data ?? []).map((p) => {
+            const d = describe(p)
+            return (
+              <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line-soft p-3">
+                <span className="min-w-0">
+                  <span className="block font-semibold">
+                    {d.amount} <StatusText tone={p.is_active ? 'success' : 'info'}>{p.is_active ? t('promo.aktif') : t('promo.nonaktif')}</StatusText>
+                  </span>
+                  <span className="block text-sm">{d.when}</span>
+                </span>
+                <span className="flex flex-wrap gap-2">
+                  <Button small disabled={state.busy} onClick={() => void run(() => supabase.from('promos').update({ is_active: !p.is_active }).eq('id', p.id))}>
+                    {p.is_active ? t('promo.matikan') : t('promo.aktifkan')}
+                  </Button>
+                  <Button
+                    small
+                    variant="quiet"
+                    disabled={state.busy}
+                    aria-label={t('promo.hapus_label', { name: `${d.amount}, ${d.when}` })}
+                    onClick={() => void run(() => supabase.from('promos').delete().eq('id', p.id))}
+                  >
+                    {t('umum.hapus')}
+                  </Button>
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+
+      <form onSubmit={submit} noValidate className="mt-4 space-y-4 border-t border-line-soft pt-4">
+        <h3 className="font-semibold">{t('promo.tambah')}</h3>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-semibold">{t('promo.jenis')}</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Choice name="jenis-promo" value="persen" checked={kind === 'persen'} onChange={() => setKind('persen')}>
+              {t('promo.persen')}
+            </Choice>
+            <Choice name="jenis-promo" value="rupiah" checked={kind === 'rupiah'} onChange={() => setKind('rupiah')}>
+              {t('promo.rupiah')}
+            </Choice>
+          </div>
+        </fieldset>
+        <Field
+          label={kind === 'persen' ? t('promo.nilai_persen') : t('promo.nilai_rupiah')}
+          hint={kind === 'persen' ? t('promo.nilai_persen_isi') : t('promo.nilai_rupiah_isi')}
+        >
+          {(p) => (
+            <Input
+              id={p.id}
+              aria-describedby={p.describedBy}
+              type="number"
+              min={1}
+              max={kind === 'persen' ? 90 : undefined}
+              inputMode="numeric"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              className="w-40"
+            />
+          )}
+        </Field>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-semibold">{t('promo.hari')}</legend>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {WEEKDAYS.map((d) => (
+              <Choice
+                key={d}
+                type="checkbox"
+                name="hari-promo"
+                value={String(d)}
+                checked={days.includes(d)}
+                onChange={(on) => setDays(on ? [...days, d] : days.filter((x) => x !== d))}
+              >
+                {t(`hari.${d}`)}
+              </Choice>
+            ))}
+          </div>
+        </fieldset>
+        <div className="flex flex-wrap gap-3">
+          <Field label={t('promo.mulai')}>
+            {(p) => <Input id={p.id} type="time" step={300} value={start} onChange={(e) => setStart(e.target.value)} className="w-32" />}
+          </Field>
+          <Field label={t('promo.selesai')}>
+            {(p) => <Input id={p.id} type="time" step={300} value={end} onChange={(e) => setEnd(e.target.value)} className="w-32" />}
+          </Field>
+        </div>
+        {formError && <p className="text-sm font-medium text-danger">{formError}</p>}
+        {state.error && <Notice tone="error">{state.error}</Notice>}
+        {state.ok && <Notice tone="success">{t('umum.tersimpan')}</Notice>}
+        <Button type="submit" variant="primary" busy={state.busy} busyText={t('umum.menyimpan')}>
+          {t('promo.tambah')}
+        </Button>
+      </form>
     </Section>
   )
 }
