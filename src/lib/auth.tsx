@@ -22,6 +22,7 @@ type AuthState = {
   profileComplete: boolean
   teamRole: Enums<'peran_tim'> | null
   tenants: MyTenant[]
+  rolesLoading: boolean
   refresh: () => Promise<void>
   signOut: () => Promise<void>
 }
@@ -88,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profileComplete: !!profileQuery.data?.profile_completed_at,
       teamRole: rolesQuery.data?.teamRole ?? null,
       tenants: rolesQuery.data?.tenants ?? [],
+      rolesLoading: !!userId && rolesQuery.isPending,
       refresh: async () => {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: ['profil', userId] }),
@@ -99,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         queryClient.clear()
       },
     }),
-    [ready, session, userId, profileQuery.data, profileQuery.isPending, rolesQuery.data, queryClient],
+    [ready, session, userId, profileQuery.data, profileQuery.isPending, rolesQuery.data, rolesQuery.isPending, queryClient],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>

@@ -27,7 +27,7 @@ export async function switchToDemo(userId: string, currentIsDemo: boolean): Prom
 }
 
 export async function returnToOrigin(): Promise<boolean> {
-  let token: string | null = null
+  let token: string | null
   try {
     token = localStorage.getItem(ORIGIN_KEY)
     localStorage.removeItem(ORIGIN_KEY)

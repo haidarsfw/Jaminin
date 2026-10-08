@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Choice, Dialog, EmptyState, ErrorState, LoadingState, Notice, PageHeader, Stepper } from '@/components/ui'
 import { addToCart, getCart } from '@/lib/cart'
-import { clock, rupiah, todayWib } from '@/lib/format'
+import { clock, isoWeekday, rupiah, todayWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { supabase, type Tables } from '@/lib/supabase'
 
@@ -63,7 +63,7 @@ function TenantPage() {
   const tenant = query.data
   if (!tenant) return <EmptyState title={t('tenant.tidak_ada')} />
 
-  const weekday = new Date(`${todayWib()}T00:00:00+07:00`).getUTCDay() || 7
+  const weekday = isoWeekday(todayWib())
   const todayHours = tenant.tenant_hours.filter((h) => h.weekday === weekday).sort((a, b) => a.open_time.localeCompare(b.open_time))
   const paused = tenant.paused_indefinitely || (!!tenant.paused_until && new Date(tenant.paused_until) > new Date())
 

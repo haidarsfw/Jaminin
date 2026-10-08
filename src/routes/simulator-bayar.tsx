@@ -12,7 +12,7 @@ import { useTopic } from '@/lib/realtime'
 import { callFunction, rpc, toAppError } from '@/lib/supabase'
 
 export const Route = createFileRoute('/simulator-bayar')({
-  validateSearch: (s: Record<string, unknown>) => ({ kode: typeof s.kode === 'string' ? s.kode.toUpperCase().slice(0, 6) : undefined }),
+  validateSearch: (s: Record<string, unknown>): { kode?: string } => (typeof s.kode === 'string' ? { kode: s.kode.toUpperCase().slice(0, 6) } : {}),
   component: Simulator,
 })
 

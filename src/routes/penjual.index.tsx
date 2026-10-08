@@ -6,7 +6,6 @@ import { QrScanner } from '@/components/QrScanner'
 import { Button, Card, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, StatusText, Tabs } from '@/components/ui'
 import { parsePickupQr } from '@/features/orders'
 import { audioReady, beep, unlockAudio, useSeller, useTenantSettings } from '@/features/seller'
-import { useAuth } from '@/lib/auth'
 import { clock, clockFromDate, orderNo, todayWib, tomorrowWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { useTopic } from '@/lib/realtime'
@@ -383,7 +382,6 @@ function OrderCard({
 function HandoverDialog({ order, onClose, orders }: { order: BoardOrder; onClose: () => void; orders: BoardOrder[] }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const { user } = useAuth()
   const [target, setTarget] = useState(order)
   const [code, setCode] = useState('')
   const [scan, setScan] = useState(false)
@@ -462,7 +460,6 @@ function HandoverDialog({ order, onClose, orders }: { order: BoardOrder; onClose
             </form>
           )}
           {error && <Notice tone="error">{error}</Notice>}
-          {user && null}
         </div>
       )}
     </Dialog>

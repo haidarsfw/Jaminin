@@ -3,7 +3,25 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type Database = {
   
-  "public": {
+  "graphql_public": {
+          Tables: {
+            [_ in never]: never
+          }
+          Views: {
+            [_ in never]: never
+          }
+          Functions: {
+            "graphql":
+{ Args: { "extensions"?: Json,"operationName"?: string,"query"?: string,"variables"?: Json }; Returns: Json
+                           }
+          }
+          Enums: {
+            [_ in never]: never
+          }
+          CompositeTypes: {
+            [_ in never]: never
+          }
+        },"public": {
           Tables: {
             "app_settings": {
                   Row: {
@@ -707,6 +725,12 @@ isOneToOne: false
               "id": string,"name": string,"reject_reason": string,"role": Database["public"]['Enums']["peran_tenant"],"slug": string,"status": Database["public"]['Enums']["status_tenant"]
             }[]
                            },
+"owner_set_hours":
+{ Args: { "p_hours": Json,"p_tenant": string }; Returns: undefined
+                           },
+"owner_set_quota_rules":
+{ Args: { "p_rules": Json,"p_tenant": string }; Returns: undefined
+                           },
 "payout_details":
 { Args: { "p_payout": string }; Returns: Json
                            },
@@ -715,6 +739,9 @@ isOneToOne: false
                            },
 "resubmit_tenant":
 { Args: { "p_tenant": string }; Returns: undefined
+                           },
+"save_push_subscription":
+{ Args: { "p_auth": string,"p_endpoint": string,"p_p256dh": string,"p_user_agent": string }; Returns: undefined
                            },
 "seller_buyer_history":
 { Args: { "p_buyer": string,"p_tenant": string }; Returns: {
@@ -898,7 +925,11 @@ export type CompositeTypes<
   : never
 
 export const Constants = {
-  "public": {
+  "graphql_public": {
+          Enums: {
+            
+          }
+        },"public": {
           Enums: {
             "cara_makan": ["makan_di_sini", "bungkus"],"jenis_promo": ["persen", "rupiah"],"jenis_tenant": ["makanan", "minuman", "keduanya"],"kategori_laporan": ["pesanan_salah", "uang_belum_kembali", "lainnya"],"penanggung": ["aturan", "tenant", "jaminin"],"pengelola_tenant": ["mandiri", "pihak_kantin"],"peran_tenant": ["pemilik", "karyawan"],"peran_tim": ["admin", "staf"],"status_item": ["normal", "habis_menunggu", "diganti", "dihapus"],"status_laporan": ["baru", "diproses", "selesai"],"status_pengguna": ["mahasiswa", "dosen", "staf_binus", "tamu", "pekerja_kantin"],"status_pesanan": ["menunggu_bayar", "kedaluwarsa", "diterima", "disiapkan", "siap", "selesai", "tidak_diambil", "dibatalkan"],"status_tenant": ["menunggu", "disetujui", "ditolak", "ditangguhkan"]
           }

@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { clock, dateLabel, orderNo, rupiah } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { useTopic } from '@/lib/realtime'
-import { supabase } from '@/lib/supabase'
+import { supabase, type Enums } from '@/lib/supabase'
 
 export const Route = createFileRoute('/pesanan/')({
   component: () => (
@@ -20,7 +20,7 @@ export const Route = createFileRoute('/pesanan/')({
 
 type Row = {
   id: string
-  status: string
+  status: Enums<'status_pesanan'>
   end_reason: string | null
   order_number: number | null
   pickup_date: string

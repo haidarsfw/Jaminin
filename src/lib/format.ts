@@ -79,3 +79,8 @@ export function mmss(seconds: number): string {
   const s = seconds % 60
   return `${m}:${String(s).padStart(2, '0')}`
 }
+
+// Hari ISO untuk tanggal WIB 'yyyy-MM-dd': 1 Senin sampai 7 Minggu, sama dengan jadwal di database.
+export function isoWeekday(date: string): number {
+  return new Date(`${date}T00:00:00Z`).getUTCDay() || 7
+}

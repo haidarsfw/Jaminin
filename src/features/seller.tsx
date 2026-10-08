@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { createContext, use, useEffect, useState, type ReactNode } from 'react'
+import { createContext, use, useState, type ReactNode } from 'react'
 import { useAuth, type MyTenant } from '@/lib/auth'
 import { supabase, type Tables } from '@/lib/supabase'
 
@@ -25,9 +25,6 @@ export function SellerProvider({ children }: { children: ReactNode }) {
     }
   })
   const active = tenants.find((t) => t.id === activeId) ?? tenants[0] ?? null
-  useEffect(() => {
-    if (active && active.id !== activeId) setActiveId(active.id)
-  }, [active, activeId])
   const value: SellerState = {
     tenants,
     active,

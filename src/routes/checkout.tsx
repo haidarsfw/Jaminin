@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '@/components/AppShell'
 import { RequireAuth } from '@/components/Guard'
@@ -36,9 +36,9 @@ function Checkout() {
     return item ? soldOutToday(item) && !item.sold_out_indefinite : false
   })
 
-  const [date, setDate] = useState(() => recalledSlot()?.date ?? todayWib())
-  const [time, setTime] = useState<string | null>(null)
-  const [slot, setSlot] = useState<Slot | null>(null)
+  const [pickedDate, setDate] = useState(() => recalledSlot()?.date ?? todayWib())
+  const [pickedTime, setTime] = useState<string | null>(null)
+  const [pickedSlot, setSlot] = useState<Slot | null>(null)
   const [pickupName, setPickupName] = useState(profile?.full_name ?? '')
   const [dining, setDining] = useState<'makan_di_sini' | 'bungkus'>('bungkus')
   const [cutlery, setCutlery] = useState(false)
@@ -46,23 +46,17 @@ function Checkout() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<{ code: string; orderId?: string } | null>(null)
 
+  // Menu yang habis hari ini membuat pesanan hanya bisa untuk besok.
+  const date = soldOutTodayInCart && pickedDate === todayWib() ? tomorrowWib() : pickedDate
   const maxPrep = cartMaxPrep(cart)
   const slots = useSlots(cart?.tenantId, date, maxPrep)
 
   // Jam dari tombol jam istirahat langsung terpilih kalau masih tersedia (usulan U7).
-  useEffect(() => {
-    const recalled = recalledSlot()
-    if (!recalled || recalled.date !== date || time || !slots.data) return
-    const match = slots.data.find((s) => s.slot_time === recalled.time && s.status === 'tersedia')
-    if (match) {
-      setTime(match.slot_time)
-      setSlot(match)
-    }
-  }, [slots.data, date, time])
-
-  useEffect(() => {
-    if (soldOutTodayInCart && date === todayWib()) setDate(tomorrowWib())
-  }, [soldOutTodayInCart, date])
+  const recalled = recalledSlot()
+  const autoSlot =
+    !pickedTime && recalled && recalled.date === date ? (slots.data?.find((s) => s.slot_time === recalled.time && s.status === 'tersedia') ?? null) : null
+  const time = pickedTime ?? autoSlot?.slot_time ?? null
+  const slot = pickedSlot ?? autoSlot
 
   if (!cart) {
     return (
@@ -120,6 +114,7 @@ function Checkout() {
         setError({ code })
       }
       if (['slot_full', 'slot_too_soon', 'slot_closed', 'daily_limit', 'tenant_paused'].includes(code)) {
+        forgetSlot()
         setTime(null)
         setSlot(null)
         void queryClient.invalidateQueries({ queryKey: ['jam'] })

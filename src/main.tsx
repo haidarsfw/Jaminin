@@ -14,7 +14,7 @@ initTheme()
 
 const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined
 if (dsn && import.meta.env.PROD) {
-  Sentry.init({ dsn, environment: import.meta.env.MODE, sendDefaultPii: false, tracesSampleRate: 0 })
+  Sentry.init({ dsn, environment: import.meta.env.MODE, tracesSampleRate: 0 })
 }
 
 const queryClient = new QueryClient({

@@ -1,8 +1,9 @@
 import { createFileRoute, Outlet, useLocation } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '@/components/Guard'
-import { ButtonLink, EmptyState, Select } from '@/components/ui'
+import { ButtonLink, EmptyState, LoadingState, Select } from '@/components/ui'
 import { SellerProvider, useSeller } from '@/features/seller'
+import { useAuth } from '@/lib/auth'
 
 export const Route = createFileRoute('/penjual')({
   component: () => (
@@ -18,7 +19,9 @@ function SellerLayout() {
   const { t } = useTranslation()
   const { tenants, active, setActive } = useSeller()
   const { pathname } = useLocation()
+  const { rolesLoading } = useAuth()
 
+  if (rolesLoading) return <LoadingState />
   if (tenants.length === 0 && pathname !== '/penjual/daftar') {
     return (
       <EmptyState

@@ -231,6 +231,7 @@ export function Stepper({ value, onChange, min = 0, max = 20, label }: { value: 
 
 export function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
   const { t } = useTranslation()
   useEffect(() => {
     const el = ref.current
@@ -243,13 +244,13 @@ export function Dialog({ open, onClose, title, children }: { open: boolean; onCl
       ref={ref}
       onClose={onClose}
       onCancel={onClose}
-      aria-labelledby="dialog-title"
+      aria-labelledby={titleId}
       className="m-auto w-[min(32rem,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-line-soft bg-surface p-0 text-ink"
     >
       {open && (
         <div className="p-4">
           <div className="mb-3 flex items-start justify-between gap-3">
-            <h2 id="dialog-title" className="text-lg font-bold">
+            <h2 id={titleId} className="text-lg font-bold">
               {title}
             </h2>
             <button type="button" onClick={onClose} className={buttonClass('quiet', false, true)}>
