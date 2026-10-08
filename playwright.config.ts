@@ -3,6 +3,7 @@ import { defineConfig } from '@playwright/test'
 // Tiga ukuran layar yang wajib nyaman: HP, iPad, laptop. Memakai Supabase lokal dari .env.local.
 export default defineConfig({
   testDir: 'tests/e2e',
+  testIgnore: /cloud\.spec\.ts/,
   timeout: 120_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,

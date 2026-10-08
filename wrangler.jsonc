@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Hanya aset statis hasil `npm run build`, tanpa kode Worker. Nama harus sama dengan nama Worker di dashboard Cloudflare.
+  "name": "jaminin",
+  "compatibility_date": "2026-10-08",
+  "assets": {
+    "directory": "./dist/",
+    // Alamat yang tidak cocok dengan berkas dijawab index.html supaya rute aplikasi bisa dibuka langsung.
+    "not_found_handling": "single-page-application"
+  }
+}

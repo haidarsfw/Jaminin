@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 import { expect, type Browser, type BrowserContext, type Page } from '@playwright/test'
 
-export const BASE_URL = 'http://127.0.0.1:5173'
+export const BASE_URL = process.env.JAMININ_URL ?? 'http://127.0.0.1:5173'
 
 export const LAYAR = {
   hp: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
