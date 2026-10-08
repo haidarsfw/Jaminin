@@ -23,6 +23,11 @@ export function clockFromDate(value: string | Date, lang: Lang): string {
   return clock(format(d, 'HH:mm'), lang)
 }
 
+// Tanggal WIB (yyyy-MM-dd) dari sebuah waktu, misalnya created_at dari database.
+export function wibDate(value: string | Date): string {
+  return format(new TZDate(new Date(value).getTime(), WIB), 'yyyy-MM-dd')
+}
+
 export function nowWib(): TZDate {
   return new TZDate(Date.now(), WIB)
 }

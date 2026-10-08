@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import en from '../../src/locales/en.json'
 import id from '../../src/locales/id.json'
+import { KABAR_KINDS } from '../../src/features/kabarText'
 
 type Tree = { [key: string]: string | Tree }
 
@@ -50,6 +51,8 @@ const dynamic: Record<string, string[]> = {
   'jadwal.galat_': ['kosong', 'urutan', 'tumpang'],
   'kuota.galat_': ['urutan', 'angka', 'tumpang'],
   'demo.peran.': ['pembeli', 'pemilik', 'karyawan', 'admin', 'staf', 'lainnya'],
+  'kabar.': [...KABAR_KINDS.map((k) => `${k}_judul`), ...KABAR_KINDS.map((k) => `${k}_isi`), 'pesanan_dibatalkan_isi_uang'],
+  'kabar.aksi_': ['ganti', 'hapus', 'batal'],
   'alasan.': [
     'waktu_habis', 'dibatalkan_pembeli', 'pembeli', 'belum_siap_jam_ambil', 'semua_menu_habis', 'pembeli_menu_habis',
     'belum_siap_saat_tutup', 'tim', 'tidak_diambil_saat_tutup', 'menu_habis_dihapus', 'menu_habis_otomatis', 'menu_habis_diganti', 'manual_tim',
@@ -79,6 +82,17 @@ describe('terjemahan', () => {
     const fnCodes = sql.flatMap((f) => [...readFileSync(f, 'utf8').matchAll(/error: '([a-z_]+)'/g)].map((m) => m[1]))
     fnCodes.forEach((c) => codes.add(c))
     expect([...codes].filter((c) => !idKeys.has(`galat.${c}`))).toEqual([])
+  })
+
+  it('setiap jenis kabar dari database punya teks', () => {
+    const migrations = readdirSync('supabase/migrations').map((f) => readFileSync(join('supabase/migrations', f), 'utf8')).join('\n')
+    const kinds = new Set([
+      ...[...migrations.matchAll(/private\.notify(?:_tenant)?\(\s*[^,()]+,\s*'([a-z_]+)'/g)].map((m) => m[1]),
+      ...[...migrations.matchAll(/private\.notify_team\(\s*'([a-z_]+)'/g)].map((m) => m[1]),
+      ...[...migrations.matchAll(/private\.notify(?:_tenant|_team)?\([^;]*?case when [^;]*?then '([a-z_]+)' else '([a-z_]+)' end/g)].flatMap((m) => [m[1], m[2]]),
+    ])
+    expect(kinds.size).toBeGreaterThan(15)
+    expect([...kinds].filter((k) => !KABAR_KINDS.includes(k))).toEqual([])
   })
 
   it('teks tidak memakai tanda pisah panjang', () => {

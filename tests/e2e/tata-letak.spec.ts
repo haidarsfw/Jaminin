@@ -27,11 +27,11 @@ test('halaman pembeli tanpa masuk', async ({ page }, info) => {
 test('halaman penjual', async ({ page }, info) => {
   await setPassword('demo+pemilik@jaminin.test', SANDI)
   await signIn(page, 'demo+pemilik@jaminin.test', SANDI)
-  await tour(page, ['/penjual', '/penjual/menu', '/penjual/toko', '/penjual/setoran', '/penjual/daftar', '/pesanan', '/profil'], 'penjual', info.project.name)
+  await tour(page, ['/penjual', '/penjual/menu', '/penjual/toko', '/penjual/setoran', '/penjual/daftar', '/pesanan', '/kabar', '/profil'], 'penjual', info.project.name)
 })
 
 test('halaman tim', async ({ page }, info) => {
   await setPassword('demo+admin@jaminin.test', SANDI)
   await signIn(page, 'demo+admin@jaminin.test', SANDI)
-  await tour(page, ['/tim', '/tim/penjual', '/tim/laporan', '/tim/setoran', '/tim/anggota', '/simulator-bayar'], 'tim', info.project.name)
+  await tour(page, ['/tim', '/tim/penjual', '/tim/laporan', '/tim/setoran', '/tim/anggota', '/kabar', '/simulator-bayar'], 'tim', info.project.name)
 })

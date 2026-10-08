@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AturSandiRouteImport } from './routes/atur-sandi'
 import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as KabarRouteImport } from './routes/kabar'
 import { Route as KeranjangRouteImport } from './routes/keranjang'
 import { Route as LengkapiProfilRouteImport } from './routes/lengkapi-profil'
 import { Route as MasukRouteImport } from './routes/masuk'
@@ -48,6 +49,11 @@ const AturSandiRoute = AturSandiRouteImport.update({
 const CheckoutRoute = CheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KabarRoute = KabarRouteImport.update({
+  id: '/kabar',
+  path: '/kabar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeranjangRoute = KeranjangRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atur-sandi': typeof AturSandiRoute
   '/checkout': typeof CheckoutRoute
+  '/kabar': typeof KabarRoute
   '/keranjang': typeof KeranjangRoute
   '/lengkapi-profil': typeof LengkapiProfilRoute
   '/masuk': typeof MasukRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atur-sandi': typeof AturSandiRoute
   '/checkout': typeof CheckoutRoute
+  '/kabar': typeof KabarRoute
   '/keranjang': typeof KeranjangRoute
   '/lengkapi-profil': typeof LengkapiProfilRoute
   '/masuk': typeof MasukRoute
@@ -218,6 +226,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/atur-sandi': typeof AturSandiRoute
   '/checkout': typeof CheckoutRoute
+  '/kabar': typeof KabarRoute
   '/keranjang': typeof KeranjangRoute
   '/lengkapi-profil': typeof LengkapiProfilRoute
   '/masuk': typeof MasukRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atur-sandi'
     | '/checkout'
+    | '/kabar'
     | '/keranjang'
     | '/lengkapi-profil'
     | '/masuk'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atur-sandi'
     | '/checkout'
+    | '/kabar'
     | '/keranjang'
     | '/lengkapi-profil'
     | '/masuk'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atur-sandi'
     | '/checkout'
+    | '/kabar'
     | '/keranjang'
     | '/lengkapi-profil'
     | '/masuk'
@@ -327,6 +339,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AturSandiRoute: typeof AturSandiRoute
   CheckoutRoute: typeof CheckoutRoute
+  KabarRoute: typeof KabarRoute
   KeranjangRoute: typeof KeranjangRoute
   LengkapiProfilRoute: typeof LengkapiProfilRoute
   MasukRoute: typeof MasukRoute
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout'
       fullPath: '/checkout'
       preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kabar': {
+      id: '/kabar'
+      path: '/kabar'
+      fullPath: '/kabar'
+      preLoaderRoute: typeof KabarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/keranjang': {
@@ -562,6 +582,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AturSandiRoute: AturSandiRoute,
   CheckoutRoute: CheckoutRoute,
+  KabarRoute: KabarRoute,
   KeranjangRoute: KeranjangRoute,
   LengkapiProfilRoute: LengkapiProfilRoute,
   MasukRoute: MasukRoute,

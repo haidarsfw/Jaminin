@@ -95,6 +95,17 @@ test('pesan, bayar, siapkan, serahkan', async ({ browser }, info) => {
   // Pembeli melihat pesanan selesai tanpa memuat ulang.
   await expect(b.getByText('Selesai').first()).toBeVisible({ timeout: 20_000 })
 
+  // Kabar pesanan juga tersimpan di aplikasi, dengan jumlah yang belum dibaca di header.
+  const kabarLink = b.getByRole('banner').getByRole('link', { name: /^Kabar, \d+ belum dibaca$/ })
+  await expect(kabarLink).toBeVisible({ timeout: 20_000 })
+  await kabarLink.click()
+  await expect(b.getByRole('heading', { level: 1, name: 'Kabar' })).toBeVisible()
+  await expect(b.getByText(/^Pesanan #\d{3} siap diambil$/).first()).toBeVisible()
+  await expect(b.getByText(/^Pesanan #\d{3} mulai disiapkan$/).first()).toBeVisible()
+  await noHorizontalScroll(b)
+  await b.getByRole('button', { name: 'Tandai semua dibaca' }).click()
+  await expect(b.getByRole('banner').getByRole('link', { name: 'Kabar', exact: true })).toBeVisible()
+
   for (const { errors } of [buyer, cashier, seller]) expect(errors, errors.join('\n')).toEqual([])
   await Promise.all([buyer.context.close(), cashier.context.close(), seller.context.close()])
 })

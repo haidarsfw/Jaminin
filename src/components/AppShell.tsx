@@ -2,10 +2,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { kabarText, markKabarRead, useKabar } from '@/features/kabar'
 import { useAuth } from '@/lib/auth'
 import { cartCount, cartSubtotal, useCart } from '@/lib/cart'
 import { hasOriginSession, returnToOrigin, switchToDemo } from '@/lib/demo'
 import { rupiah } from '@/lib/format'
+import { currentLang } from '@/lib/i18n'
+import { useTopic } from '@/lib/realtime'
 import { rpc, supabase, toAppError } from '@/lib/supabase'
 import { Button, Dialog, Notice } from './ui'
 
@@ -116,6 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ))}
               </nav>
             )}
+            {session && <KabarLink />}
             {!session && (
               <Link to="/masuk" className="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-accent">
                 {t('akun.masuk')}
@@ -148,6 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Notice tone="warn">{t('umum.offline')}</Notice>
         </div>
       )}
+      {session && <KabarToast />}
 
       <main id="isi" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-40 pt-4 md:pb-24">
         {children}
@@ -183,6 +188,80 @@ export function AppShell({ children }: { children: ReactNode }) {
       </nav>
 
       {canDemo && <DemoPanel open={demoOpen} onClose={() => setDemoOpen(false)} />}
+    </div>
+  )
+}
+
+function KabarLink() {
+  const { t } = useTranslation()
+  const kabar = useKabar()
+  const unread = (kabar.data ?? []).filter((k) => !k.read_at).length
+  return (
+    <Link
+      to="/kabar"
+      aria-label={unread > 0 ? t('kabar.tautan_belum_dibaca', { count: unread }) : undefined}
+      className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-ink"
+      activeProps={{ className: 'underline underline-offset-4', 'aria-current': 'page' }}
+    >
+      {t('kabar.tautan')}
+      {unread > 0 && (
+        <span aria-hidden="true" className="tabular min-w-6 rounded-full bg-accent px-1.5 text-center text-xs font-bold leading-6 text-on-accent">
+          {unread > 9 ? '9+' : unread}
+        </span>
+      )}
+    </Link>
+  )
+}
+
+// Kabar baru yang masuk lewat Realtime saat aplikasi terbuka, tampil sebentar di atas halaman.
+function KabarToast() {
+  const { t } = useTranslation()
+  const { user } = useAuth()
+  const kabar = useKabar()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const [toastId, setToastId] = useState<string | null>(null)
+
+  useTopic(user ? `user:${user.id}` : null, ['notification'], (_event, payload) => {
+    if (typeof payload.id === 'string') setToastId(payload.id)
+  })
+
+  useEffect(() => {
+    if (!toastId) return
+    const timer = setTimeout(() => setToastId(null), 10_000)
+    return () => clearTimeout(timer)
+  }, [toastId])
+
+  const item = toastId ? kabar.data?.find((k) => k.id === toastId) : undefined
+  const url = item?.url?.startsWith('/') ? item.url : null
+  // Halaman tujuan kabar sudah menampilkan perubahannya sendiri, jadi toast tidak perlu menutupinya.
+  if (!item || url === pathname) return null
+  const text = kabarText(item, t, currentLang())
+
+  return (
+    <div className="fixed inset-x-0 bottom-[calc(7.75rem+env(safe-area-inset-bottom))] z-40 px-4 md:bottom-20">
+      <div role="status" className="mx-auto flex max-w-md items-start gap-3 rounded-xl border border-line bg-surface p-3 shadow-md">
+        <div className="min-w-0 flex-1">
+          <p className="font-bold">{text.title}</p>
+          {text.body && <p className="text-sm">{text.body}</p>}
+          {url && (
+            <button
+              type="button"
+              className="mt-1 min-h-11 text-sm font-semibold text-accent underline underline-offset-4"
+              onClick={() => {
+                setToastId(null)
+                void markKabarRead([item.id])
+                void navigate({ href: url })
+              }}
+            >
+              {t('kabar.lihat')}
+            </button>
+          )}
+        </div>
+        <button type="button" onClick={() => setToastId(null)} className="min-h-11 min-w-11 rounded-lg text-sm font-semibold text-muted" aria-label={t('umum.tutup')}>
+          ✕
+        </button>
+      </div>
     </div>
   )
 }
