@@ -126,16 +126,13 @@ end;
 $$;
 
 -- Kunci VAPID dibuat sekali oleh Edge Function. Kunci privat hanya disimpan di Vault.
-create or replace function public.internal_set_vapid(p_secret text, p_public text, p_keys_json text)
+create or replace function public.internal_set_vapid(p_public text, p_keys_json text)
 returns boolean
 language plpgsql
 security definer
 set search_path = ''
 as $$
 begin
-  if p_secret is distinct from private.internal_secret() then
-    raise exception 'forbidden';
-  end if;
   if exists (select 1 from vault.secrets where name = 'vapid_keys') then
     return false;
   end if;
@@ -154,10 +151,10 @@ set search_path = ''
 as $$ select p_secret is not distinct from private.internal_secret() $$;
 
 revoke execute on function public.internal_push_payload(uuid, text), public.internal_push_result(uuid, text, text, uuid[]),
-  public.internal_set_vapid(text, text, text), public.internal_secret_check(text)
+  public.internal_set_vapid(text, text), public.internal_secret_check(text)
   from public, anon, authenticated;
 grant execute on function public.internal_push_payload(uuid, text), public.internal_push_result(uuid, text, text, uuid[]),
-  public.internal_set_vapid(text, text, text), public.internal_secret_check(text)
+  public.internal_set_vapid(text, text), public.internal_secret_check(text)
   to service_role;
 
 -- Langkah-langkah otomatis ----------------------------------------------------------------------

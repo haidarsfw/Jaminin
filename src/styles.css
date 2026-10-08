@@ -1,0 +1,109 @@
+@import 'tailwindcss';
+
+/*
+  Draf tampilan tanpa arah merek (Haidar memoles tampilan nanti). Dial ENERGY 1 / RHYTHM 1 / MOTION 1.
+  Warna: netral hangat + satu aksen hijau untuk aksi utama dan jam ambil terpilih. Merah hanya untuk error dan batal.
+  Semua pasangan teks sudah dicek kontrasnya (WCAG AA) di tema terang dan gelap.
+*/
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --c-canvas: #f7f6f2;
+  --c-surface: #ffffff;
+  --c-ink: #1b1c18;
+  --c-muted: #5a5c53;
+  --c-line: #8a8b80;
+  --c-line-soft: #e3e2da;
+  --c-accent: #1d6b43;
+  --c-on-accent: #ffffff;
+  --c-accent-soft: #e4f1e9;
+  --c-danger: #b42318;
+  --c-danger-soft: #fdecea;
+  --c-warn-bg: #fff6e0;
+  --c-warn-ink: #8b5a00;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-canvas: #151613;
+  --c-surface: #1f201c;
+  --c-ink: #ecebe4;
+  --c-muted: #a9aa9f;
+  --c-line: #75776c;
+  --c-line-soft: #2c2d28;
+  --c-accent: #6fd39c;
+  --c-on-accent: #0f2a1b;
+  --c-accent-soft: #1d3326;
+  --c-danger: #ff8a7a;
+  --c-danger-soft: #3a1f1b;
+  --c-warn-bg: #2a2414;
+  --c-warn-ink: #f2c46d;
+}
+
+@theme inline {
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-ink: var(--c-ink);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-line-soft: var(--c-line-soft);
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-on-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-warn-bg: var(--c-warn-bg);
+  --color-warn-ink: var(--c-warn-ink);
+  /* Huruf bawaan perangkat: tanpa unduhan, terasa asli di HP, cocok untuk draf tanpa arah merek. */
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+  /* Kode ambil dan kode bayar memakai huruf monospace supaya K7Q2 tidak salah baca saat dicocokkan. */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+html {
+  background: var(--c-canvas);
+  color: var(--c-ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* Ruang aman untuk notch dan bilah bawah di iPhone yang sudah memasang Jaminin. */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
