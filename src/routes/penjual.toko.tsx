@@ -9,6 +9,7 @@ import {
   hoursError,
   HoursEditor,
   imageProblem,
+  newKey,
   quotaError,
   QuotaRulesEditor,
   unusualNumbers,
@@ -18,7 +19,7 @@ import {
   type QuotaRule,
 } from '@/features/tenantForm'
 import { useAuth } from '@/lib/auth'
-import { clock, isValidWhatsapp, normalizeWhatsapp } from '@/lib/format'
+import { clock, isValidWhatsapp, longDate, normalizeWhatsapp, todayWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { publicImage, rpc, supabase, toAppError, type Enums } from '@/lib/supabase'
 
@@ -77,6 +78,7 @@ function StorePage() {
           <ProfileCard tenant={tenant} />
           <RulesCard tenant={tenant} />
           <HoursCard tenant={tenant} />
+          <SpecialDaysCard tenant={tenant} />
           <QuotaCard tenant={tenant} />
           <PayoutCard tenant={tenant} />
         </>
@@ -346,6 +348,211 @@ function HoursCard({ tenant }: { tenant: TenantFull }) {
         {error && <p className="text-sm font-medium text-danger">{error}</p>}
         <SaveRow state={save.state} />
       </form>
+    </Section>
+  )
+}
+
+type DayRange = { key: string; open: string; close: string }
+
+// Libur atau jam khusus per tanggal. Sebelum menyimpan, pemilik melihat berapa pesanan lunas yang akan dibatalkan (ronde 39).
+function SpecialDaysCard({ tenant }: { tenant: TenantFull }) {
+  const { t } = useTranslation()
+  const lang = currentLang()
+  const queryClient = useQueryClient()
+  const today = todayWib()
+  const days = useQuery({
+    queryKey: ['jam-khusus', tenant.id, today],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tenant_special_hours')
+        .select('*')
+        .eq('tenant_id', tenant.id)
+        .gte('date', today)
+        .order('date')
+        .order('open_time')
+      if (error) throw error
+      return data
+    },
+  })
+  const [date, setDate] = useState(today)
+  const [closed, setClosed] = useState(true)
+  const [ranges, setRanges] = useState<DayRange[]>(() => [{ key: newKey(), open: '08:00', close: '12:00' }])
+  const [note, setNote] = useState('')
+  const [formError, setFormError] = useState<string | null>(null)
+  const [confirmCount, setConfirmCount] = useState<number | null>(null)
+  const [state, setState] = useState<{ busy: boolean; cancelled: number | null; error: string | null }>({ busy: false, cancelled: null, error: null })
+
+  const errorText = (e: unknown) => t(`galat.${toAppError(e).code}`, { defaultValue: t('galat.unknown') })
+  const target = () => ({
+    p_tenant: tenant.id,
+    p_date: date,
+    p_closed: closed,
+    p_ranges: closed ? null : ranges.map((r) => ({ open: r.open, close: r.close })),
+  })
+  const refresh = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['jam-khusus', tenant.id] }),
+      queryClient.invalidateQueries({ queryKey: ['jam-buka', tenant.id] }),
+    ])
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    let problem: string | null = null
+    if (!date || date < today) problem = t('libur.galat_tanggal')
+    else if (!closed) {
+      const he = hoursError(ranges.map((r) => ({ ...r, weekday: 1 })))
+      if (he) problem = t(`jadwal.galat_${he}`)
+    }
+    setFormError(problem)
+    if (problem) return
+    setState({ busy: true, cancelled: null, error: null })
+    try {
+      const count = await rpc<number>('owner_special_day_preview', target())
+      if (count > 0) {
+        setConfirmCount(count)
+        setState({ busy: false, cancelled: null, error: null })
+        return
+      }
+      await persist()
+    } catch (err) {
+      setState({ busy: false, cancelled: null, error: errorText(err) })
+    }
+  }
+
+  async function persist() {
+    setConfirmCount(null)
+    setState({ busy: true, cancelled: null, error: null })
+    try {
+      const cancelled = await rpc<number>('owner_set_special_day', { ...target(), p_note: note.trim() || null })
+      await refresh()
+      setState({ busy: false, cancelled, error: null })
+    } catch (err) {
+      setState({ busy: false, cancelled: null, error: errorText(err) })
+    }
+  }
+
+  async function clear(day: string) {
+    setState({ busy: true, cancelled: null, error: null })
+    try {
+      await rpc('owner_clear_special_day', { p_tenant: tenant.id, p_date: day })
+      await refresh()
+      setState({ busy: false, cancelled: null, error: null })
+    } catch (err) {
+      setState({ busy: false, cancelled: null, error: errorText(err) })
+    }
+  }
+
+  const grouped = new Map<string, NonNullable<typeof days.data>>()
+  for (const row of days.data ?? []) grouped.set(row.date, [...(grouped.get(row.date) ?? []), row])
+  const updateRange = (key: string, patch: Partial<DayRange>) => setRanges(ranges.map((r) => (r.key === key ? { ...r, ...patch } : r)))
+
+  return (
+    <Section title={t('libur.judul')} description={t('libur.isi')}>
+      <div className="space-y-2">
+        <h3 className="font-semibold">{t('libur.daftar')}</h3>
+        {days.isPending && <p className="text-sm text-muted">{t('umum.memuat')}</p>}
+        {days.isError && <ErrorState onRetry={() => void days.refetch()} />}
+        {days.data && grouped.size === 0 && <p className="text-sm text-muted">{t('libur.kosong')}</p>}
+        <ul className="space-y-2">
+          {[...grouped.entries()].map(([day, rows]) => {
+            const label = longDate(day, lang)
+            return (
+              <li key={day} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line-soft p-3">
+                <span className="min-w-0">
+                  <span className="block font-semibold">{label}</span>
+                  <span className="block text-sm">
+                    {rows[0].is_closed
+                      ? t('libur.tutup')
+                      : rows.map((r) => t('tenant.rentang', { open: clock(r.open_time, lang), close: clock(r.close_time, lang) })).join(', ')}
+                  </span>
+                  {rows[0].note && <span className="block text-sm text-muted">{rows[0].note}</span>}
+                </span>
+                <Button small variant="quiet" disabled={state.busy} onClick={() => void clear(day)} aria-label={t('libur.hapus_label', { date: label })}>
+                  {t('umum.hapus')}
+                </Button>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+
+      <form onSubmit={submit} noValidate className="mt-4 space-y-4 border-t border-line-soft pt-4">
+        <Field label={t('libur.tanggal')}>
+          {(p) => <Input id={p.id} type="date" min={today} value={date} onChange={(e) => setDate(e.target.value)} className="w-48" />}
+        </Field>
+        <fieldset className="space-y-2">
+          <legend className="font-semibold">{t('libur.jenis')}</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Choice name="jenis-libur" value="libur" checked={closed} onChange={() => setClosed(true)}>
+              {t('libur.libur')}
+            </Choice>
+            <Choice name="jenis-libur" value="jam" checked={!closed} onChange={() => setClosed(false)}>
+              {t('libur.jam_khusus')}
+            </Choice>
+          </div>
+        </fieldset>
+        {!closed && (
+          <div className="space-y-2">
+            <ul className="space-y-2">
+              {ranges.map((r, index) => (
+                <li key={r.key} className="flex flex-wrap items-end gap-2">
+                  <label className="text-sm">
+                    <span className="block font-medium">{t('jadwal.buka')}</span>
+                    <Input
+                      type="time"
+                      step={300}
+                      value={r.open}
+                      onChange={(e) => updateRange(r.key, { open: e.target.value })}
+                      className="w-32"
+                      aria-label={t('jadwal.buka_label', { day: date ? longDate(date, lang) : '', n: index + 1 })}
+                    />
+                  </label>
+                  <label className="text-sm">
+                    <span className="block font-medium">{t('jadwal.tutup_jam')}</span>
+                    <Input
+                      type="time"
+                      step={300}
+                      value={r.close}
+                      onChange={(e) => updateRange(r.key, { close: e.target.value })}
+                      className="w-32"
+                      aria-label={t('jadwal.tutup_label', { day: date ? longDate(date, lang) : '', n: index + 1 })}
+                    />
+                  </label>
+                  {ranges.length > 1 && (
+                    <Button small variant="quiet" onClick={() => setRanges(ranges.filter((x) => x.key !== r.key))}>
+                      {t('umum.hapus')}
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <Button small onClick={() => setRanges([...ranges, { key: newKey(), open: ranges.at(-1)?.close ?? '13:00', close: '17:00' }])}>
+              {t('jadwal.tambah_rentang')}
+            </Button>
+          </div>
+        )}
+        <Field label={t('libur.catatan')} hint={t('libur.catatan_isi')}>
+          {(p) => <Input id={p.id} aria-describedby={p.describedBy} value={note} maxLength={100} onChange={(e) => setNote(e.target.value)} />}
+        </Field>
+        {formError && <p className="text-sm font-medium text-danger">{formError}</p>}
+        {state.error && <Notice tone="error">{state.error}</Notice>}
+        {state.cancelled !== null && (
+          <Notice tone="success">{state.cancelled > 0 ? t('libur.tersimpan_batal', { count: state.cancelled }) : t('umum.tersimpan')}</Notice>
+        )}
+        <Button type="submit" variant="primary" busy={state.busy} busyText={t('umum.menyimpan')}>
+          {t('umum.simpan')}
+        </Button>
+      </form>
+
+      <Dialog open={confirmCount !== null} onClose={() => setConfirmCount(null)} title={t('libur.konfirmasi_judul')}>
+        <p>{t('libur.konfirmasi_isi', { count: confirmCount ?? 0 })}</p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <Button onClick={() => setConfirmCount(null)}>{t('libur.periksa_lagi')}</Button>
+          <Button variant="danger" onClick={() => void persist()}>
+            {t('libur.lanjut')}
+          </Button>
+        </div>
+      </Dialog>
     </Section>
   )
 }

@@ -71,7 +71,48 @@ function TenantCard({ tenant }: { tenant: TenantRow }) {
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [suspendCount, setSuspendCount] = useState<number | null>(null)
+  const [suspendReason, setSuspendReason] = useState('')
+  const [done, setDone] = useState<string | null>(null)
   const logo = publicImage(tenant.logo_path)
+
+  const errorText = (e: unknown) => t(`galat.${toAppError(e).code}`, { defaultValue: t('galat.unknown') })
+
+  // Pratinjau dulu supaya tim tahu berapa pesanan lunas yang ikut dibatalkan (ronde 39).
+  async function askSuspend() {
+    setBusy(true)
+    setError(null)
+    setDone(null)
+    try {
+      setSuspendCount(await rpc<number>('team_suspension_preview', { p_tenant: tenant.id }))
+    } catch (e) {
+      setError(errorText(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function setSuspended(suspend: boolean) {
+    setBusy(true)
+    setError(null)
+    try {
+      const cancelled = await rpc<number>('team_set_tenant_suspended', { p_tenant: tenant.id, p_suspend: suspend, p_reason: suspend ? suspendReason.trim() : null })
+      setSuspendCount(null)
+      setSuspendReason('')
+      setDone(
+        !suspend
+          ? t('timpenjual.diaktifkan_ok', { name: tenant.name })
+          : cancelled > 0
+            ? t('timpenjual.ditangguhkan_ok', { name: tenant.name, count: cancelled })
+            : t('timpenjual.ditangguhkan_ok_kosong', { name: tenant.name }),
+      )
+      await queryClient.invalidateQueries({ queryKey: ['tim-tenant'] })
+    } catch (e) {
+      setError(errorText(e))
+    } finally {
+      setBusy(false)
+    }
+  }
 
   async function review(approve: boolean) {
     setBusy(true)
@@ -81,7 +122,7 @@ function TenantCard({ tenant }: { tenant: TenantRow }) {
       setRejecting(false)
       await queryClient.invalidateQueries({ queryKey: ['tim-tenant'] })
     } catch (e) {
-      setError(t(`galat.${toAppError(e).code}`, { defaultValue: t('galat.unknown') }))
+      setError(errorText(e))
     } finally {
       setBusy(false)
     }
@@ -147,6 +188,17 @@ function TenantCard({ tenant }: { tenant: TenantRow }) {
       </dl>
       {tenant.status === 'ditolak' && tenant.reject_reason && <Notice tone="warn">{t('penjual.alasan', { reason: tenant.reject_reason })}</Notice>}
       {error && <Notice tone="error">{error}</Notice>}
+      {done && <Notice tone="success">{done}</Notice>}
+      {tenant.status === 'disetujui' && (
+        <Button variant="danger" busy={busy} busyText={t('umum.memproses')} onClick={() => void askSuspend()}>
+          {t('timpenjual.tangguhkan')}
+        </Button>
+      )}
+      {tenant.status === 'ditangguhkan' && (
+        <Button variant="primary" busy={busy} busyText={t('umum.memproses')} onClick={() => void setSuspended(false)}>
+          {t('timpenjual.aktifkan')}
+        </Button>
+      )}
       {tenant.status === 'menunggu' && (
         <div className="grid gap-2 sm:grid-cols-2">
           <Button variant="primary" busy={busy && !rejecting} busyText={t('umum.memproses')} onClick={() => void review(true)}>
@@ -165,6 +217,18 @@ function TenantCard({ tenant }: { tenant: TenantRow }) {
           {error && <Notice tone="error">{error}</Notice>}
           <Button variant="danger" full disabled={!reason.trim()} busy={busy} busyText={t('umum.memproses')} onClick={() => void review(false)}>
             {t('timpenjual.kirim_tolak')}
+          </Button>
+        </div>
+      </Dialog>
+      <Dialog open={suspendCount !== null} onClose={() => setSuspendCount(null)} title={t('timpenjual.tangguhkan_judul', { name: tenant.name })}>
+        <div className="space-y-3">
+          <p>{suspendCount ? t('timpenjual.tangguhkan_isi', { count: suspendCount }) : t('timpenjual.tangguhkan_isi_kosong')}</p>
+          <Field label={t('timpenjual.alasan_tangguh')} hint={t('timpenjual.alasan_tangguh_isi')}>
+            {(p) => <TextArea id={p.id} aria-describedby={p.describedBy} value={suspendReason} onChange={(e) => setSuspendReason(e.target.value)} maxLength={500} />}
+          </Field>
+          {error && <Notice tone="error">{error}</Notice>}
+          <Button variant="danger" full disabled={!suspendReason.trim()} busy={busy} busyText={t('umum.memproses')} onClick={() => void setSuspended(true)}>
+            {t('timpenjual.kirim_tangguh')}
           </Button>
         </div>
       </Dialog>

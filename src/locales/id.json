@@ -667,6 +667,26 @@
     "galat_urutan": "Jam tutup harus setelah jam buka.",
     "galat_tumpang": "Ada rentang jam yang tumpang tindih di hari yang sama."
   },
+  "libur": {
+    "judul": "Libur dan jam khusus",
+    "isi": "Untuk tanggal tertentu, misalnya libur atau acara kampus. Jadwal mingguan tidak berubah.",
+    "tanggal": "Tanggal",
+    "jenis": "Pengaturan tanggal ini",
+    "libur": "Libur seharian",
+    "jam_khusus": "Jam khusus",
+    "catatan": "Catatan",
+    "catatan_isi": "Tidak wajib, hanya terlihat di halaman ini. Maksimal 100 karakter.",
+    "daftar": "Tanggal yang sudah diatur",
+    "kosong": "Belum ada libur atau jam khusus.",
+    "tutup": "Libur",
+    "hapus_label": "Hapus pengaturan {{date}}",
+    "galat_tanggal": "Pilih tanggal hari ini atau setelahnya.",
+    "konfirmasi_judul": "Pesanan akan dibatalkan",
+    "konfirmasi_isi": "{{count}} pesanan lunas di tanggal itu jam ambilnya tidak lagi buka. Pesanan itu dibatalkan dengan uang kembali penuh, dan pembeli diberi kabar.",
+    "periksa_lagi": "Periksa lagi",
+    "lanjut": "Simpan dan batalkan pesanan",
+    "tersimpan_batal": "Tersimpan. {{count}} pesanan dibatalkan dengan uang kembali penuh."
+  },
   "kuota": {
     "mulai": "Mulai",
     "sampai": "Sampai",
@@ -832,7 +852,18 @@
     "tolak_judul": "Tolak {{name}}",
     "alasan": "Alasan penolakan",
     "alasan_isi": "Dikirim ke penjual supaya bisa memperbaiki data.",
-    "kirim_tolak": "Tolak pendaftaran"
+    "kirim_tolak": "Tolak pendaftaran",
+    "tangguhkan": "Tangguhkan",
+    "tangguhkan_judul": "Tangguhkan {{name}}",
+    "tangguhkan_isi": "Tenant tidak tampil untuk pembeli sampai diaktifkan lagi. {{count}} pesanan lunas mulai hari ini akan dibatalkan dengan uang kembali penuh.",
+    "alasan_tangguh": "Alasan penangguhan",
+    "alasan_tangguh_isi": "Dikirim ke pemilik tenant.",
+    "kirim_tangguh": "Tangguhkan tenant",
+    "aktifkan": "Aktifkan lagi",
+    "ditangguhkan_ok": "{{name}} ditangguhkan. {{count}} pesanan dibatalkan dengan uang kembali penuh.",
+    "diaktifkan_ok": "{{name}} aktif lagi dan tampil untuk pembeli.",
+    "tangguhkan_isi_kosong": "Tenant tidak tampil untuk pembeli sampai diaktifkan lagi. Tidak ada pesanan lunas yang perlu dibatalkan.",
+    "ditangguhkan_ok_kosong": "{{name}} ditangguhkan."
   },
   "timlaporan": {
     "judul": "Laporan",
