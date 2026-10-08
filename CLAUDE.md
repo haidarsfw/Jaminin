@@ -1,13 +1,14 @@
 # Jaminin
 
-Aplikasi web untuk memesan makanan dan minuman dari tenant kantin BINUS @Bekasi: pilih jam ambil tiap 5 menit, bayar di muka, ambil sendiri tanpa antre. Proyek Kelompok 2 (Haidar Shofwan Bani, Abdul Azis, Dafi Ardian Pasha, Muhammad Evan Maulana Rifqi). Demo prototipe: Senin, 12 Oktober 2026.
+Aplikasi web untuk memesan makanan dan minuman dari tenant kantin BINUS @Bekasi: pilih jam ambil tiap 5 menit, bayar di muka, ambil sendiri tanpa antre. Proyek Kelompok 2 (Haidar Shofwan Bani, Abdul Azis, Dafi Ardian Pasha, Muhammad Evan Maulana Rifqi). Presentasi: Selasa, 13 Oktober 2026; prototipe harus berjalan benar pada Senin, 12 Oktober 2026.
 
 Acuan utama: `docs/PRD.md`. Kalau ada yang tidak tercakup PRD, tanyakan ke Haidar.
 
 ## Status
 
-- Tahap A (PRD, panduan akun, file ini): selesai, menunggu review Haidar.
-- Tahap B (membangun prototipe): baru dimulai setelah Haidar menyatakan PRD disetujui.
+- Tahap A (PRD, panduan akun, file ini): selesai.
+- Tahap B (membangun prototipe): berjalan sejak 8 Oktober 2026. Urutannya: inti pesan, bayar, ambil (Lapis 1, selesai), lalu aturan, uang, penjual, tim, push, demo (Lapis 2), lalu P1 sesuai urutan di `docs/PRD.md` bagian 22 (Lapis 3). Posisi terakhir bisa dilihat dari riwayat commit.
+- Database cloud: proyek Supabase `sbxowjvnkoxmsyuzmcpv` di organisasi pribadi haidarsfw. Hosting: Cloudflare Workers Static Assets (`wrangler.jsonc`) lewat Workers Builds.
 
 ## Aturan kerja
 
@@ -59,7 +60,13 @@ Ringkasan, rinciannya di `docs/PRD.md` bagian 16: Vite 8, React 19, TypeScript 6
 
 ## Menjalankan proyek
 
-Kode aplikasi belum ada. Perintah ini berlaku setelah Tahap B dimulai:
+- `npm install`, lalu `npm run dev`, buka http://localhost:5173. Tanpa `.env.local`, aplikasi memakai Supabase cloud dari `.env`.
+- Supabase lokal (butuh Docker): `npm run db:start`, `npm run db:reset`, lalu buat `.env.local` berisi URL dan publishable key lokal. Uji database: `npm run db:test`.
+- Uji unit: `npm test`. Uji ujung ke ujung lokal: `npm run test:e2e`.
+- Uji alur inti terhadap cloud: `npx playwright test -c playwright.cloud.config.ts` dengan `JAMININ_CLOUD_SANDI` berisi sandi sementara akun demo pembeli dan pemilik (diacak lagi setelah uji). Di container cloud Claude tambahkan `JAMININ_TANPA_WEBSOCKET=1`, karena proxy di sana tidak meneruskan WebSocket.
+- Deploy: otomatis lewat Workers Builds setiap ada commit di branch kerja. Cek lokal: `npm run deploy:cek`.
 
-- `npm install`, lalu `npm run dev`, buka http://localhost:5173.
-- Uji unit: `npm test`. Uji ujung ke ujung: `npm run test:e2e`. Uji database: `supabase test db`.
+## Catatan lingkungan
+
+- Konektor Supabase meminta persetujuan pengguna untuk perintah yang menghapus (DROP, DELETE). Jangan menyamarkan perintah supaya lolos dari persetujuan itu; jalankan saat Haidar sedang membuka chat.
+- Docker di container tidak menyala sendiri setelah restart: `nohup dockerd &`, hapus `/var/run/docker.pid` dan `/run/containerd/containerd.pid` kalau macet, lalu `docker start supabase_edge_runtime_jaminin` bila perlu.
