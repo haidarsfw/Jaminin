@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { QrScanner } from '@/components/QrScanner'
 import { Button, Card, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, StatusText, Tabs } from '@/components/ui'
+import { ChatThread, chatIsOpen } from '@/features/chat'
 import { parsePickupQr } from '@/features/orders'
 import { audioReady, beep, unlockAudio, useSeller, useTenantSettings } from '@/features/seller'
 import { clock, clockFromDate, orderNo, todayWib, tomorrowWib } from '@/lib/format'
@@ -15,7 +16,11 @@ export const Route = createFileRoute('/penjual/')({
   component: Board,
 })
 
-type BoardOrder = Tables<'orders'> & { order_items: Tables<'order_items'>[]; ratings: { thumbs_up: boolean; comment: string | null } | null }
+type BoardOrder = Tables<'orders'> & {
+  order_items: Tables<'order_items'>[]
+  ratings: { thumbs_up: boolean; comment: string | null } | null
+  order_messages: { count: number }[]
+}
 
 const SEEN_KEY = 'jaminin:pesanan-dilihat'
 
@@ -69,7 +74,7 @@ function Board() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('*, order_items(*), ratings(thumbs_up, comment)')
+        .select('*, order_items(*), ratings(thumbs_up, comment), order_messages(count)')
         .eq('tenant_id', active!.id)
         .eq('pickup_date', day)
         .not('paid_at', 'is', null)
@@ -113,7 +118,7 @@ function Board() {
     return () => window.clearInterval(id)
   }, [alarm])
 
-  useTopic(active ? `tenant:${active.id}` : null, ['order', 'tenant', 'payout'], () => {
+  useTopic(active ? `tenant:${active.id}` : null, ['order', 'tenant', 'payout', 'message'], () => {
     void queryClient.invalidateQueries({ queryKey: ['papan'] })
     void queryClient.invalidateQueries({ queryKey: ['tenant-saya'] })
   })
@@ -301,6 +306,8 @@ function OrderCard({
 }) {
   const { t } = useTranslation()
   const lang = currentLang()
+  const [chatOpen, setChatOpen] = useState(false)
+  const messageCount = order.order_messages[0]?.count ?? 0
   const items = order.order_items.filter((i) => i.status !== 'dihapus' && i.status !== 'diganti')
   return (
     <Card as="div" className="space-y-2">
@@ -377,7 +384,13 @@ function OrderCard({
             {t('papan.serahkan')}
           </Button>
         )}
+        <Button small variant="quiet" onClick={() => setChatOpen(true)}>
+          {messageCount > 0 ? t('chat.buka_jumlah', { count: messageCount }) : t('chat.buka')}
+        </Button>
       </div>
+      <Dialog open={chatOpen} onClose={() => setChatOpen(false)} title={t('chat.judul_penjual', { name: order.pickup_name })}>
+        <ChatThread orderId={order.id} side="penjual" open={chatIsOpen(order)} />
+      </Dialog>
     </Card>
   )
 }

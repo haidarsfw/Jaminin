@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, Choice, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, PageHeader, Select, StatusText, Tabs, TextArea } from '@/components/ui'
+import { ChatThread } from '@/features/chat'
 import { clock, clockFromDate, dateLabel, orderNo, rupiah, waLink } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { useTopic } from '@/lib/realtime'
@@ -205,6 +206,11 @@ function ReportDialog({ report, onClose }: { report: Report; onClose: () => void
                 ))}
             </ul>
           )}
+        </section>
+
+        <section aria-label={t('chat.judul_tim')} className="space-y-2">
+          <h3 className="font-semibold">{t('chat.judul_tim')}</h3>
+          <ChatThread orderId={report.order_id} side="tim" open={false} />
         </section>
 
         <section aria-label={t('timlaporan.balas')} className="space-y-2">

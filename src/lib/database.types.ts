@@ -215,6 +215,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"order_messages": {
+                  Row: {
+                    "body": string,"created_at": string,"from_tenant": boolean,"id": string,"order_id": string,"sender_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"from_tenant": boolean,"id"?: string,"order_id": string,"sender_id": string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"from_tenant"?: boolean,"id"?: string,"order_id"?: string,"sender_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_messages_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_messages_sender_id_fkey"
+      columns: ["sender_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"orders": {
                   Row: {
                     "buyer_id": string,"buyer_name": string,"buyer_whatsapp": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"completed_at": string | null,"completed_by": string | null,"created_at": string,"cutlery": boolean,"dining": Database["public"]['Enums']["cara_makan"],"end_reason": string | null,"id": string,"is_sample": boolean,"jaminin_fee_returned": boolean,"max_prep_minutes": number,"needs_buyer_action": boolean,"not_ready_notified_at": string | null,"note": string | null,"order_number": number | null,"original_pickup_at": string | null,"paid_at": string | null,"pay_deadline": string,"payment_code": string,"payout_id": string | null,"pickup_at": string,"pickup_code": string | null,"pickup_date": string,"pickup_name": string,"pickup_time": string,"preparing_at": string | null,"promo_discount": number,"promo_id": string | null,"ready_at": string | null,"refunded_total": number,"reminder_sent_at": string | null,"rescheduled_count": number,"seller_fee": number,"service_fee": number,"status": Database["public"]['Enums']["status_pesanan"],"subtotal": number,"tenant_id": string,"total_paid": number,"updated_at": string
@@ -814,6 +840,9 @@ isOneToOne: false
                            },
 "seller_update_status":
 { Args: { "p_order": string,"p_status": Database["public"]['Enums']["status_pesanan"] }; Returns: undefined
+                           },
+"send_order_message":
+{ Args: { "p_body": string,"p_order": string }; Returns: string
                            },
 "slot_status_all":
 { Args: { "p_date": string,"p_time": string }; Returns: {

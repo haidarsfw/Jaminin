@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '@/components/Guard'
 import { SlotPicker } from '@/components/SlotPicker'
 import { Button, ButtonLink, buttonClass, Card, Dialog, EmptyState, ErrorState, Field, LoadingState, Notice, PageHeader, Select, StatusText, TextArea, useNow } from '@/components/ui'
+import { ChatThread, chatIsOpen } from '@/features/chat'
 import { cachedPickup, pickupQr, statusKey, useOrder, type OrderFull, type OrderItem } from '@/features/orders'
 import { downloadIcs, googleCalendarUrl, type PickupEvent } from '@/lib/calendar'
 import { installBannerDismissed, dismissInstallBanner, isIos, isStandalone } from '@/lib/device'
@@ -295,6 +296,16 @@ function OrderPage() {
           </Button>
         )}
       </div>
+
+      {o.paid_at && (
+        <Card className="space-y-3">
+          <div>
+            <h2 className="text-lg font-bold">{t('chat.judul')}</h2>
+            <p className="text-sm text-muted">{t('chat.isi')}</p>
+          </div>
+          <ChatThread orderId={o.id} side="pembeli" open={chatIsOpen(o)} />
+        </Card>
+      )}
 
       {o.status === 'selesai' && <RatingCard order={o} />}
 

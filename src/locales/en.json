@@ -327,6 +327,23 @@
     "judul_acara": "Pick up order {{number}} at {{tenant}}",
     "isi_acara": "Pickup code {{code}}, for {{name}}. Open the order: {{url}}"
   },
+  "chat": {
+    "judul": "Chat with the seller",
+    "judul_penjual": "Chat with {{name}}",
+    "judul_tim": "Order chat",
+    "isi": "Messages are visible to the buyer and the seller. The Jaminin team only reads them if the order is reported.",
+    "kosong": "No messages yet.",
+    "tulis": "Write a message",
+    "kirim": "Send",
+    "tutup": "Chat closes 24 hours after the order is completed or cancelled.",
+    "dari_pembeli": "Buyer",
+    "dari_tenant": "Seller",
+    "kamu": "You",
+    "buka": "Chat",
+    "buka_jumlah": "Chat ({{count}})",
+    "sisa_one": "{{count}} character left",
+    "sisa_other": "{{count}} characters left"
+  },
   "status": {
     "menunggu_bayar": "Awaiting payment",
     "diterima": "Accepted",
@@ -519,7 +536,9 @@
     "tenant_ditangguhkan_judul": "{{tenant}} is suspended",
     "tenant_ditangguhkan_isi": "Reason: {{alasan}}. Active orders were cancelled with a full refund.",
     "tenant_diaktifkan_judul": "{{tenant}} is active again",
-    "tenant_diaktifkan_isi": "The tenant is visible to buyers again."
+    "tenant_diaktifkan_isi": "The tenant is visible to buyers again.",
+    "chat_baru_judul": "New message on order {{nomor}}",
+    "chat_baru_isi": "{{dari}}: {{cuplikan}}"
   },
   "pasang": {
     "judul": "Install Jaminin",
@@ -1112,6 +1131,8 @@
     "promo_overlap": "This promo overlaps another active promo on the same day and time.",
     "cannot_rate": "You can rate an order after it is completed.",
     "already_rated": "This order has already been rated. Ratings cannot be changed.",
-    "comment_too_long": "Comments can be up to 200 characters."
+    "comment_too_long": "Comments can be up to 200 characters.",
+    "chat_closed": "Chat for this order is closed.",
+    "message_invalid": "Messages must be 1 to 500 characters."
   }
 }

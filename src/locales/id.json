@@ -321,6 +321,22 @@
     "judul_acara": "Ambil pesanan {{number}} di {{tenant}}",
     "isi_acara": "Kode ambil {{code}}, atas nama {{name}}. Buka pesanan: {{url}}"
   },
+  "chat": {
+    "judul": "Chat dengan penjual",
+    "judul_penjual": "Chat dengan {{name}}",
+    "judul_tim": "Chat pesanan",
+    "isi": "Pesan terlihat oleh pembeli dan penjual. Tim Jaminin hanya membacanya kalau pesanan dilaporkan.",
+    "kosong": "Belum ada pesan.",
+    "tulis": "Tulis pesan",
+    "kirim": "Kirim",
+    "tutup": "Chat ditutup 24 jam setelah pesanan selesai atau batal.",
+    "dari_pembeli": "Pembeli",
+    "dari_tenant": "Penjual",
+    "kamu": "Kamu",
+    "buka": "Chat",
+    "buka_jumlah": "Chat ({{count}})",
+    "sisa": "Sisa {{count}} karakter"
+  },
   "status": {
     "menunggu_bayar": "Menunggu bayar",
     "diterima": "Diterima",
@@ -510,7 +526,9 @@
     "tenant_ditangguhkan_judul": "{{tenant}} ditangguhkan",
     "tenant_ditangguhkan_isi": "Alasan: {{alasan}}. Pesanan aktif dibatalkan dengan uang kembali penuh.",
     "tenant_diaktifkan_judul": "{{tenant}} aktif lagi",
-    "tenant_diaktifkan_isi": "Tenant sudah tampil lagi untuk pembeli."
+    "tenant_diaktifkan_isi": "Tenant sudah tampil lagi untuk pembeli.",
+    "chat_baru_judul": "Pesan baru di pesanan {{nomor}}",
+    "chat_baru_isi": "{{dari}}: {{cuplikan}}"
   },
   "pasang": {
     "judul": "Pasang Jaminin",
@@ -1087,6 +1105,8 @@
     "promo_overlap": "Promo ini tumpang tindih dengan promo aktif lain di hari dan jam yang sama.",
     "cannot_rate": "Penilaian bisa diberikan setelah pesanan selesai.",
     "already_rated": "Pesanan ini sudah dinilai. Penilaian tidak bisa diubah.",
-    "comment_too_long": "Komentar maksimal 200 karakter."
+    "comment_too_long": "Komentar maksimal 200 karakter.",
+    "chat_closed": "Chat untuk pesanan ini sudah ditutup.",
+    "message_invalid": "Pesan harus berisi 1 sampai 500 karakter."
   }
 }
