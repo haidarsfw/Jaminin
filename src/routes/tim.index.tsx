@@ -43,7 +43,7 @@ function Dashboard() {
             { value: '30', label: t('tim.tiga_puluh_hari') },
           ]}
         />
-        <Link to="/simulator-bayar" className="min-h-11 py-2.5 font-semibold text-accent underline underline-offset-4">
+        <Link to="/simulator-bayar" className="min-h-11 py-2.5 font-semibold text-accent underline underline-offset-4 md:hidden">
           {t('nav.simulator')}
         </Link>
       </div>

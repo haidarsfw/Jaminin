@@ -47,3 +47,20 @@ $$;
 
 revoke execute on function public.owner_set_hours(uuid, jsonb), public.owner_set_quota_rules(uuid, jsonb) from public, anon;
 grant execute on function public.owner_set_hours(uuid, jsonb), public.owner_set_quota_rules(uuid, jsonb) to authenticated;
+
+-- Jam buka yang berlaku pada satu tanggal (jadwal mingguan, jam khusus, atau jam demo), untuk halaman tenant.
+create or replace function public.tenant_day_ranges(p_tenant uuid, p_date date)
+returns table (open_time time, close_time time)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select r.open_time, r.close_time from private.tenant_ranges(p_tenant, p_date) r
+  where exists (select 1 from public.tenants t where t.id = p_tenant and t.status = 'disetujui')
+     or private.is_tenant_member(p_tenant) or private.is_team()
+  order by r.open_time
+$$;
+
+revoke execute on function public.tenant_day_ranges(uuid, date) from public;
+grant execute on function public.tenant_day_ranges(uuid, date) to anon, authenticated;

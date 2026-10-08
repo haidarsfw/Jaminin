@@ -121,11 +121,13 @@ function MenuPage() {
           <Button variant="primary" onClick={() => setEditing('baru')}>
             {t('menu.tambah')}
           </Button>
-          <form onSubmit={addCategory} className="flex items-end gap-2">
-            <Field label={t('menu.kategori_baru')}>
-              {(p) => <Input id={p.id} value={newCategory} onChange={(e) => setNewCategory(e.target.value)} maxLength={40} className="w-48" />}
-            </Field>
-            <Button type="submit" disabled={!newCategory.trim()} busy={busy === 'kategori'} busyText={t('umum.menyimpan')}>
+          <form onSubmit={addCategory} className="flex w-full items-end gap-2 sm:w-auto">
+            <div className="min-w-0 flex-1">
+              <Field label={t('menu.kategori_baru')}>
+                {(p) => <Input id={p.id} value={newCategory} onChange={(e) => setNewCategory(e.target.value)} maxLength={40} className="sm:w-48" />}
+              </Field>
+            </div>
+            <Button type="submit" className="whitespace-nowrap" disabled={!newCategory.trim()} busy={busy === 'kategori'} busyText={t('umum.menyimpan')}>
               {t('menu.tambah_kategori')}
             </Button>
           </form>

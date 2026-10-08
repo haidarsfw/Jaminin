@@ -17,5 +17,3 @@ supabase/.branches
 supabase/.temp
 supabase/.env
 .wrangler
-test-results/
-playwright-report/

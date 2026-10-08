@@ -808,6 +808,11 @@ isOneToOne: false
                            },
 "team_update_member":
 { Args: { "p_role": Database["public"]['Enums']["peran_tim"],"p_user": string }; Returns: undefined
+                           },
+"tenant_day_ranges":
+{ Args: { "p_date": string,"p_tenant": string }; Returns: {
+              "close_time": string,"open_time": string
+            }[]
                            }
           }
           Enums: {

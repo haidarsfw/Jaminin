@@ -152,14 +152,9 @@ function Board() {
 
   return (
     <div className="space-y-4">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">{active.name}</h1>
-          <p className="text-muted">{t('papan.sub')}</p>
-        </div>
-        <Link to="/penjual/toko" className="min-h-11 py-2.5 text-sm font-semibold text-accent underline underline-offset-4">
-          {t('nav.toko')}
-        </Link>
+      <header>
+        <h1 className="text-2xl font-bold">{active.name}</h1>
+        <p className="text-muted">{t('papan.sub')}</p>
       </header>
 
       {active.status !== 'disetujui' && (

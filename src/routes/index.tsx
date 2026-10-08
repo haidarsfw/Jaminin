@@ -60,6 +60,9 @@ function Home() {
 
   const statusByTenant = useMemo(() => new Map((slotStatus.data ?? []).map((s) => [s.tenant_id, s])), [slotStatus.data])
 
+  // Jam istirahat yang masih bisa hari ini tampil lebih dulu, sisanya untuk besok.
+  const breakTargets = BREAKS.map(breakTarget).sort((a, b) => Number(a.tomorrow) - Number(b.tomorrow) || a.time.localeCompare(b.time))
+
   const sorted = useMemo(() => {
     const list = [...(tenants.data ?? [])]
     if (sort === 'abjad') return list.sort((a, b) => a.name.localeCompare(b.name))
@@ -81,12 +84,11 @@ function Home() {
           {t('beranda.jam_istirahat')}
         </h2>
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {BREAKS.map((b) => {
-            const target = breakTarget(b)
+          {breakTargets.map((target) => {
             const active = chosen?.time === target.time && chosen?.date === target.date
             return (
               <button
-                key={b}
+                key={target.time}
                 type="button"
                 aria-pressed={active}
                 onClick={() => {

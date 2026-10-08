@@ -1,10 +1,12 @@
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Choice, Dialog, EmptyState, ErrorState, LoadingState, Notice, PageHeader, Stepper } from '@/components/ui'
 import { addToCart, getCart } from '@/lib/cart'
-import { clock, isoWeekday, rupiah, todayWib } from '@/lib/format'
+import { clock, rupiah, todayWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
+import { rpc } from '@/lib/supabase'
 import { soldOutToday, useTenant, type Group, type Item, type TenantData } from '@/features/tenant'
 
 export const Route = createFileRoute('/tenant/$slug')({
@@ -16,6 +18,12 @@ function TenantPage() {
   const { t } = useTranslation()
   const lang = currentLang()
   const query = useTenant(slug)
+  // Jam buka yang berlaku hari ini, termasuk jam khusus dan jam demo.
+  const ranges = useQuery({
+    queryKey: ['jam-buka', query.data?.id, todayWib()],
+    enabled: !!query.data?.id,
+    queryFn: () => rpc<{ open_time: string; close_time: string }[]>('tenant_day_ranges', { p_tenant: query.data!.id, p_date: todayWib() }),
+  })
   const [selected, setSelected] = useState<Item | null>(null)
 
   const sections = useMemo(() => {
@@ -34,8 +42,7 @@ function TenantPage() {
   const tenant = query.data
   if (!tenant) return <EmptyState title={t('tenant.tidak_ada')} />
 
-  const weekday = isoWeekday(todayWib())
-  const todayHours = tenant.tenant_hours.filter((h) => h.weekday === weekday).sort((a, b) => a.open_time.localeCompare(b.open_time))
+  const todayHours = ranges.data ?? []
   const paused = tenant.paused_indefinitely || (!!tenant.paused_until && new Date(tenant.paused_until) > new Date())
 
   return (

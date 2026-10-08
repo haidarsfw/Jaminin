@@ -90,15 +90,15 @@ export function AppShell({ children }: { children: ReactNode }) {
       <a href="#isi" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">
         {t('umum.lewati_ke_isi')}
       </a>
-      <header className="safe-top sticky top-0 z-30 border-b border-line-soft bg-canvas/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2">
+      <header className="safe-top sticky top-0 z-30 border-b border-line-soft bg-canvas">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
           <Link to="/" className="flex min-h-11 items-center gap-2" aria-label={t('umum.ke_beranda')}>
             <span className="text-xl font-extrabold tracking-tight">Jaminin</span>
           </Link>
-          <span className="rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted">{t('umum.draf_tampilan')}</span>
+          <span className="whitespace-nowrap rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted">{t('umum.draf_tampilan')}</span>
           <div className="ml-auto flex items-center gap-1">
             {canDemo && (
-              <button type="button" onClick={() => setDemoOpen(true)} className="min-h-11 rounded-lg px-2 text-sm font-semibold text-accent underline-offset-4 hover:underline">
+              <button type="button" onClick={() => setDemoOpen(true)} className="min-h-11 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-accent underline-offset-4 hover:underline">
                 {t('demo.panel')}
               </button>
             )}
@@ -108,7 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Link
                     key={m.mode}
                     to={m.to}
-                    className={`flex min-h-10 items-center rounded-md px-2 text-sm font-semibold ${mode === m.mode ? 'bg-accent text-on-accent' : 'text-ink'}`}
+                    className={`flex min-h-10 items-center whitespace-nowrap rounded-md px-2 text-sm font-semibold ${mode === m.mode ? 'bg-accent text-on-accent' : 'text-ink'}`}
                     aria-current={mode === m.mode ? 'page' : undefined}
                   >
                     {m.label}

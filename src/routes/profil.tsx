@@ -103,7 +103,7 @@ function ProfilePage() {
         )}
         <fieldset className="space-y-2">
           <legend className="text-sm font-semibold">{t('profil.pengingat')}</legend>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex flex-wrap gap-2">
             {[5, 10, 15].map((m) => (
               <Choice
                 key={m}
@@ -131,7 +131,7 @@ function ProfilePage() {
         <h2 className="text-lg font-bold">{t('profil.tampilan')}</h2>
         <fieldset className="space-y-2">
           <legend className="text-sm font-semibold">{t('profil.bahasa')}</legend>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid gap-2 sm:grid-cols-2">
             {(['id', 'en'] as const).map((l) => (
               <Choice
                 key={l}
@@ -151,7 +151,7 @@ function ProfilePage() {
         </fieldset>
         <fieldset className="space-y-2">
           <legend className="text-sm font-semibold">{t('profil.tema')}</legend>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid gap-2 sm:grid-cols-3">
             {(['sistem', 'terang', 'gelap'] as const).map((th) => (
               <Choice
                 key={th}
