@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -6,39 +5,11 @@ import { Button, Choice, Dialog, EmptyState, ErrorState, LoadingState, Notice, P
 import { addToCart, getCart } from '@/lib/cart'
 import { clock, isoWeekday, rupiah, todayWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
-import { supabase, type Tables } from '@/lib/supabase'
+import { soldOutToday, useTenant, type Group, type Item, type TenantData } from '@/features/tenant'
 
 export const Route = createFileRoute('/tenant/$slug')({
   component: TenantPage,
 })
-
-type Option = Tables<'options'>
-type Group = Tables<'option_groups'> & { options: Option[] }
-type Item = Tables<'menu_items'> & { option_groups: Group[] }
-type TenantData = Tables<'tenants'> & {
-  menu_categories: Tables<'menu_categories'>[]
-  menu_items: Item[]
-  tenant_hours: Tables<'tenant_hours'>[]
-}
-
-export function useTenant(slug: string) {
-  return useQuery({
-    queryKey: ['tenant', slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('*, menu_categories(*), menu_items(*, option_groups(*, options(*))), tenant_hours(*)')
-        .eq('slug', slug)
-        .maybeSingle()
-      if (error) throw error
-      return data as TenantData | null
-    },
-  })
-}
-
-export function soldOutToday(item: Tables<'menu_items'>): boolean {
-  return item.sold_out_indefinite || item.sold_out_date === todayWib()
-}
 
 function TenantPage() {
   const { slug } = Route.useParams()
@@ -222,7 +193,7 @@ function ItemDialog({ item, tenant, onClose }: { item: Item; tenant: TenantData;
               .map((option) => (
                 <Choice
                   key={option.id}
-                  type={group.max_select === 1 ? 'radio' : 'checkbox'}
+                  type={group.max_select === 1 && group.min_select >= 1 ? 'radio' : 'checkbox'}
                   name={group.id}
                   value={option.id}
                   checked={(picked[group.id] ?? []).includes(option.id)}

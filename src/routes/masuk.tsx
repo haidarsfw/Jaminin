@@ -1,7 +1,7 @@
-import { createFileRoute, Navigate, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { safeNext, validateNext } from '@/components/Guard'
+import { Redirect, safeNext, validateNext } from '@/components/Guard'
 import { Button, Card, Field, Input, Notice, PageHeader, Tabs } from '@/components/ui'
 import { useAuth } from '@/lib/auth'
 import { callFunction, supabase, toAppError } from '@/lib/supabase'
@@ -25,7 +25,7 @@ function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
 
-  if (session) return <Navigate to={safeNext(next)} replace />
+  if (session) return <Redirect href={safeNext(next)} />
 
   function message(e: unknown): string {
     const code = toAppError(e).code
@@ -49,7 +49,7 @@ function LoginPage() {
       }
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
       if (error) throw new Error(error.message.includes('Invalid login') ? 'invalid_credentials' : 'login_failed')
-      void navigate({ to: safeNext(next), replace: true })
+      void navigate({ href: safeNext(next), replace: true })
     } catch (err) {
       setError(message(err))
     } finally {

@@ -21,7 +21,7 @@ function CompleteProfile() {
     <div className="mx-auto max-w-md">
       <PageHeader title={t('profil.lengkapi_judul')} description={t('profil.lengkapi_sub')} />
       <Card>
-        <ProfileForm submitLabel={t('profil.simpan_lanjut')} onSaved={() => void navigate({ to: safeNext(next), replace: true })} />
+        <ProfileForm submitLabel={t('profil.simpan_lanjut')} onSaved={() => void navigate({ href: safeNext(next), replace: true })} />
       </Card>
     </div>
   )

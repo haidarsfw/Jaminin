@@ -10,7 +10,7 @@ import { useAuth } from '@/lib/auth'
 import { cartMaxPrep, cartSubtotal, forgetSlot, recalledSlot, useCart } from '@/lib/cart'
 import { rupiah, todayWib, tomorrowWib } from '@/lib/format'
 import { rpc, supabase, toAppError } from '@/lib/supabase'
-import { useTenant, soldOutToday } from './tenant.$slug'
+import { soldOutToday, useTenant } from '@/features/tenant'
 
 export const Route = createFileRoute('/checkout')({
   component: () => (
@@ -39,7 +39,9 @@ function Checkout() {
   const [pickedDate, setDate] = useState(() => recalledSlot()?.date ?? todayWib())
   const [pickedTime, setTime] = useState<string | null>(null)
   const [pickedSlot, setSlot] = useState<Slot | null>(null)
-  const [pickupName, setPickupName] = useState(profile?.full_name ?? '')
+  const [pickupNameInput, setPickupName] = useState<string | null>(null)
+  // Nama pengambil mengikuti nama di profil sampai pembeli mengubahnya sendiri.
+  const pickupName = pickupNameInput ?? profile?.full_name ?? ''
   const [dining, setDining] = useState<'makan_di_sini' | 'bungkus'>('bungkus')
   const [cutlery, setCutlery] = useState(false)
   const [note, setNote] = useState('')

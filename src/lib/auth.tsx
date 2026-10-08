@@ -1,5 +1,5 @@
 import type { Session, User } from '@supabase/supabase-js'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createContext, use, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { setLanguage } from './i18n'
 import { supabase, type Enums, type Tables } from './supabase'
@@ -29,6 +29,18 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | null>(null)
 
+export function profileQueryOptions(userId: string | null) {
+  return queryOptions({
+    queryKey: ['profil', userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId!).maybeSingle()
+      if (error) throw error
+      return data
+    },
+  })
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
   const [ready, setReady] = useState(false)
@@ -48,15 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const userId = session?.user.id ?? null
 
-  const profileQuery = useQuery({
-    queryKey: ['profil', userId],
-    enabled: !!userId,
-    queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId!).maybeSingle()
-      if (error) throw error
-      return data
-    },
-  })
+  const profileQuery = useQuery(profileQueryOptions(userId))
 
   const rolesQuery = useQuery({
     queryKey: ['peran', userId],
