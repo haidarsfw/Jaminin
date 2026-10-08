@@ -86,6 +86,14 @@ const TEXT: Record<string, Record<Lang, (p: Params) => [string, string]>> = {
     id: (p) => ['Laporan baru', `Pesanan ${num(p)} di ${p.tenant_name}.`],
     en: (p) => ['New report', `Order ${num(p)} at ${p.tenant_name}.`],
   },
+  tenant_ditangguhkan: {
+    id: (p) => [`${p.tenant_name} ditangguhkan`, `Alasan: ${p.reason}. Pesanan aktif dibatalkan dengan uang kembali penuh.`],
+    en: (p) => [`${p.tenant_name} is suspended`, `Reason: ${p.reason}. Active orders were cancelled with a full refund.`],
+  },
+  tenant_diaktifkan: {
+    id: (p) => [`${p.tenant_name} aktif lagi`, 'Tenant sudah tampil lagi untuk pembeli.'],
+    en: (p) => [`${p.tenant_name} is active again`, 'The tenant is visible to buyers again.'],
+  },
 }
 
 const URGENT = new Set(['pesanan_baru', 'siap_diambil', 'menu_habis', 'belum_siap_boleh_batal', 'pengingat_jam_ambil'])

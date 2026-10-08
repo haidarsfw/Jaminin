@@ -320,7 +320,8 @@
     "menu_habis_diganti": "Price difference for the replacement item",
     "manual_tim": "Refund from the Jaminin team",
     "libur": "Tenant day off",
-    "ditangguhkan": "Tenant suspended"
+    "ditangguhkan": "Tenant suspended",
+    "jam_khusus": "The tenant changed its opening hours"
   },
   "item_status": {
     "normal": "Normal",
@@ -475,7 +476,11 @@
     "pendaftaran_baru_judul": "New seller registration",
     "pendaftaran_baru_isi": "{{tenant}} is waiting for approval.",
     "laporan_baru_judul": "New report",
-    "laporan_baru_isi": "Order {{nomor}} at {{tenant}}: {{kategori}}."
+    "laporan_baru_isi": "Order {{nomor}} at {{tenant}}: {{kategori}}.",
+    "tenant_ditangguhkan_judul": "{{tenant}} is suspended",
+    "tenant_ditangguhkan_isi": "Reason: {{alasan}}. Active orders were cancelled with a full refund.",
+    "tenant_diaktifkan_judul": "{{tenant}} is active again",
+    "tenant_diaktifkan_isi": "The tenant is visible to buyers again."
   },
   "pasang": {
     "judul": "Install Jaminin",
@@ -997,6 +1002,9 @@
     "unpaid_order_exists": "You still have an unpaid order. Pay for it or cancel it first.",
     "use_cancel_for_active": "The order is still in progress. Use Cancel order for a full refund.",
     "waiting_buyer_choice": "The order is waiting for the buyer's choice about a sold-out item.",
-    "wrong_pickup_code": "The pickup code does not match."
+    "wrong_pickup_code": "The pickup code does not match.",
+    "date_in_past": "That date has passed. Choose today or a later date.",
+    "cannot_suspend": "Only approved tenants can be suspended.",
+    "cannot_reactivate": "This tenant is not suspended."
   }
 }

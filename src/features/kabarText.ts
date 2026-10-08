@@ -10,8 +10,10 @@ export const KABAR_KINDS = [
   'pesanan_diterima', 'mulai_disiapkan', 'siap_diambil', 'pengingat_jam_ambil', 'menu_habis', 'uang_kembali',
   'belum_siap_boleh_batal', 'jam_ambil_digeser', 'pesanan_dibatalkan', 'waktu_bayar_habis', 'tidak_diambil',
   'balasan_laporan', 'pesanan_baru', 'pilihan_menu_habis', 'setoran_terkirim', 'pendaftaran_disetujui',
-  'pendaftaran_ditolak', 'ringkasan_pesanan_masuk', 'pendaftaran_baru', 'laporan_baru',
+  'pendaftaran_ditolak', 'ringkasan_pesanan_masuk', 'pendaftaran_baru', 'laporan_baru', 'tenant_ditangguhkan', 'tenant_diaktifkan',
 ]
+
+const FREE_TEXT_REASON = ['pendaftaran_ditolak', 'tenant_ditangguhkan']
 
 const str = (v: unknown) => (v === null || v === undefined ? '' : String(v))
 
@@ -37,7 +39,7 @@ export function kabarText(n: { kind: string; params: KabarParams }, t: T, lang: 
     alasan: str(p.reason),
   }
   const bodyKey = n.kind === 'pesanan_dibatalkan' && Number(p.amount) > 0 ? 'kabar.pesanan_dibatalkan_isi_uang' : `kabar.${n.kind}_isi`
-  // Alasan pendaftaran ditolak adalah teks bebas dari tim; selain itu alasan berupa kode yang diterjemahkan.
-  const detail = n.kind !== 'pendaftaran_ditolak' && p.reason ? t(`alasan.${str(p.reason)}`, { defaultValue: '' }) : ''
+  // Alasan penolakan dan penangguhan adalah teks bebas dari tim; selain itu alasan berupa kode yang diterjemahkan.
+  const detail = !FREE_TEXT_REASON.includes(n.kind) && p.reason ? t(`alasan.${str(p.reason)}`, { defaultValue: '' }) : ''
   return { title: t(`kabar.${n.kind}_judul`, values), body: t(bodyKey, values), detail: detail || null }
 }

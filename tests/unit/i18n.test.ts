@@ -55,7 +55,7 @@ const dynamic: Record<string, string[]> = {
   'kabar.aksi_': ['ganti', 'hapus', 'batal'],
   'alasan.': [
     'waktu_habis', 'dibatalkan_pembeli', 'pembeli', 'belum_siap_jam_ambil', 'semua_menu_habis', 'pembeli_menu_habis',
-    'belum_siap_saat_tutup', 'tim', 'tidak_diambil_saat_tutup', 'menu_habis_dihapus', 'menu_habis_otomatis', 'menu_habis_diganti', 'manual_tim',
+    'belum_siap_saat_tutup', 'tim', 'tidak_diambil_saat_tutup', 'menu_habis_dihapus', 'menu_habis_otomatis', 'menu_habis_diganti', 'manual_tim', 'libur', 'jam_khusus', 'ditangguhkan',
   ],
 }
 

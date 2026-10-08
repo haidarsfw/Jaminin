@@ -725,11 +725,20 @@ isOneToOne: false
               "id": string,"name": string,"reject_reason": string,"role": Database["public"]['Enums']["peran_tenant"],"slug": string,"status": Database["public"]['Enums']["status_tenant"]
             }[]
                            },
+"owner_clear_special_day":
+{ Args: { "p_date": string,"p_tenant": string }; Returns: undefined
+                           },
 "owner_set_hours":
 { Args: { "p_hours": Json,"p_tenant": string }; Returns: undefined
                            },
 "owner_set_quota_rules":
 { Args: { "p_rules": Json,"p_tenant": string }; Returns: undefined
+                           },
+"owner_set_special_day":
+{ Args: { "p_closed": boolean,"p_date": string,"p_note": string,"p_ranges": Json,"p_tenant": string }; Returns: number
+                           },
+"owner_special_day_preview":
+{ Args: { "p_closed": boolean,"p_date": string,"p_ranges": Json,"p_tenant": string }; Returns: number
                            },
 "payout_details":
 { Args: { "p_payout": string }; Returns: Json
@@ -805,6 +814,12 @@ isOneToOne: false
                            },
 "team_review_tenant":
 { Args: { "p_approve": boolean,"p_reason": string,"p_tenant": string }; Returns: undefined
+                           },
+"team_set_tenant_suspended":
+{ Args: { "p_reason": string,"p_suspend": boolean,"p_tenant": string }; Returns: number
+                           },
+"team_suspension_preview":
+{ Args: { "p_tenant": string }; Returns: number
                            },
 "team_update_member":
 { Args: { "p_role": Database["public"]['Enums']["peran_tim"],"p_user": string }; Returns: undefined

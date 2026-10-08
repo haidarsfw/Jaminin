@@ -314,7 +314,8 @@
     "menu_habis_diganti": "Selisih harga menu pengganti",
     "manual_tim": "Uang kembali dari tim Jaminin",
     "libur": "Tenant libur",
-    "ditangguhkan": "Tenant ditangguhkan"
+    "ditangguhkan": "Tenant ditangguhkan",
+    "jam_khusus": "Jam buka tenant berubah"
   },
   "item_status": {
     "normal": "Normal",
@@ -466,7 +467,11 @@
     "pendaftaran_baru_judul": "Pendaftaran penjual baru",
     "pendaftaran_baru_isi": "{{tenant}} menunggu persetujuan.",
     "laporan_baru_judul": "Laporan baru",
-    "laporan_baru_isi": "Pesanan {{nomor}} di {{tenant}}: {{kategori}}."
+    "laporan_baru_isi": "Pesanan {{nomor}} di {{tenant}}: {{kategori}}.",
+    "tenant_ditangguhkan_judul": "{{tenant}} ditangguhkan",
+    "tenant_ditangguhkan_isi": "Alasan: {{alasan}}. Pesanan aktif dibatalkan dengan uang kembali penuh.",
+    "tenant_diaktifkan_judul": "{{tenant}} aktif lagi",
+    "tenant_diaktifkan_isi": "Tenant sudah tampil lagi untuk pembeli."
   },
   "pasang": {
     "judul": "Pasang Jaminin",
@@ -976,6 +981,9 @@
     "unpaid_order_exists": "Kamu masih punya pesanan yang belum dibayar. Bayar atau batalkan dulu.",
     "use_cancel_for_active": "Pesanan masih berjalan. Pakai Batalkan pesanan untuk uang kembali penuh.",
     "waiting_buyer_choice": "Pesanan menunggu pilihan pembeli soal menu habis.",
-    "wrong_pickup_code": "Kode ambil tidak cocok."
+    "wrong_pickup_code": "Kode ambil tidak cocok.",
+    "date_in_past": "Tanggal itu sudah lewat. Pilih hari ini atau tanggal setelahnya.",
+    "cannot_suspend": "Hanya tenant yang sudah disetujui yang bisa ditangguhkan.",
+    "cannot_reactivate": "Tenant ini tidak sedang ditangguhkan."
   }
 }
