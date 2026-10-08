@@ -90,10 +90,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <a href="#isi" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">
+      <a href="#isi" className="print:hidden sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">
         {t('umum.lewati_ke_isi')}
       </a>
-      <header className="safe-top sticky top-0 z-30 border-b border-line-soft bg-canvas">
+      <header className="safe-top sticky top-0 z-30 border-b border-line-soft bg-canvas print:hidden">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
           <Link to="/" className="flex min-h-11 items-center gap-2" aria-label={t('umum.ke_beranda')}>
             <span className="text-xl font-extrabold tracking-tight">Jaminin</span>
@@ -154,12 +154,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       )}
       {session && <KabarToast />}
 
-      <main id="isi" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-40 pt-4 md:pb-24">
+      <main id="isi" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-40 pt-4 md:pb-24 print:p-0">
         {children}
       </main>
 
       {showCartBar && cart && (
-        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 px-4 md:bottom-4">
+        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 px-4 md:bottom-4 print:hidden">
           <Link
             to="/keranjang"
             className="mx-auto flex min-h-12 max-w-md items-center justify-between rounded-xl bg-accent px-4 text-on-accent"
@@ -170,7 +170,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      <nav aria-label={t('nav.label')} className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line-soft bg-surface md:hidden">
+      <nav aria-label={t('nav.label')} className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line-soft bg-surface md:hidden print:hidden">
         <ul className="mx-auto flex max-w-md">
           {nav[mode].map((item) => (
             <li key={item.to} className="flex-1">
@@ -239,7 +239,7 @@ function KabarToast() {
   const text = kabarText(item, t, currentLang())
 
   return (
-    <div className="fixed inset-x-0 bottom-[calc(7.75rem+env(safe-area-inset-bottom))] z-40 px-4 md:bottom-20">
+    <div className="fixed inset-x-0 bottom-[calc(7.75rem+env(safe-area-inset-bottom))] z-40 px-4 md:bottom-20 print:hidden">
       <div role="status" className="mx-auto flex max-w-md items-start gap-3 rounded-xl border border-line bg-surface p-3 shadow-md">
         <div className="min-w-0 flex-1">
           <p className="font-bold">{text.title}</p>

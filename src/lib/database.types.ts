@@ -353,6 +353,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"ratings": {
+                  Row: {
+                    "buyer_id": string,"comment": string | null,"created_at": string,"order_id": string,"tenant_id": string,"thumbs_up": boolean
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "buyer_id": string,"comment"?: string | null,"created_at"?: string,"order_id": string,"tenant_id": string,"thumbs_up": boolean
+                  }
+                  Update: {
+                    "buyer_id"?: string,"comment"?: string | null,"created_at"?: string,"order_id"?: string,"tenant_id"?: string,"thumbs_up"?: boolean
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ratings_buyer_id_fkey"
+      columns: ["buyer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ratings_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: true
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ratings_tenant_id_fkey"
+      columns: ["tenant_id"]
+isOneToOne: false
+      referencedRelation: "tenants"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"refunds": {
                   Row: {
                     "amount": number,"bearer": Database["public"]['Enums']["penanggung"],"charged_payout_id": string | null,"created_at": string,"created_by": string | null,"id": string,"is_manual": boolean,"jaminin_charge": number,"kind": string,"order_id": string,"reason_code": string,"reason_text": string | null,"status": string,"tenant_charge": number
@@ -672,6 +704,9 @@ isOneToOne: false
                            },
 "buyer_confirm_received":
 { Args: { "p_order": string }; Returns: undefined
+                           },
+"buyer_rate_order":
+{ Args: { "p_comment": string,"p_order": string,"p_thumbs_up": boolean }; Returns: undefined
                            },
 "buyer_reschedule_order":
 { Args: { "p_date": string,"p_order": string,"p_time": string }; Returns: undefined

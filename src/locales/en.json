@@ -288,6 +288,45 @@
     "batal_konfirmasi": "Cancel the order? You get a full refund.",
     "tahap": "Order progress"
   },
+  "nilai": {
+    "judul": "Rate this order",
+    "isi": "Only the seller and the Jaminin team can see it. You can rate once and cannot change it.",
+    "puas": "Satisfied",
+    "kurang": "Not satisfied",
+    "komentar": "Short comment",
+    "komentar_isi": "Optional, up to 200 characters.",
+    "kirim": "Send rating",
+    "pilih_dulu": "Choose Satisfied or Not satisfied first.",
+    "terkirim": "Thank you. Your rating was sent to the seller.",
+    "milikmu": "Your rating: {{value}}",
+    "label_puas": "Satisfied",
+    "label_kurang": "Not satisfied",
+    "penilaian": "Buyer ratings",
+    "ringkas": "{{up}} satisfied, {{down}} not satisfied",
+    "belum_ada": "No ratings yet.",
+    "milikmu_penjual": "Buyer rating: {{value}}"
+  },
+  "struk": {
+    "lihat": "View receipt",
+    "judul": "Receipt for order {{number}}",
+    "unduh": "Download or print receipt",
+    "unduh_isi": "Choose Save as PDF in the print window to keep the receipt.",
+    "tenant": "Tenant",
+    "jam_ambil": "Pickup time",
+    "pengambil": "Pickup name",
+    "dibayar_pada": "Paid",
+    "kode_bayar": "Payment code",
+    "status": "Status",
+    "catatan_simulasi": "Payments in this prototype are simulated, not real money transfers.",
+    "tidak_ada": "Receipt not found.",
+    "kembali": "Back to order"
+  },
+  "kalender": {
+    "tambah": "Add to calendar",
+    "google": "Google Calendar",
+    "judul_acara": "Pick up order {{number}} at {{tenant}}",
+    "isi_acara": "Pickup code {{code}}, for {{name}}. Open the order: {{url}}"
+  },
   "status": {
     "menunggu_bayar": "Awaiting payment",
     "diterima": "Accepted",
@@ -1070,6 +1109,9 @@
     "date_in_past": "That date has passed. Choose today or a later date.",
     "cannot_suspend": "Only approved tenants can be suspended.",
     "cannot_reactivate": "This tenant is not suspended.",
-    "promo_overlap": "This promo overlaps another active promo on the same day and time."
+    "promo_overlap": "This promo overlaps another active promo on the same day and time.",
+    "cannot_rate": "You can rate an order after it is completed.",
+    "already_rated": "This order has already been rated. Ratings cannot be changed.",
+    "comment_too_long": "Comments can be up to 200 characters."
   }
 }

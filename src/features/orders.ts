@@ -8,6 +8,7 @@ export type OrderFull = Tables<'orders'> & {
   order_items: OrderItem[]
   refunds: Tables<'refunds'>[]
   reports: (Tables<'reports'> & { report_replies: Tables<'report_replies'>[] })[]
+  ratings: { thumbs_up: boolean; comment: string | null } | null
 }
 
 export const ACTIVE = ['menunggu_bayar', 'diterima', 'disiapkan', 'siap'] as const
@@ -19,7 +20,7 @@ export function useOrder(orderId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('*, tenants(name, slug, whatsapp, is_sample, kiosk_location), order_items(*), refunds(*), reports(*, report_replies(*))')
+        .select('*, tenants(name, slug, whatsapp, is_sample, kiosk_location), order_items(*), refunds(*), reports(*, report_replies(*)), ratings(thumbs_up, comment)')
         .eq('id', orderId)
         .maybeSingle()
       if (error) throw error

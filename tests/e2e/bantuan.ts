@@ -73,3 +73,37 @@ export async function noHorizontalScroll(page: Page): Promise<void> {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow, 'halaman tidak boleh bergeser ke samping').toBeLessThanOrEqual(0)
 }
+
+// Pembeli memesan satu menu di Good Moments Coffee dan membayar lewat Simulator Bayar; mengembalikan nama pengambil.
+export async function orderAndPay(b: Page, cashier: Page, item: { name: string; choices: string[]; price: string; total: string }) {
+  const pickupName = `Naskah ${Date.now().toString(36)}`
+  await b.goto('/tenant/good-moments-coffee')
+  await b.getByRole('button', { name: new RegExp(item.name) }).click()
+  const dialog = b.getByRole('dialog', { name: item.name })
+  for (const choice of item.choices) await dialog.getByText(choice, { exact: true }).click()
+  await dialog.getByRole('button', { name: `Tambah ke keranjang, ${item.price}` }).click()
+  await b.getByRole('link', { name: /Keranjang \(1\)/ }).click()
+  await b.getByRole('link', { name: 'Pilih jam ambil' }).click()
+  await expect(b.getByRole('heading', { name: 'Checkout' })).toBeVisible()
+  await expect(b.getByText('Biaya layanan')).toBeVisible()
+  await expect(b.getByText(/sisa \d+/).first()).toBeVisible()
+  await b.getByRole('radiogroup', { name: 'Jam ambil' }).getByRole('radio').and(b.locator(':enabled')).first().click()
+  await b.getByLabel('Nama pengambil', { exact: true }).fill(pickupName)
+  await b.getByRole('button', { name: `Bayar ${item.total}` }).click()
+  await expect(b.getByText('QR simulasi, bukan QRIS').first()).toBeVisible()
+  const code = (await b.locator('p.font-mono').first().textContent())?.trim() ?? ''
+  await cashier.goto('/simulator-bayar')
+  await cashier.getByLabel('Kode bayar', { exact: true }).fill(code)
+  await cashier.getByRole('button', { name: 'Bayar', exact: true }).click()
+  await expect(cashier.getByText(`Pembayaran ${item.total} diterima.`)).toBeVisible()
+  await expect(b.getByText('Kode ambil', { exact: true })).toBeVisible({ timeout: 20_000 })
+  return pickupName
+}
+
+export async function openBoard(s: Page) {
+  await s.goto('/penjual')
+  await s.getByRole('combobox', { name: /^Tenant/ }).selectOption({ label: 'Good Moments Coffee' })
+  await expect(s.getByRole('heading', { name: 'Good Moments Coffee' })).toBeVisible()
+  const lihat = s.getByRole('button', { name: 'Lihat' })
+  if (await lihat.isVisible()) await lihat.click()
+}

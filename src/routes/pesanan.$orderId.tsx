@@ -5,8 +5,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '@/components/Guard'
 import { SlotPicker } from '@/components/SlotPicker'
-import { Button, Card, Dialog, EmptyState, ErrorState, Field, LoadingState, Notice, PageHeader, Select, StatusText, TextArea, useNow } from '@/components/ui'
+import { Button, ButtonLink, buttonClass, Card, Dialog, EmptyState, ErrorState, Field, LoadingState, Notice, PageHeader, Select, StatusText, TextArea, useNow } from '@/components/ui'
 import { cachedPickup, pickupQr, statusKey, useOrder, type OrderFull, type OrderItem } from '@/features/orders'
+import { downloadIcs, googleCalendarUrl, type PickupEvent } from '@/lib/calendar'
 import { installBannerDismissed, dismissInstallBanner, isIos, isStandalone } from '@/lib/device'
 import { clock, clockFromDate, dateLabel, mmss, orderNo, rupiah, todayWib, waLink } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
@@ -191,6 +192,17 @@ function OrderPage() {
 
       <Timeline order={o} />
 
+      {(['diterima', 'disiapkan', 'siap'].includes(o.status) && beforePickup) || o.paid_at ? (
+        <div className="flex flex-wrap gap-2">
+          {['diterima', 'disiapkan', 'siap'].includes(o.status) && beforePickup && <CalendarButtons order={o} />}
+          {o.paid_at && (
+            <ButtonLink to="/struk/$orderId" params={{ orderId: o.id }} small>
+              {t('struk.lihat')}
+            </ButtonLink>
+          )}
+        </div>
+      ) : null}
+
       <Card>
         <h2 className="mb-2 text-lg font-bold">{t('pesanan.isi')}</h2>
         <ul className="space-y-2">
@@ -284,6 +296,8 @@ function OrderPage() {
         )}
       </div>
 
+      {o.status === 'selesai' && <RatingCard order={o} />}
+
       {o.reports.length > 0 && (
         <Card>
           <h2 className="mb-2 text-lg font-bold">{t('laporan.judul_saya')}</h2>
@@ -309,6 +323,93 @@ function OrderPage() {
       {reschedule && <RescheduleDialog order={o} onClose={() => setReschedule(false)} />}
       {report && <ReportDialog order={o} onClose={() => setReport(false)} />}
     </div>
+  )
+}
+
+function CalendarButtons({ order }: { order: OrderFull }) {
+  const { t } = useTranslation()
+  const number = orderNo(order.order_number)
+  const event: PickupEvent = {
+    uid: order.id,
+    title: t('kalender.judul_acara', { number, tenant: order.tenants?.name ?? '' }),
+    description: t('kalender.isi_acara', { code: order.pickup_code, name: order.pickup_name, url: `${window.location.origin}/pesanan/${order.id}` }),
+    location: order.tenants?.kiosk_location ?? '',
+    date: order.pickup_date,
+    time: order.pickup_time,
+  }
+  return (
+    <>
+      <Button small onClick={() => downloadIcs(event, `jaminin-pesanan-${number.slice(1)}.ics`)}>
+        {t('kalender.tambah')}
+      </Button>
+      <a href={googleCalendarUrl(event)} target="_blank" rel="noreferrer" className={buttonClass('secondary', false, true)}>
+        {t('kalender.google')}
+      </a>
+    </>
+  )
+}
+
+// Penilaian sekali setelah selesai, hanya terlihat oleh penjual dan tim (ronde 42).
+function RatingCard({ order }: { order: OrderFull }) {
+  const { t } = useTranslation()
+  const action = useAction()
+  const [choice, setChoice] = useState<boolean | null>(null)
+  const [comment, setComment] = useState('')
+  const [missing, setMissing] = useState(false)
+  const [sent, setSent] = useState(false)
+  const rated = order.ratings
+
+  if (rated) {
+    return (
+      <Card>
+        <h2 className="text-lg font-bold">{t('nilai.judul')}</h2>
+        {sent && <Notice tone="success" className="mt-2">{t('nilai.terkirim')}</Notice>}
+        <p className="mt-1">{t('nilai.milikmu', { value: rated.thumbs_up ? t('nilai.label_puas') : t('nilai.label_kurang') })}</p>
+        {rated.comment && <p className="mt-1 text-sm text-muted">{rated.comment}</p>}
+      </Card>
+    )
+  }
+
+  function send() {
+    if (choice === null) {
+      setMissing(true)
+      return
+    }
+    void action
+      .run('nilai', () => rpc('buyer_rate_order', { p_order: order.id, p_thumbs_up: choice, p_comment: comment.trim() || null }))
+      .then((ok) => ok && setSent(true))
+  }
+
+  return (
+    <Card className="space-y-3">
+      <div>
+        <h2 className="text-lg font-bold">{t('nilai.judul')}</h2>
+        <p className="text-sm text-muted">{t('nilai.isi')}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2" role="group" aria-label={t('nilai.judul')}>
+        {[true, false].map((up) => (
+          <Button
+            key={String(up)}
+            variant={choice === up ? 'primary' : 'secondary'}
+            aria-pressed={choice === up}
+            onClick={() => {
+              setChoice(up)
+              setMissing(false)
+            }}
+          >
+            {up ? t('nilai.puas') : t('nilai.kurang')}
+          </Button>
+        ))}
+      </div>
+      <Field label={t('nilai.komentar')} hint={t('nilai.komentar_isi')} optional>
+        {(p) => <TextArea id={p.id} aria-describedby={p.describedBy} value={comment} maxLength={200} rows={2} onChange={(e) => setComment(e.target.value)} />}
+      </Field>
+      {missing && <p className="text-sm font-medium text-danger">{t('nilai.pilih_dulu')}</p>}
+      {action.error && <Notice tone="error">{action.error}</Notice>}
+      <Button variant="primary" busy={action.busy === 'nilai'} busyText={t('umum.memproses')} onClick={send}>
+        {t('nilai.kirim')}
+      </Button>
+    </Card>
   )
 }
 

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/penjual/')({
   component: Board,
 })
 
-type BoardOrder = Tables<'orders'> & { order_items: Tables<'order_items'>[] }
+type BoardOrder = Tables<'orders'> & { order_items: Tables<'order_items'>[]; ratings: { thumbs_up: boolean; comment: string | null } | null }
 
 const SEEN_KEY = 'jaminin:pesanan-dilihat'
 
@@ -69,7 +69,7 @@ function Board() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select('*, order_items(*)')
+        .select('*, order_items(*), ratings(thumbs_up, comment)')
         .eq('tenant_id', active!.id)
         .eq('pickup_date', day)
         .not('paid_at', 'is', null)
@@ -262,11 +262,19 @@ function Board() {
           <summary className="min-h-11 cursor-pointer py-2 font-semibold">{t('papan.selesai_hari_ini', { count: finished.length })}</summary>
           <ul className="mt-2 space-y-1 text-sm">
             {finished.map((o) => (
-              <li key={o.id} className="flex justify-between gap-2">
-                <span>
-                  {orderNo(o.order_number)} {o.pickup_name} · {clock(o.pickup_time, lang)}
+              <li key={o.id} className="space-y-0.5">
+                <span className="flex justify-between gap-2">
+                  <span>
+                    {orderNo(o.order_number)} {o.pickup_name} · {clock(o.pickup_time, lang)}
+                  </span>
+                  <span className="text-muted">{t(`status.${o.status}`)}</span>
                 </span>
-                <span className="text-muted">{t(`status.${o.status}`)}</span>
+                {o.ratings && (
+                  <span className="block text-muted">
+                    {t('nilai.milikmu_penjual', { value: o.ratings.thumbs_up ? t('nilai.label_puas') : t('nilai.label_kurang') })}
+                    {o.ratings.comment ? `: ${o.ratings.comment}` : ''}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

@@ -18,6 +18,7 @@ type TenantRow = Tables<'tenants'> & {
   tenant_quota_rules: Tables<'tenant_quota_rules'>[]
   tenant_bank: Tables<'tenant_bank'> | null
   menu_items: { id: string }[]
+  ratings: { thumbs_up: boolean; comment: string | null; created_at: string }[]
 }
 
 function TenantsReview() {
@@ -29,7 +30,7 @@ function TenantsReview() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('tenants')
-        .select('*, tenant_hours(*), tenant_quota_rules(*), tenant_bank(*), menu_items(id)')
+        .select('*, tenant_hours(*), tenant_quota_rules(*), tenant_bank(*), menu_items(id), ratings(thumbs_up, comment, created_at)')
         .order('submitted_at', { ascending: false, nullsFirst: false })
       if (error) throw error
       return data as unknown as TenantRow[]
@@ -169,6 +170,27 @@ function TenantCard({ tenant }: { tenant: TenantRow }) {
         </dd>
         <dt className="font-semibold">{t('daftar.batas_pesan')}</dt>
         <dd>{t('menu.menit', { count: tenant.order_cutoff_minutes })}</dd>
+        <dt className="font-semibold">{t('nilai.penilaian')}</dt>
+        <dd>
+          {tenant.ratings.length === 0 ? (
+            t('nilai.belum_ada')
+          ) : (
+            <>
+              <p>{t('nilai.ringkas', { up: tenant.ratings.filter((r) => r.thumbs_up).length, down: tenant.ratings.filter((r) => !r.thumbs_up).length })}</p>
+              <ul className="text-muted">
+                {[...tenant.ratings]
+                  .filter((r) => r.comment)
+                  .sort((a, b) => b.created_at.localeCompare(a.created_at))
+                  .slice(0, 3)
+                  .map((r) => (
+                    <li key={r.created_at}>
+                      {r.thumbs_up ? t('nilai.label_puas') : t('nilai.label_kurang')}: {r.comment}
+                    </li>
+                  ))}
+              </ul>
+            </>
+          )}
+        </dd>
         <dt className="font-semibold">{t('timpenjual.rekening')}</dt>
         <dd>{tenant.tenant_bank ? `${tenant.tenant_bank.bank_name} ${tenant.tenant_bank.account_number} a.n. ${tenant.tenant_bank.account_holder}` : '-'}</dd>
         <dt className="font-semibold">{t('toko.jadwal')}</dt>

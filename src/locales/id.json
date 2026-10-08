@@ -282,6 +282,45 @@
     "batal_konfirmasi": "Batalkan pesanan? Uangmu kembali penuh.",
     "tahap": "Tahap pesanan"
   },
+  "nilai": {
+    "judul": "Beri penilaian",
+    "isi": "Hanya terlihat oleh penjual dan tim Jaminin. Sekali saja, tidak bisa diubah.",
+    "puas": "Puas",
+    "kurang": "Kurang puas",
+    "komentar": "Komentar singkat",
+    "komentar_isi": "Tidak wajib, maksimal 200 karakter.",
+    "kirim": "Kirim penilaian",
+    "pilih_dulu": "Pilih Puas atau Kurang puas dulu.",
+    "terkirim": "Terima kasih. Penilaianmu terkirim ke penjual.",
+    "milikmu": "Penilaianmu: {{value}}",
+    "label_puas": "Puas",
+    "label_kurang": "Kurang puas",
+    "penilaian": "Penilaian pembeli",
+    "ringkas": "{{up}} puas, {{down}} kurang puas",
+    "belum_ada": "Belum ada penilaian.",
+    "milikmu_penjual": "Penilaian pembeli: {{value}}"
+  },
+  "struk": {
+    "lihat": "Lihat struk",
+    "judul": "Struk pesanan {{number}}",
+    "unduh": "Unduh atau cetak struk",
+    "unduh_isi": "Pilih Simpan sebagai PDF di jendela cetak untuk menyimpan struk.",
+    "tenant": "Tenant",
+    "jam_ambil": "Jam ambil",
+    "pengambil": "Nama pengambil",
+    "dibayar_pada": "Dibayar",
+    "kode_bayar": "Kode bayar",
+    "status": "Status",
+    "catatan_simulasi": "Pembayaran prototipe ini simulasi, bukan transaksi uang sungguhan.",
+    "tidak_ada": "Struk tidak ditemukan.",
+    "kembali": "Kembali ke pesanan"
+  },
+  "kalender": {
+    "tambah": "Tambah ke kalender",
+    "google": "Google Calendar",
+    "judul_acara": "Ambil pesanan {{number}} di {{tenant}}",
+    "isi_acara": "Kode ambil {{code}}, atas nama {{name}}. Buka pesanan: {{url}}"
+  },
   "status": {
     "menunggu_bayar": "Menunggu bayar",
     "diterima": "Diterima",
@@ -1045,6 +1084,9 @@
     "date_in_past": "Tanggal itu sudah lewat. Pilih hari ini atau tanggal setelahnya.",
     "cannot_suspend": "Hanya tenant yang sudah disetujui yang bisa ditangguhkan.",
     "cannot_reactivate": "Tenant ini tidak sedang ditangguhkan.",
-    "promo_overlap": "Promo ini tumpang tindih dengan promo aktif lain di hari dan jam yang sama."
+    "promo_overlap": "Promo ini tumpang tindih dengan promo aktif lain di hari dan jam yang sama.",
+    "cannot_rate": "Penilaian bisa diberikan setelah pesanan selesai.",
+    "already_rated": "Pesanan ini sudah dinilai. Penilaian tidak bisa diubah.",
+    "comment_too_long": "Komentar maksimal 200 karakter."
   }
 }

@@ -29,6 +29,7 @@ import { Route as PenjualSetoranRouteImport } from './routes/penjual.setoran'
 import { Route as PenjualTokoRouteImport } from './routes/penjual.toko'
 import { Route as PesananIndexRouteImport } from './routes/pesanan.index'
 import { Route as PesananOrderIdRouteImport } from './routes/pesanan.$orderId'
+import { Route as StrukOrderIdRouteImport } from './routes/struk.$orderId'
 import { Route as TenantSlugRouteImport } from './routes/tenant.$slug'
 import { Route as TimIndexRouteImport } from './routes/tim.index'
 import { Route as TimAnggotaRouteImport } from './routes/tim.anggota'
@@ -136,6 +137,11 @@ const PesananOrderIdRoute = PesananOrderIdRouteImport.update({
   path: '/pesanan/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StrukOrderIdRoute = StrukOrderIdRouteImport.update({
+  id: '/struk/$orderId',
+  path: '/struk/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TenantSlugRoute = TenantSlugRouteImport.update({
   id: '/tenant/$slug',
   path: '/tenant/$slug',
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/penjual/setoran': typeof PenjualSetoranRoute
   '/penjual/toko': typeof PenjualTokoRoute
   '/pesanan/$orderId': typeof PesananOrderIdRoute
+  '/struk/$orderId': typeof StrukOrderIdRoute
   '/tenant/$slug': typeof TenantSlugRoute
   '/tim/anggota': typeof TimAnggotaRoute
   '/tim/laporan': typeof TimLaporanRoute
@@ -212,6 +219,7 @@ export interface FileRoutesByTo {
   '/penjual/setoran': typeof PenjualSetoranRoute
   '/penjual/toko': typeof PenjualTokoRoute
   '/pesanan/$orderId': typeof PesananOrderIdRoute
+  '/struk/$orderId': typeof StrukOrderIdRoute
   '/tenant/$slug': typeof TenantSlugRoute
   '/tim/anggota': typeof TimAnggotaRoute
   '/tim/laporan': typeof TimLaporanRoute
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/penjual/setoran': typeof PenjualSetoranRoute
   '/penjual/toko': typeof PenjualTokoRoute
   '/pesanan/$orderId': typeof PesananOrderIdRoute
+  '/struk/$orderId': typeof StrukOrderIdRoute
   '/tenant/$slug': typeof TenantSlugRoute
   '/tim/anggota': typeof TimAnggotaRoute
   '/tim/laporan': typeof TimLaporanRoute
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/penjual/setoran'
     | '/penjual/toko'
     | '/pesanan/$orderId'
+    | '/struk/$orderId'
     | '/tenant/$slug'
     | '/tim/anggota'
     | '/tim/laporan'
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/penjual/setoran'
     | '/penjual/toko'
     | '/pesanan/$orderId'
+    | '/struk/$orderId'
     | '/tenant/$slug'
     | '/tim/anggota'
     | '/tim/laporan'
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/penjual/setoran'
     | '/penjual/toko'
     | '/pesanan/$orderId'
+    | '/struk/$orderId'
     | '/tenant/$slug'
     | '/tim/anggota'
     | '/tim/laporan'
@@ -350,6 +362,7 @@ export interface RootRouteChildren {
   TimRoute: typeof TimRouteWithChildren
   BayarOrderIdRoute: typeof BayarOrderIdRoute
   PesananOrderIdRoute: typeof PesananOrderIdRoute
+  StrukOrderIdRoute: typeof StrukOrderIdRoute
   TenantSlugRoute: typeof TenantSlugRoute
   PesananIndexRoute: typeof PesananIndexRoute
 }
@@ -496,6 +509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PesananOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/struk/$orderId': {
+      id: '/struk/$orderId'
+      path: '/struk/$orderId'
+      fullPath: '/struk/$orderId'
+      preLoaderRoute: typeof StrukOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tenant/$slug': {
       id: '/tenant/$slug'
       path: '/tenant/$slug'
@@ -593,6 +613,7 @@ const rootRouteChildren: RootRouteChildren = {
   TimRoute: TimRouteWithChildren,
   BayarOrderIdRoute: BayarOrderIdRoute,
   PesananOrderIdRoute: PesananOrderIdRoute,
+  StrukOrderIdRoute: StrukOrderIdRoute,
   TenantSlugRoute: TenantSlugRoute,
   PesananIndexRoute: PesananIndexRoute,
 }
