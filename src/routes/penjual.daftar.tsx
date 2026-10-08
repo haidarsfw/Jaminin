@@ -94,12 +94,21 @@ function Register() {
     return e
   }
 
-  function submit(e: FormEvent) {
+  function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    const form = e.currentTarget
     const next = validate()
     setErrors(next)
     setFailure(null)
-    if (Object.keys(next).length > 0) return
+    if (Object.keys(next).length > 0) {
+      // Formulir ini panjang; tanpa ini pengguna HP hanya melihat ringkasan galat di bawah.
+      requestAnimationFrame(() => {
+        const first = form.querySelector<HTMLElement>('[aria-invalid="true"], p.text-danger')
+        if (first?.matches('[aria-invalid="true"]')) first.focus()
+        else first?.scrollIntoView({ block: 'center' })
+      })
+      return
+    }
     const unusual = unusualNumbers({
       cutoff: Number(cutoff),
       quotas: [Number(baseQuota), ...rules.map((r) => Number(r.quota))],

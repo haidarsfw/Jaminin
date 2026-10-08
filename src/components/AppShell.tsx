@@ -291,11 +291,13 @@ function DemoPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
     setDone(null)
     try {
       await action()
-      await queryClient.invalidateQueries()
       if (after) {
+        // Pindah halaman dulu, supaya data halaman lama tidak diminta ulang dengan akun yang baru.
         onClose()
-        void navigate({ to: after })
+        await navigate({ to: after })
+        await queryClient.resetQueries()
       } else {
+        await queryClient.invalidateQueries()
         setDone(key)
       }
     } catch (e) {
