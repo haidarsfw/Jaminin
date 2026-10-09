@@ -17,3 +17,5 @@ supabase/.branches
 supabase/.temp
 supabase/.env
 .wrangler
+# Mesin impeccable diunduh launcher-nya sendiri dan diverifikasi checksum.
+.claude/skills/impeccable/scripts/bin/
