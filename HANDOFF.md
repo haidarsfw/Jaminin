@@ -223,7 +223,7 @@ Lapis 3 (P1), sejauh ini:
 |---|---|---|---|
 | 1 | Pusat notifikasi, struk digital, tambah ke kalender, penilaian sekali tanpa ubah | Selesai | `cb87a56`, `f6a7f74` |
 | 2 | Chat per pesanan, tutup 24 jam, tim membaca chat pesanan yang dilaporkan | Selesai, termasuk uji Playwright `chat.spec.ts` dan pemasangan di cloud | `c9f7224`, `bf699af` |
-| 3 | Daftar siap-masak di papan (hari ini dan besok) dan layar dapur dengan penjaga layar | Selesai, termasuk uji Playwright `dapur.spec.ts`. Tanpa perubahan database, jadi tidak ada yang perlu dipasang di cloud | `901c307`, `df390e5`, `f052a95`, lihat bagian 9 |
+| 3 | Daftar siap-masak di papan (hari ini dan besok) dan layar dapur dengan penjaga layar | Selesai, termasuk uji Playwright `dapur.spec.ts`. Tanpa perubahan database, jadi tidak ada yang perlu dipasang di cloud | `901c307`, `df390e5`, `f052a95`, `70b39d4` |
 | 5 | Promo jam sepi | Selesai | `1aaa051` |
 | 6 | Jam khusus dan libur | Selesai. Belum: pengumuman tenant, profil toko lengkap, foto menu | `3c17530`, `a50b4d1` |
 | 11 | Tangguhkan tenant | Selesai. Belum: tangguhkan akun, atur biaya, catatan aktivitas, kabar tim, dasbor per tenant | `3c17530`, `a50b4d1` |
