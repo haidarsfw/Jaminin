@@ -1,59 +1,21 @@
-import { BellRingingIcon, ChatCircleIcon, CheckCircleIcon, CookingPotIcon, HandArrowUpIcon, ScanIcon, SpeakerHighIcon } from '@phosphor-icons/react'
+import { ChatCircleIcon, CheckCircleIcon, CookingPotIcon, HandArrowUpIcon, ScanIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { QrScanner } from '@/components/QrScanner'
 import { Button, Card, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, StatusText, Tabs } from '@/components/ui'
 import { ChatThread, chatIsOpen } from '@/features/chat'
 import { parsePickupQr } from '@/features/orders'
-import { audioReady, beep, unlockAudio, useSeller, useTenantSettings } from '@/features/seller'
+import { OrderAlarm, useBoardAction, useBoardOrders, useSeller, useTenantSettings, type BoardOrder } from '@/features/seller'
 import { clock, clockFromDate, orderNo, todayWib, tomorrowWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { useTopic } from '@/lib/realtime'
-import { rpc, supabase, toAppError, type Tables } from '@/lib/supabase'
+import { rpc, supabase, toAppError } from '@/lib/supabase'
 
 export const Route = createFileRoute('/penjual/')({
   component: Board,
 })
-
-type BoardOrder = Tables<'orders'> & {
-  order_items: Tables<'order_items'>[]
-  ratings: { thumbs_up: boolean; comment: string | null } | null
-  order_messages: { count: number }[]
-}
-
-const SEEN_KEY = 'jaminin:pesanan-dilihat'
-
-function seenSet(): Set<string> {
-  try {
-    return new Set(JSON.parse(sessionStorage.getItem(SEEN_KEY) ?? '[]') as string[])
-  } catch {
-    return new Set()
-  }
-}
-
-function useAction() {
-  const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const [busy, setBusy] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  async function run(key: string, fn: () => Promise<unknown>): Promise<boolean> {
-    setBusy(key)
-    setError(null)
-    try {
-      await fn()
-      await queryClient.invalidateQueries({ queryKey: ['papan'] })
-      return true
-    } catch (e) {
-      setError(t(`galat.${toAppError(e).code}`, { defaultValue: t('galat.unknown') }))
-      return false
-    } finally {
-      setBusy(null)
-    }
-  }
-  return { busy, error, run, setError }
-}
 
 function Board() {
   const { t } = useTranslation()
@@ -64,28 +26,8 @@ function Board() {
   const [day, setDay] = useState(todayWib())
   const [handover, setHandover] = useState<BoardOrder | null>(null)
   const [codeSearch, setCodeSearch] = useState('')
-  const [sound, setSound] = useState(audioReady())
-  const [alarm, setAlarm] = useState<string[]>([])
-  const seen = useRef<Set<string>>(seenSet())
-  const action = useAction()
-
-  const orders = useQuery({
-    queryKey: ['papan', active?.id, day],
-    enabled: !!active,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*, order_items(*), ratings(thumbs_up, comment), order_messages(count)')
-        .eq('tenant_id', active!.id)
-        .eq('pickup_date', day)
-        .not('paid_at', 'is', null)
-        .order('pickup_time')
-        .order('order_number')
-      if (error) throw error
-      return data as BoardOrder[]
-    },
-    refetchInterval: 20_000,
-  })
+  const action = useBoardAction()
+  const orders = useBoardOrders(active?.id, day)
 
   const history = useQuery({
     queryKey: ['papan-riwayat', active?.id, orders.data?.map((o) => o.buyer_id).join(',')],
@@ -105,34 +47,10 @@ function Board() {
     },
   })
 
-  // Pesanan lunas yang belum pernah dilihat membunyikan alarm berulang sampai penjual menekan Lihat.
-  useEffect(() => {
-    if (!orders.data || day !== todayWib()) return
-    const fresh = orders.data.filter((o) => o.status === 'diterima' && !seen.current.has(o.id)).map((o) => o.id)
-    setAlarm(fresh)
-  }, [orders.data, day])
-
-  useEffect(() => {
-    if (alarm.length === 0) return
-    beep()
-    const id = window.setInterval(beep, 2500)
-    return () => window.clearInterval(id)
-  }, [alarm])
-
   useTopic(active ? `tenant:${active.id}` : null, ['order', 'tenant', 'payout', 'message'], () => {
     void queryClient.invalidateQueries({ queryKey: ['papan'] })
     void queryClient.invalidateQueries({ queryKey: ['tenant-saya'] })
   })
-
-  function markSeen() {
-    alarm.forEach((id) => seen.current.add(id))
-    try {
-      sessionStorage.setItem(SEEN_KEY, JSON.stringify([...seen.current]))
-    } catch {
-      // Tanpa penyimpanan, daftar dilihat hanya bertahan selama halaman terbuka.
-    }
-    setAlarm([])
-  }
 
   const groups = useMemo(() => {
     const map = new Map<string, BoardOrder[]>()
@@ -175,23 +93,7 @@ function Board() {
         </Notice>
       )}
 
-      {!sound && (
-        <Notice tone="warn" title={t('papan.bunyi_judul')}>
-          <p>{t('papan.bunyi_isi')}</p>
-          <Button icon={<SpeakerHighIcon />} className="mt-2" small variant="primary" onClick={() => setSound(unlockAudio())}>
-            {t('papan.nyalakan_bunyi')}
-          </Button>
-        </Notice>
-      )}
-
-      {alarm.length > 0 && (
-        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-accent bg-accent-soft p-4">
-          <p className="text-lg font-bold">{t('papan.pesanan_baru', { count: alarm.length })}</p>
-          <Button icon={<BellRingingIcon />} variant="primary" onClick={markSeen}>
-            {t('papan.lihat')}
-          </Button>
-        </div>
-      )}
+      <OrderAlarm tenantId={active.id} />
 
       <PauseControl tenantId={active.id} paused={!!paused} pausedUntil={tenant?.paused_until ?? null} indefinite={!!tenant?.paused_indefinitely} />
 
@@ -301,7 +203,7 @@ function OrderCard({
 }: {
   order: BoardOrder
   today: boolean
-  action: ReturnType<typeof useAction>
+  action: ReturnType<typeof useBoardAction>
   onHandover: () => void
   history?: { cancelled: number; notPicked: number }
 }) {

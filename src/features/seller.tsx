@@ -1,7 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
-import { createContext, use, useState, type ReactNode } from 'react'
+import { BellRingingIcon, SpeakerHighIcon } from '@phosphor-icons/react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { createContext, use, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Button, Notice } from '@/components/ui'
 import { useAuth, type MyTenant } from '@/lib/auth'
-import { supabase, type Tables } from '@/lib/supabase'
+import { todayWib } from '@/lib/format'
+import { supabase, toAppError, type Tables } from '@/lib/supabase'
 
 const KEY = 'jaminin:tenant-aktif'
 
@@ -62,6 +66,115 @@ export function useTenantSettings(tenantId: string | undefined) {
       return data as TenantFull
     },
   })
+}
+
+export type BoardOrder = Tables<'orders'> & {
+  order_items: Tables<'order_items'>[]
+  ratings: { thumbs_up: boolean; comment: string | null } | null
+  order_messages: { count: number }[]
+}
+
+// Pesanan lunas satu tenant pada satu tanggal ambil. Papan dan layar dapur memakai cache yang sama.
+export function useBoardOrders(tenantId: string | undefined, day: string) {
+  return useQuery({
+    queryKey: ['papan', tenantId, day],
+    enabled: !!tenantId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*, order_items(*), ratings(thumbs_up, comment), order_messages(count)')
+        .eq('tenant_id', tenantId!)
+        .eq('pickup_date', day)
+        .not('paid_at', 'is', null)
+        .order('pickup_time')
+        .order('order_number')
+      if (error) throw error
+      return data as BoardOrder[]
+    },
+    refetchInterval: 20_000,
+  })
+}
+
+export function useBoardAction() {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const [busy, setBusy] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  async function run(key: string, fn: () => Promise<unknown>): Promise<boolean> {
+    setBusy(key)
+    setError(null)
+    try {
+      await fn()
+      await queryClient.invalidateQueries({ queryKey: ['papan'] })
+      return true
+    } catch (e) {
+      setError(t(`galat.${toAppError(e).code}`, { defaultValue: t('galat.unknown') }))
+      return false
+    } finally {
+      setBusy(null)
+    }
+  }
+  return { busy, error, run, setError }
+}
+
+const SEEN_KEY = 'jaminin:pesanan-dilihat'
+
+function readSeen(): Set<string> {
+  try {
+    return new Set(JSON.parse(sessionStorage.getItem(SEEN_KEY) ?? '[]') as string[])
+  } catch {
+    return new Set()
+  }
+}
+
+// Pesanan lunas hari ini yang belum pernah dilihat membunyikan alarm berulang sampai penjual menekan Lihat,
+// juga saat papan sedang menampilkan tab besok.
+export function OrderAlarm({ tenantId }: { tenantId: string }) {
+  const { t } = useTranslation()
+  const orders = useBoardOrders(tenantId, todayWib())
+  const [seen, setSeen] = useState(readSeen)
+  const [sound, setSound] = useState(audioReady)
+  const fresh = useMemo(() => (orders.data ?? []).filter((o) => o.status === 'diterima' && !seen.has(o.id)).map((o) => o.id), [orders.data, seen])
+  const freshKey = fresh.join(',')
+
+  useEffect(() => {
+    if (!freshKey) return
+    beep()
+    const id = window.setInterval(beep, 2500)
+    return () => window.clearInterval(id)
+  }, [freshKey])
+
+  function markSeen() {
+    const next = new Set(seen)
+    for (const id of fresh) next.add(id)
+    try {
+      sessionStorage.setItem(SEEN_KEY, JSON.stringify([...next]))
+    } catch {
+      // Tanpa penyimpanan, daftar dilihat hanya bertahan selama halaman terbuka.
+    }
+    setSeen(next)
+  }
+
+  return (
+    <>
+      {!sound && (
+        <Notice tone="warn" title={t('papan.bunyi_judul')}>
+          <p>{t('papan.bunyi_isi')}</p>
+          <Button icon={<SpeakerHighIcon />} className="mt-2" small variant="primary" onClick={() => setSound(unlockAudio())}>
+            {t('papan.nyalakan_bunyi')}
+          </Button>
+        </Notice>
+      )}
+      {fresh.length > 0 && (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-accent bg-accent-soft p-4">
+          <p className="text-lg font-bold">{t('papan.pesanan_baru', { count: fresh.length })}</p>
+          <Button icon={<BellRingingIcon />} variant="primary" onClick={markSeen}>
+            {t('papan.lihat')}
+          </Button>
+        </div>
+      )}
+    </>
+  )
 }
 
 // Bunyi pesanan baru dibuat dengan Web Audio, berulang sampai penjual menekan Lihat.
