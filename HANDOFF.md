@@ -119,7 +119,7 @@ Akar:
 `tests/`:
 
 - `unit/`: `format`, `i18n` (memeriksa kunci terjemahan, termasuk kode galat yang muncul di migrasi dan jenis kabar), `kabar`, `calendar`. Total 23 uji.
-- `e2e/`: `bantuan.ts` (`setPassword`, `rest`, `openContext`, `signIn`, `noHorizontalScroll`, `orderAndPay`, `openBoard`), `alur-inti`, `tata-letak`, `libur`, `naskah-demo` (6 skenario), `promo`, `struk-penilaian`, `cloud.spec.ts`. Total 19 uji lokal, semuanya lulus.
+- `e2e/`: `bantuan.ts` (`setPassword`, `rest`, `openContext`, `signIn`, `noHorizontalScroll`, `orderAndPay`, `openBoard`), `alur-inti`, `tata-letak`, `libur`, `naskah-demo` (6 skenario), `promo`, `struk-penilaian`, `chat`, `cloud.spec.ts`. Total 20 uji lokal (sebagian hanya jalan di proyek `hp`), semuanya lulus.
 
 ## 5. Akun dan layanan
 
@@ -226,7 +226,7 @@ Lapis 3 (P1), sejauh ini:
 | P1 | Isi | Status | Commit |
 |---|---|---|---|
 | 1 | Pusat notifikasi, struk digital, tambah ke kalender, penilaian sekali tanpa ubah | Selesai | `cb87a56`, `f6a7f74` |
-| 2 | Chat per pesanan, tutup 24 jam, tim membaca chat pesanan yang dilaporkan | Database, tampilan, uji pgTAP, teks push, dan pemasangan di cloud selesai. Belum: uji Playwright | `c9f7224`, `bf699af` |
+| 2 | Chat per pesanan, tutup 24 jam, tim membaca chat pesanan yang dilaporkan | Selesai, termasuk uji Playwright `chat.spec.ts` dan pemasangan di cloud | `c9f7224`, `bf699af` |
 | 5 | Promo jam sepi | Selesai | `1aaa051` |
 | 6 | Jam khusus dan libur | Selesai. Belum: pengumuman tenant, profil toko lengkap, foto menu | `3c17530`, `a50b4d1` |
 | 11 | Tangguhkan tenant | Selesai. Belum: tangguhkan akun, atur biaya, catatan aktivitas, kabar tim, dasbor per tenant | `3c17530`, `a50b4d1` |
@@ -235,7 +235,7 @@ Lainnya: hosting dan uji cloud (`1fdb745`), panduan dashboard (`4e9d6b3`), uji n
 
 ## 9. Posisi kerja terakhir dan rencana lanjutan
 
-Posisi per Jumat, 9 Oktober 2026 dini hari: semua pekerjaan sudah di-push, termasuk chat per pesanan dan teks push `chat_baru`. Pemeriksaan terakhir lulus: typecheck 0, lint 0, Vitest 23, pgTAP 146. Playwright 19 lulus sebelum chat ditambahkan. Di cloud: migrasi 1400 sampai 1600 dan `kirim-kabar` versi 3 terpasang; 1200 dan 1300 menunggu Haidar menjalankan `supabase/cloud/pasang-1200-1300.sql` di SQL Editor (bagian 7).
+Posisi per Jumat, 9 Oktober 2026 dini hari: semua pekerjaan sudah di-push, termasuk chat per pesanan dan teks push `chat_baru`. Pemeriksaan terakhir lulus: typecheck 0, lint 0, Vitest 23, pgTAP 146. Playwright 20 lulus, termasuk uji chat. Di cloud: migrasi 1400 sampai 1600 dan `kirim-kabar` versi 3 terpasang; 1200 dan 1300 menunggu Haidar menjalankan `supabase/cloud/pasang-1200-1300.sql` di SQL Editor (bagian 7).
 
 Rincian chat (P1 nomor 2):
 
@@ -246,7 +246,7 @@ Rencana lanjutan, berurutan. Setiap langkah di-commit dan di-push begitu selesai
 
 1. Selesai: teks push `chat_baru` (`bf699af`) dan deploy `kirim-kabar` versi 3.
 2. **Migrasi 1200 dan 1300 di cloud** lewat berkas siap tempel (bagian 7). 1400 sampai 1600 sudah terpasang. Setelah Haidar menjalankan berkasnya: cek `list_migrations` (17 catatan), cocokkan sidik cloud dan lokal, jalankan advisor, hapus akun uji cloud (perlu persetujuan, atau Haidar menghapusnya di Dashboard, Authentication, Users).
-3. **Uji Playwright chat** (`tests/e2e/chat.spec.ts`): pembeli pesan dan bayar, kirim pesan, penjual melihat "Chat (1)" lalu membalas, pembeli melihat balasan, tim membaca chat setelah pesanan dilaporkan, tanpa galat console, tanpa gulir menyamping di HP.
+3. Selesai: uji Playwright chat (`tests/e2e/chat.spec.ts`), lulus bersama seluruh uji lokal.
 4. **Ikon** (permintaan Haidar, Kamis malam: "walau desain simpel, saya mau tetap ada icons" supaya navigasi dan bagian lain tidak terasa asing). Keputusan: Phosphor Icons (`@phosphor-icons/react`, cek versi terbaru lewat Context7 dan npm sebelum memasang). Alasan: antislop R-04 menolak Lucide sebagai bawaan; Phosphor punya bobot `regular` dan `fill`, sehingga tab aktif bisa memakai `fill` dan bentuknya akrab bagi pengguna. Pasang di:
    - Navigasi bawah dan atas: Beranda (`House`), Pesanan (`Receipt`), Kabar (`Bell`, dengan jumlah belum dibaca), Profil (`User`), Penjual (`Storefront`), Tim (`UsersThree`). Tab aktif `weight="fill"`, lainnya `regular`. Label teks tetap tampil.
    - Keranjang (`ShoppingBag`), kembali (`ArrowLeft`), tutup dialog (`X`), pencarian (`MagnifyingGlass`) kalau nanti ada.
