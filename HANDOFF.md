@@ -79,6 +79,7 @@ Akar:
 - `wrangler.jsonc` (Worker `jaminin`, aset `./dist/`, `not_found_handling: single-page-application`), `public/_headers` (cache satu tahun untuk `/assets/*`).
 - `playwright.config.ts` (proyek `hp`, `ipad`, `laptop`; menyalakan `npm run dev` sendiri; mengabaikan `cloud.spec.ts`), `playwright.cloud.config.ts` (uji terhadap cloud).
 - `vite.config.ts`, `eslint.config.js`, `tsconfig*.json`, `skills-lock.json`, `.claude/skills/` (skill proyek), `.claude/rules/context7.md`.
+- `.kiro/`: konfigurasi Kiro CLI. `skills/` dan `steering/` berisi tautan ke `.claude/skills`, `CLAUDE.md`, dan `.claude/rules`, ditambah `steering/kiro.md` (aturan khusus laptop Haidar). Tautan antislop (`skills/antislop*`) dan `settings/mcp.json` hanya ada di laptop Haidar dan dikecualikan lewat `.git/info/exclude`.
 - Belum ada `README.md` (tugas Senin, bagian 11).
 
 `src/routes/` (nama berkas = alamat; berkas rute hanya boleh mengekspor `Route`):
@@ -91,7 +92,7 @@ Akar:
 
 `src/components/`: `AppShell.tsx` (bingkai aplikasi, navigasi, `KabarLink` dengan jumlah belum dibaca, `KabarToast`, `DemoPanel`), `Guard.tsx` (penjaga peran), `ui.tsx` (Button, Card, Notice, TextArea, Dialog, dan komponen dasar lain), `SlotPicker.tsx`, `QrScanner.tsx`, `ProfileForm.tsx`.
 
-`src/features/`: `orders.ts` (query dan aksi pesanan), `seller.tsx`, `tenant.ts`, `tenantForm.tsx`, `payouts.tsx`, `kabar.ts` (query kabar), `kabarText.ts` (teks kabar murni, dipakai uji unit, impor relatif), `chat.tsx` (`ChatThread`, `chatIsOpen`).
+`src/features/`: `orders.ts` (query dan aksi pesanan), `seller.tsx`, `tenant.ts`, `tenantForm.tsx`, `payouts.tsx`, `kabar.ts` (query kabar), `kabarText.ts` (teks kabar murni, dipakai uji unit, impor relatif), `chat.tsx` (`ChatThread`, `chatIsOpen`), `kitchen.ts` (`prepSummary`, `itemLabel`, `useWakeLock`, impor relatif supaya bisa diuji unit).
 
 `src/lib/`: `supabase.ts` (klien, `rpc`, `toAppError`, `callFunction`), `database.types.ts` (hasil generate), `auth.tsx`, `cart.ts`, `calendar.ts` (berkas .ics dan tautan Google Calendar), `demo.ts`, `device.ts`, `format.ts` (rupiah, jam, tanggal WIB: `todayWib`, `tomorrowWib`, `wibDate`, `dateLabel`, `orderNo`), `i18n.ts`, `push.ts`, `realtime.ts` (`useTopic`), `theme.ts`.
 
@@ -118,7 +119,7 @@ Akar:
 
 `tests/`:
 
-- `unit/`: `format`, `i18n` (memeriksa kunci terjemahan, termasuk kode galat yang muncul di migrasi dan jenis kabar), `kabar`, `calendar`. Total 23 uji.
+- `unit/`: `format`, `i18n` (memeriksa kunci terjemahan, termasuk kode galat yang muncul di migrasi dan jenis kabar), `kabar`, `calendar`, `kitchen` (ringkasan porsi siap-masak). Total 30 uji.
 - `e2e/`: `bantuan.ts` (`setPassword`, `rest`, `openContext`, `signIn`, `noHorizontalScroll`, `orderAndPay`, `openBoard`), `alur-inti`, `tata-letak`, `libur`, `naskah-demo` (6 skenario), `promo`, `struk-penilaian`, `chat`, `cloud.spec.ts`. Total 20 uji lokal (sebagian hanya jalan di proyek `hp`), semuanya lulus.
 
 ## 5. Akun dan layanan
@@ -230,14 +231,18 @@ Lainnya: hosting dan uji cloud (`1fdb745`), panduan dashboard (`4e9d6b3`), uji n
 
 ## 9. Posisi kerja terakhir dan rencana lanjutan
 
-**Posisi akhir sesi Claude (Jumat, 9 Oktober 2026 dini hari).** Sesi dihentikan atas permintaan Haidar karena kredit habis. Semua pekerjaan sudah di-commit dan di-push sampai `39132f6` (ikon Phosphor), tidak ada perubahan yang tertinggal. Pemeriksaan terakhir: typecheck 0, lint 0, Vitest 23, pgTAP 146, Playwright 20 lulus (uji tata letak diulang dan lulus setelah perbaikan baris atas HP). Di cloud: semua migrasi sampai 1600 dan `kirim-kabar` versi 3 sudah terpasang (1200 dan 1300 dijalankan Haidar lewat SQL Editor, lihat bagian 7). Tugas dashboard Haidar (bagian 10) belum dipastikan selesai.
+**Posisi terakhir (Jumat, 9 Oktober 2026, siang WIB).** Pekerjaan dilanjutkan dengan Kiro CLI di laptop Haidar (macOS), bukan di container cloud Claude. Aturan khusus lingkungan ini ada di `.kiro/steering/kiro.md` (`beef5bc`). Yang disiapkan:
+- Kiro memuat `CLAUDE.md`, aturan Context7, dan 14 skill proyek lewat tautan di `.kiro/`. Antislop serta MCP pengecek kontras (`check_contrast`) dan Sentry hanya dipasang di laptop Haidar.
+- Docker lewat Colima, dengan port kontainer dibatasi ke 127.0.0.1. Supabase lokal berjalan dan `.env.local` menunjuk ke sana. Supabase cloud diakses lewat Supabase CLI yang sudah login, bukan konektor.
+- Pemeriksaan sebelum mengubah kode: typecheck 0, lint 0, Vitest 23, pgTAP 146, Playwright 20 lulus.
+- `package-lock.json` punya perubahan yang belum di-commit (24 baris `"peer": true` dari npm 11). Perubahan itu sudah ada sebelum sesi Kiro dan sengaja tidak ikut di-commit.
 
-**Langkah berikutnya untuk agen baru: P1 nomor 3, daftar siap-masak dan layar dapur (belum dimulai, belum ada kode).** Kriteria PRD: J14 ringkasan porsi per jam ambil untuk hari ini dan besok (contoh "Untuk 11.05: 3 katsu, 2 teriyaki"); J15 kartu besar per jam ambil, diperbarui otomatis, layar tidak mati selama mode aktif. Rancangan yang sudah dipikirkan:
-- `src/features/kitchen.ts` (tanpa impor `@/`, supaya bisa diuji Vitest): `prepSummary(orders)` mengelompokkan pesanan berstatus `diterima` dan `disiapkan` per `pickup_time`, hanya `order_items` berstatus `normal`, label = nama menu plus pilihan dalam kurung, urut jumlah terbanyak; dan hook `useWakeLock()` memakai `navigator.wakeLock.request('screen')`, diminta ulang saat `visibilitychange` terlihat, galat ditangkap tanpa log console.
-- Pindahkan query papan (`['papan', tenantId, day]`, select `*, order_items(*), ratings(thumbs_up, comment), order_messages(count)`) dan tipe `BoardOrder` dari `src/routes/penjual.index.tsx` ke `src/features/seller.tsx` sebagai `useBoardOrders(tenantId, day)`, supaya papan dan layar dapur berbagi cache.
-- Papan penjual: bagian `<details>` "Daftar siap-masak (N porsi)" berisi baris "Untuk 11.05: 3x Kopi Susu (Dingin, Normal), 2x Matcha Latte" untuk hari yang dipilih di tab.
-- Rute baru `src/routes/penjual.dapur.tsx` (`/penjual/dapur`): hari ini saja, kartu besar per jam ambil (teks 2xl sampai 3xl), ringkasan porsi per kartu, tombol besar Mulai siapkan dan Siap diambil (`seller_update_status`), `useTopic('tenant:<id>', ['order','tenant'])` plus polling, keterangan status penjaga layar. Tambah item navigasi penjual "Dapur" (`CookingPotIcon`) di `AppShell`.
-- Kunci terjemahan baru di `id.json` dan `en.json`: `nav.dapur`, `dapur.*`, `siap_masak.*` (en memakai `_one`/`_other`). Uji: Vitest untuk `prepSummary`, Playwright `dapur.spec.ts` (pesan lalu buka layar dapur, cek ringkasan, Mulai siapkan, tanpa galat console dan tanpa gulir menyamping di HP dan iPad).
+**Sedang dikerjakan: P1 nomor 3, daftar siap-masak dan layar dapur.** Kriteria PRD: J14 ringkasan porsi per jam ambil untuk hari ini dan besok (contoh "Untuk 11.05: 3 katsu, 2 teriyaki"); J15 kartu besar per jam ambil, diperbarui otomatis, layar tidak mati selama mode aktif. Dua hal yang belum tertulis diputuskan agen atas izin Haidar: pesanan yang sudah Siap diambil hilang dari layar dapur (penyerahan tetap lewat Papan), dan layar dapur ikut berbunyi sampai Lihat ditekan. Bagian dan statusnya:
+1. Selesai: `src/features/kitchen.ts` (tanpa impor `@/`, supaya bisa diuji Vitest). `prepSummary(orders)` mengelompokkan pesanan berstatus `diterima` dan `disiapkan` per `pickup_time`, hanya `order_items` berstatus `normal`, label = nama menu plus pilihan dalam kurung, urut jumlah terbanyak lalu abjad. `useWakeLock()` memakai `navigator.wakeLock.request('screen')`, diminta ulang saat halaman terlihat lagi dan pada setiap ketukan atau tombol keyboard (Safari hanya memberi kunci dari ketukan), galat ditangkap tanpa log console. Uji: `tests/unit/kitchen.test.ts` (7 uji).
+2. Belum: pindahkan query papan (`['papan', tenantId, day]`, select `*, order_items(*), ratings(thumbs_up, comment), order_messages(count)`), tipe `BoardOrder`, dan `useAction` dari `src/routes/penjual.index.tsx` ke `src/features/seller.tsx` sebagai `useBoardOrders(tenantId, day)` dan `useBoardAction()`, supaya papan dan layar dapur berbagi cache. Alarm pesanan baru ikut dipindah sebagai komponen bersama; alarm selalu mengamati pesanan hari ini, juga saat tab Besok dibuka.
+3. Belum: papan penjual mendapat bagian `<details>` "Daftar siap-masak (N porsi)" berisi baris "Untuk 11.05: 3x Kopi Susu (Dingin, Normal), 2x Matcha Latte" untuk hari yang dipilih di tab.
+4. Belum: rute `src/routes/penjual.dapur.tsx` (`/penjual/dapur`): hari ini saja, kartu besar per jam ambil (teks 2xl sampai 3xl), ringkasan porsi per kartu, tombol besar Mulai siapkan dan Siap diambil (`seller_update_status`), `useTopic('tenant:<id>', ['order','tenant'])` plus polling, keterangan penjaga layar. Item navigasi penjual "Dapur" (`CookingPotIcon`) di `AppShell`. Kunci terjemahan baru `nav.dapur`, `dapur.*`, `siap_masak.*` (en memakai `_one`/`_other`).
+5. Belum: uji Playwright `tests/e2e/dapur.spec.ts` (pesan lalu buka layar dapur, cek ringkasan, Mulai siapkan, tanpa galat console dan tanpa gulir menyamping di HP dan iPad).
 
 Rincian chat (P1 nomor 2):
 
