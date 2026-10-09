@@ -53,6 +53,7 @@ const dynamic: Record<string, string[]> = {
   'demo.peran.': ['pembeli', 'pemilik', 'karyawan', 'admin', 'staf', 'lainnya'],
   'kabar.': [...KABAR_KINDS.map((k) => `${k}_judul`), ...KABAR_KINDS.map((k) => `${k}_isi`), 'pesanan_dibatalkan_isi_uang'],
   'kabar.aksi_': ['ganti', 'hapus', 'batal'],
+  'pesan_ulang.': ['tidak_tersedia', 'pilihan_berubah', 'habis', 'habis_hari_ini', 'harga_berubah'],
   'alasan.': [
     'waktu_habis', 'dibatalkan_pembeli', 'pembeli', 'belum_siap_jam_ambil', 'semua_menu_habis', 'pembeli_menu_habis',
     'belum_siap_saat_tutup', 'tim', 'tidak_diambil_saat_tutup', 'menu_habis_dihapus', 'menu_habis_otomatis', 'menu_habis_diganti', 'manual_tim', 'libur', 'jam_khusus', 'ditangguhkan',

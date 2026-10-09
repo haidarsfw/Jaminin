@@ -11,6 +11,7 @@ export const KABAR_KINDS = [
   'belum_siap_boleh_batal', 'jam_ambil_digeser', 'pesanan_dibatalkan', 'waktu_bayar_habis', 'tidak_diambil',
   'balasan_laporan', 'pesanan_baru', 'pilihan_menu_habis', 'setoran_terkirim', 'pendaftaran_disetujui',
   'pendaftaran_ditolak', 'ringkasan_pesanan_masuk', 'pendaftaran_baru', 'laporan_baru', 'tenant_ditangguhkan', 'tenant_diaktifkan', 'chat_baru',
+  'pengingat_menyiapkan', 'kabar_pagi', 'jam_tersedia', 'jadi_karyawan',
 ]
 
 const FREE_TEXT_REASON = ['pendaftaran_ditolak', 'tenant_ditangguhkan']

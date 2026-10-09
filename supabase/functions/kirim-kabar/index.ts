@@ -98,9 +98,25 @@ const TEXT: Record<string, Record<Lang, (p: Params) => [string, string]>> = {
     id: (p) => [`Pesan baru di pesanan ${num(p)}`, `${p.from === 'tenant' ? p.tenant_name : 'Pembeli'}: ${p.snippet}`],
     en: (p) => [`New message on order ${num(p)}`, `${p.from === 'tenant' ? p.tenant_name : 'Buyer'}: ${p.snippet}`],
   },
+  pengingat_menyiapkan: {
+    id: (p) => [`Saatnya menyiapkan ${num(p)}`, `Jam ambil ${p.pickup_time} atas nama ${p.pickup_name}. Butuh sekitar ${p.minutes} menit.`],
+    en: (p) => [`Time to prepare ${num(p)}`, `Pickup ${p.pickup_time} for ${p.pickup_name}. Takes about ${p.minutes} minutes.`],
+  },
+  kabar_pagi: {
+    id: (p) => [`${p.tenant_name} sudah buka`, `Pesanan ${num(p)} tercatat untuk jam ${p.pickup_time} hari ini.`],
+    en: (p) => [`${p.tenant_name} is open`, `Order ${num(p)} is set for ${p.pickup_time} today.`],
+  },
+  jam_tersedia: {
+    id: (p) => [`Jam ${p.pickup_time} di ${p.tenant_name} tersedia`, 'Ada tempat kosong. Yang lebih dulu membayar mendapat tempat.'],
+    en: (p) => [`${p.pickup_time} at ${p.tenant_name} is open`, 'A spot opened up. Whoever pays first gets it.'],
+  },
+  jadi_karyawan: {
+    id: (p) => [`Kamu jadi karyawan ${p.tenant_name}`, 'Buka mode Penjual untuk menangani pesanan.'],
+    en: (p) => [`You are now staff at ${p.tenant_name}`, 'Open Seller mode to handle orders.'],
+  },
 }
 
-const URGENT = new Set(['pesanan_baru', 'siap_diambil', 'menu_habis', 'belum_siap_boleh_batal', 'pengingat_jam_ambil'])
+const URGENT = new Set(['pesanan_baru', 'siap_diambil', 'menu_habis', 'belum_siap_boleh_batal', 'pengingat_jam_ambil', 'pengingat_menyiapkan', 'jam_tersedia'])
 
 async function ensureVapid(): Promise<string> {
   const current = await selectRows<{ vapid_public_key: string | null }>('app_settings', 'select=vapid_public_key&id=eq.1')

@@ -18,6 +18,7 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
+    "demo:lokal": "supabase db reset && node scripts/demo-lokal.mjs",
     "deploy": "npm run build && wrangler deploy",
     "deploy:cek": "npm run build && wrangler deploy --dry-run"
   },

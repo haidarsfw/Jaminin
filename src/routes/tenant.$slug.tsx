@@ -4,11 +4,12 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Choice, Dialog, EmptyState, ErrorState, LoadingState, Notice, PageHeader, Stepper } from '@/components/ui'
+import { FavoriteButton } from '@/components/FavoriteButton'
 import { addToCart, getCart } from '@/lib/cart'
 import { clock, rupiah, todayWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
-import { rpc } from '@/lib/supabase'
-import { soldOutToday, useTenant, type Group, type Item, type TenantData } from '@/features/tenant'
+import { publicImage, rpc } from '@/lib/supabase'
+import { soldOutBothDays, soldOutToday, useMenuStock, useTenant, type Group, type Item, type MenuStock, type TenantData } from '@/features/tenant'
 
 export const Route = createFileRoute('/tenant/$slug')({
   component: TenantPage,
@@ -26,6 +27,7 @@ function TenantPage() {
     queryFn: () => rpc<{ open_time: string; close_time: string }[]>('tenant_day_ranges', { p_tenant: query.data!.id, p_date: todayWib() }),
   })
   const [selected, setSelected] = useState<Item | null>(null)
+  const stock = useMenuStock(query.data?.id)
 
   const sections = useMemo(() => {
     const data = query.data
@@ -62,6 +64,9 @@ function TenantPage() {
           </>
         }
       />
+      <div className="mb-4">
+        <FavoriteButton target={{ tenant_id: tenant.id }} name={tenant.name} />
+      </div>
       {tenant.is_sample && (
         <Notice className="mb-4" title={t('tenant.contoh_judul')}>
           {t('tenant.contoh_isi')}
@@ -88,16 +93,19 @@ function TenantPage() {
             </h2>
             <ul className="grid gap-2 md:grid-cols-2">
               {section.items.map((item) => {
-                const soldOut = soldOutToday(item)
+                const soldOut = soldOutToday(item, stock.data)
+                const gone = soldOutBothDays(item, stock.data)
+                const photo = publicImage(item.photo_path)
                 return (
                   <li key={item.id}>
                     <button
                       type="button"
                       onClick={() => setSelected(item)}
-                      disabled={item.sold_out_indefinite}
+                      disabled={gone}
                       className="flex min-h-16 w-full items-start justify-between gap-3 rounded-xl border border-line-soft bg-surface p-3 text-left hover:border-line disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      <span className="min-w-0">
+                      {photo && <img src={photo} alt="" className="size-16 shrink-0 rounded-lg object-cover" loading="lazy" />}
+                      <span className="min-w-0 flex-1">
                         <span className="block font-semibold">{item.name}</span>
                         {item.description && <span className="block text-sm text-muted">{item.description}</span>}
                         <span className="mt-1 block text-sm text-muted">
@@ -111,7 +119,7 @@ function TenantPage() {
                         </span>
                         {soldOut && (
                           <span className="mt-1 block text-sm font-semibold text-danger">
-                            {item.sold_out_indefinite ? t('tenant.habis') : t('tenant.habis_hari_ini')}
+                            {gone ? t('tenant.habis') : t('tenant.habis_hari_ini')}
                           </span>
                         )}
                       </span>
@@ -128,12 +136,12 @@ function TenantPage() {
         ))}
       </div>
 
-      {selected && <ItemDialog item={selected} tenant={tenant} onClose={() => setSelected(null)} />}
+      {selected && <ItemDialog item={selected} tenant={tenant} stock={stock.data} onClose={() => setSelected(null)} />}
     </div>
   )
 }
 
-function ItemDialog({ item, tenant, onClose }: { item: Item; tenant: TenantData; onClose: () => void }) {
+function ItemDialog({ item, tenant, stock, onClose }: { item: Item; tenant: TenantData; stock?: MenuStock; onClose: () => void }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const groups = [...item.option_groups].sort((a, b) => a.sort_order - b.sort_order)
@@ -185,7 +193,8 @@ function ItemDialog({ item, tenant, onClose }: { item: Item; tenant: TenantData;
         <p className="text-muted">
           {rupiah(item.price)} · {t('tenant.menit', { count: item.prep_minutes })}
         </p>
-        {soldOutToday(item) && <Notice tone="warn">{t('tenant.habis_hari_ini_bisa_besok')}</Notice>}
+        <FavoriteButton target={{ menu_item_id: item.id }} name={item.name} />
+        {soldOutToday(item, stock) && <Notice tone="warn">{t('tenant.habis_hari_ini_bisa_besok')}</Notice>}
         {groups.map((group) => (
           <fieldset key={group.id} className="space-y-2">
             <legend className="font-semibold">

@@ -287,7 +287,11 @@
     "laporkan": "Report a problem",
     "batalkan": "Cancel order",
     "batal_konfirmasi": "Cancel the order? You get a full refund.",
-    "tahap": "Order progress"
+    "tahap": "Order progress",
+    "pengeluaran": "Monthly spending",
+    "pengeluaran_isi": "What you paid, minus refunds.",
+    "pengeluaran_jumlah_one": "{{count}} order",
+    "pengeluaran_jumlah_other": "{{count}} orders"
   },
   "nilai": {
     "judul": "Rate this order",
@@ -539,7 +543,15 @@
     "tenant_diaktifkan_judul": "{{tenant}} is active again",
     "tenant_diaktifkan_isi": "The tenant is visible to buyers again.",
     "chat_baru_judul": "New message on order {{nomor}}",
-    "chat_baru_isi": "{{dari}}: {{cuplikan}}"
+    "chat_baru_isi": "{{dari}}: {{cuplikan}}",
+    "pengingat_menyiapkan_judul": "Time to prepare {{nomor}}",
+    "pengingat_menyiapkan_isi": "Pickup {{jam}} for {{nama}}. Takes about {{menit}} minutes.",
+    "kabar_pagi_judul": "{{tenant}} is open",
+    "kabar_pagi_isi": "Order {{nomor}} is set for {{jam}} today.",
+    "jam_tersedia_judul": "{{jam}} at {{tenant}} is open",
+    "jam_tersedia_isi": "A spot opened up for {{tanggal}}. Whoever pays first gets it.",
+    "jadi_karyawan_judul": "You are now staff at {{tenant}}",
+    "jadi_karyawan_isi": "Open Seller mode to handle orders."
   },
   "pasang": {
     "judul": "Install Jaminin",
@@ -933,7 +945,8 @@
     "tutup_rincian": "Hide details",
     "promo_baris": "promo {{amount}}",
     "baris_tim": "Refund from the team, order {{number}}",
-    "baris_aturan": "Refund, order {{number}} ({{date}})"
+    "baris_aturan": "Refund, order {{number}} ({{date}})",
+    "daftar": "Payout list"
   },
   "tim": {
     "judul": "Overview",
@@ -1160,6 +1173,72 @@
     "already_rated": "This order has already been rated. Ratings cannot be changed.",
     "comment_too_long": "Comments can be up to 200 characters.",
     "chat_closed": "Chat for this order is closed.",
-    "message_invalid": "Messages must be 1 to 500 characters."
+    "message_invalid": "Messages must be 1 to 500 characters.",
+    "slot_not_full": "That time is still available. Just pick it.",
+    "already_member": "That account is already a member of this tenant.",
+    "cannot_remove_owner": "The tenant owner cannot be removed.",
+    "cannot_suspend_self": "You cannot suspend your own account."
+  },
+  "favorit": {
+    "judul": "Your favorites",
+    "tombol": "Favorite",
+    "label": "Favorite: {{name}}"
+  },
+  "cari": {
+    "judul": "Search menu",
+    "label": "Search menu or tenant",
+    "penanda": "Menu labels",
+    "hasil": "Search results",
+    "kosong": "No matches",
+    "kosong_isi": "Try another word or remove some labels."
+  },
+  "pesan_ulang": {
+    "tombol": "Order again",
+    "judul": "Order {{number}} is back in your cart",
+    "kosong": "None of the items in this order can be ordered anymore.",
+    "tidak_tersedia": "{{name}} is no longer sold, so it was left out.",
+    "pilihan_berubah": "The options for {{name}} have changed. Add it again from the tenant page.",
+    "habis": "{{name}} is sold out, so it was left out.",
+    "habis_hari_ini": "{{name}} is sold out for today, so this order can only be picked up tomorrow.",
+    "harga_berubah": "The price of {{name}} changed from {{from}} to {{to}}."
+  },
+  "laporan_penjual": {
+    "judul": "Sales report",
+    "rentang": "Report range",
+    "hari_one": "{{count}} day",
+    "hari_other": "{{count}} days",
+    "isi": "By pickup date, from paid orders. The amounts paid out are in the payout list.",
+    "unduh_pesanan": "Download order summary (CSV)",
+    "unduh_setoran": "Download payout summary (CSV)",
+    "kosong": "No orders in this range yet",
+    "ringkas_one": "{{count}} order, {{sales}}",
+    "ringkas_other": "{{count}} orders, {{sales}}",
+    "penjualan": "Sales",
+    "uang_kembali_sebagian": "Refunds to buyers",
+    "batal": "Cancelled orders",
+    "k_tanggal": "Date",
+    "k_jam": "Pickup time",
+    "k_nomor": "Number",
+    "k_nama": "Pickup name",
+    "k_status": "Status",
+    "k_isi": "Items",
+    "k_subtotal": "Subtotal",
+    "k_promo": "Promo discount",
+    "k_biaya_layanan": "Service fee",
+    "k_potongan": "Jaminin fee",
+    "k_dibayar": "Paid by buyer",
+    "k_uang_kembali": "Refunded",
+    "k_jumlah_pesanan": "Orders",
+    "k_penjualan": "Sales",
+    "k_uang_kembali_tim": "Refunds from the team",
+    "k_disetor": "Paid out",
+    "k_rekening": "Account",
+    "k_waktu": "Sent at"
+  },
+  "tunggu": {
+    "judul": "Is the time you want full?",
+    "isi": "Pick the time. If someone cancels, everyone waiting is told at once, and whoever pays first gets the spot.",
+    "label": "Waitlist for {{time}}",
+    "masuk": "You are on the waitlist for {{time}}."
   }
 }

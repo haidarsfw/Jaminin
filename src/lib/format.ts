@@ -52,6 +52,12 @@ export function longDate(date: string, lang: Lang): string {
   return format(d, 'EEEE, d MMMM yyyy', { locale: lang === 'en' ? enUS : idLocale })
 }
 
+// Nama bulan untuk 'yyyy-MM', contoh "Oktober 2026".
+export function monthLabel(month: string, lang: Lang): string {
+  const d = new TZDate(`${month}-01T00:00:00+07:00`, WIB)
+  return format(d, 'MMMM yyyy', { locale: lang === 'en' ? enUS : idLocale })
+}
+
 export function orderNo(n: number | null | undefined): string {
   return n ? '#' + String(n).padStart(3, '0') : '#...'
 }

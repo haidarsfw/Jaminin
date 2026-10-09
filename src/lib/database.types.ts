@@ -77,6 +77,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"favorites": {
+                  Row: {
+                    "created_at": string,"id": string,"menu_item_id": string | null,"tenant_id": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"menu_item_id"?: string | null,"tenant_id"?: string | null,"user_id"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"menu_item_id"?: string | null,"tenant_id"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "favorites_menu_item_id_fkey"
+      columns: ["menu_item_id"]
+isOneToOne: false
+      referencedRelation: "menu_items"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "favorites_tenant_id_fkey"
+      columns: ["tenant_id"]
+isOneToOne: false
+      referencedRelation: "tenants"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "favorites_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"menu_categories": {
                   Row: {
                     "id": string,"is_active": boolean,"name": string,"sort_order": number,"tenant_id": string
@@ -243,14 +275,14 @@ isOneToOne: false
                   ]
                 },"orders": {
                   Row: {
-                    "buyer_id": string,"buyer_name": string,"buyer_whatsapp": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"completed_at": string | null,"completed_by": string | null,"created_at": string,"cutlery": boolean,"dining": Database["public"]['Enums']["cara_makan"],"end_reason": string | null,"id": string,"is_sample": boolean,"jaminin_fee_returned": boolean,"max_prep_minutes": number,"needs_buyer_action": boolean,"not_ready_notified_at": string | null,"note": string | null,"order_number": number | null,"original_pickup_at": string | null,"paid_at": string | null,"pay_deadline": string,"payment_code": string,"payout_id": string | null,"pickup_at": string,"pickup_code": string | null,"pickup_date": string,"pickup_name": string,"pickup_time": string,"preparing_at": string | null,"promo_discount": number,"promo_id": string | null,"ready_at": string | null,"refunded_total": number,"reminder_sent_at": string | null,"rescheduled_count": number,"seller_fee": number,"service_fee": number,"status": Database["public"]['Enums']["status_pesanan"],"subtotal": number,"tenant_id": string,"total_paid": number,"updated_at": string
+                    "buyer_id": string,"buyer_name": string,"buyer_whatsapp": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"completed_at": string | null,"completed_by": string | null,"created_at": string,"cutlery": boolean,"dining": Database["public"]['Enums']["cara_makan"],"end_reason": string | null,"id": string,"is_sample": boolean,"jaminin_fee_returned": boolean,"max_prep_minutes": number,"morning_notified_at": string | null,"needs_buyer_action": boolean,"not_ready_notified_at": string | null,"note": string | null,"order_number": number | null,"original_pickup_at": string | null,"paid_at": string | null,"pay_deadline": string,"payment_code": string,"payout_id": string | null,"pickup_at": string,"pickup_code": string | null,"pickup_date": string,"pickup_name": string,"pickup_time": string,"prep_reminded_at": string | null,"preparing_at": string | null,"promo_discount": number,"promo_id": string | null,"ready_at": string | null,"refunded_total": number,"reminder_sent_at": string | null,"rescheduled_count": number,"seller_fee": number,"service_fee": number,"status": Database["public"]['Enums']["status_pesanan"],"subtotal": number,"tenant_id": string,"total_paid": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "buyer_id": string,"buyer_name": string,"buyer_whatsapp"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"completed_at"?: string | null,"completed_by"?: string | null,"created_at"?: string,"cutlery"?: boolean,"dining": Database["public"]['Enums']["cara_makan"],"end_reason"?: string | null,"id"?: string,"is_sample"?: boolean,"jaminin_fee_returned"?: boolean,"max_prep_minutes"?: number,"needs_buyer_action"?: boolean,"not_ready_notified_at"?: string | null,"note"?: string | null,"order_number"?: number | null,"original_pickup_at"?: string | null,"paid_at"?: string | null,"pay_deadline": string,"payment_code": string,"payout_id"?: string | null,"pickup_at": string,"pickup_code"?: string | null,"pickup_date": string,"pickup_name": string,"pickup_time": string,"preparing_at"?: string | null,"promo_discount"?: number,"promo_id"?: string | null,"ready_at"?: string | null,"refunded_total"?: number,"reminder_sent_at"?: string | null,"rescheduled_count"?: number,"seller_fee": number,"service_fee": number,"status"?: Database["public"]['Enums']["status_pesanan"],"subtotal": number,"tenant_id": string,"total_paid": number,"updated_at"?: string
+                    "buyer_id": string,"buyer_name": string,"buyer_whatsapp"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"completed_at"?: string | null,"completed_by"?: string | null,"created_at"?: string,"cutlery"?: boolean,"dining": Database["public"]['Enums']["cara_makan"],"end_reason"?: string | null,"id"?: string,"is_sample"?: boolean,"jaminin_fee_returned"?: boolean,"max_prep_minutes"?: number,"morning_notified_at"?: string | null,"needs_buyer_action"?: boolean,"not_ready_notified_at"?: string | null,"note"?: string | null,"order_number"?: number | null,"original_pickup_at"?: string | null,"paid_at"?: string | null,"pay_deadline": string,"payment_code": string,"payout_id"?: string | null,"pickup_at": string,"pickup_code"?: string | null,"pickup_date": string,"pickup_name": string,"pickup_time": string,"prep_reminded_at"?: string | null,"preparing_at"?: string | null,"promo_discount"?: number,"promo_id"?: string | null,"ready_at"?: string | null,"refunded_total"?: number,"reminder_sent_at"?: string | null,"rescheduled_count"?: number,"seller_fee": number,"service_fee": number,"status"?: Database["public"]['Enums']["status_pesanan"],"subtotal": number,"tenant_id": string,"total_paid": number,"updated_at"?: string
                   }
                   Update: {
-                    "buyer_id"?: string,"buyer_name"?: string,"buyer_whatsapp"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"completed_at"?: string | null,"completed_by"?: string | null,"created_at"?: string,"cutlery"?: boolean,"dining"?: Database["public"]['Enums']["cara_makan"],"end_reason"?: string | null,"id"?: string,"is_sample"?: boolean,"jaminin_fee_returned"?: boolean,"max_prep_minutes"?: number,"needs_buyer_action"?: boolean,"not_ready_notified_at"?: string | null,"note"?: string | null,"order_number"?: number | null,"original_pickup_at"?: string | null,"paid_at"?: string | null,"pay_deadline"?: string,"payment_code"?: string,"payout_id"?: string | null,"pickup_at"?: string,"pickup_code"?: string | null,"pickup_date"?: string,"pickup_name"?: string,"pickup_time"?: string,"preparing_at"?: string | null,"promo_discount"?: number,"promo_id"?: string | null,"ready_at"?: string | null,"refunded_total"?: number,"reminder_sent_at"?: string | null,"rescheduled_count"?: number,"seller_fee"?: number,"service_fee"?: number,"status"?: Database["public"]['Enums']["status_pesanan"],"subtotal"?: number,"tenant_id"?: string,"total_paid"?: number,"updated_at"?: string
+                    "buyer_id"?: string,"buyer_name"?: string,"buyer_whatsapp"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"completed_at"?: string | null,"completed_by"?: string | null,"created_at"?: string,"cutlery"?: boolean,"dining"?: Database["public"]['Enums']["cara_makan"],"end_reason"?: string | null,"id"?: string,"is_sample"?: boolean,"jaminin_fee_returned"?: boolean,"max_prep_minutes"?: number,"morning_notified_at"?: string | null,"needs_buyer_action"?: boolean,"not_ready_notified_at"?: string | null,"note"?: string | null,"order_number"?: number | null,"original_pickup_at"?: string | null,"paid_at"?: string | null,"pay_deadline"?: string,"payment_code"?: string,"payout_id"?: string | null,"pickup_at"?: string,"pickup_code"?: string | null,"pickup_date"?: string,"pickup_name"?: string,"pickup_time"?: string,"prep_reminded_at"?: string | null,"preparing_at"?: string | null,"promo_discount"?: number,"promo_id"?: string | null,"ready_at"?: string | null,"refunded_total"?: number,"reminder_sent_at"?: string | null,"rescheduled_count"?: number,"seller_fee"?: number,"service_fee"?: number,"status"?: Database["public"]['Enums']["status_pesanan"],"subtotal"?: number,"tenant_id"?: string,"total_paid"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -713,6 +745,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"waitlist": {
+                  Row: {
+                    "created_at": string,"id": string,"max_prep": number,"notified_at": string | null,"pickup_date": string,"pickup_time": string,"tenant_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"max_prep"?: number,"notified_at"?: string | null,"pickup_date": string,"pickup_time": string,"tenant_id": string,"user_id"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"max_prep"?: number,"notified_at"?: string | null,"pickup_date"?: string,"pickup_time"?: string,"tenant_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "waitlist_tenant_id_fkey"
+      columns: ["tenant_id"]
+isOneToOne: false
+      referencedRelation: "tenants"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "waitlist_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -780,6 +838,14 @@ isOneToOne: false
                            },
 "internal_set_vapid":
 { Args: { "p_keys_json": string,"p_public": string }; Returns: boolean
+                           },
+"join_waitlist":
+{ Args: { "p_date": string,"p_max_prep": number,"p_tenant": string,"p_time": string }; Returns: undefined
+                           },
+"menu_stock":
+{ Args: { "p_tenant": string }; Returns: {
+              "menu_item_id": string,"pickup_date": string,"remaining": number
+            }[]
                            },
 "my_tenants":
 { Args: Record<PropertyKey, never>; Returns: {

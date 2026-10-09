@@ -1,9 +1,11 @@
 import { ClockIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, ButtonLink, Card, EmptyState, PageHeader, Stepper } from '@/components/ui'
-import { cartSubtotal, clearCart, setQuantity, useCart } from '@/lib/cart'
-import { rupiah } from '@/lib/format'
+import { Button, ButtonLink, Card, EmptyState, Notice, PageHeader, Stepper } from '@/components/ui'
+import { forgetReorderNotes, reorderNotes } from '@/features/buyer'
+import { cartSubtotal, clearCart, getCart, setQuantity, useCart } from '@/lib/cart'
+import { orderNo, rupiah } from '@/lib/format'
 
 export const Route = createFileRoute('/keranjang')({
   component: CartPage,
@@ -12,6 +14,7 @@ export const Route = createFileRoute('/keranjang')({
 function CartPage() {
   const { t } = useTranslation()
   const cart = useCart()
+  const [notes, setNotes] = useState(() => reorderNotes(getCart()?.tenantId))
 
   if (!cart) {
     return (
@@ -37,6 +40,28 @@ function CartPage() {
         description={t('keranjang.dari', { name: cart.tenantName })}
         back={{ to: '/tenant/$slug', params: { slug: cart.tenantSlug }, label: t('keranjang.tambah_menu') }}
       />
+      {notes && notes.tenantId === cart.tenantId && (
+        <Notice tone={notes.notes.length > 0 ? 'warn' : 'success'} title={t('pesan_ulang.judul', { number: orderNo(notes.number) })} className="mb-4">
+          {notes.notes.length > 0 && (
+            <ul className="list-disc space-y-1 pl-5">
+              {notes.notes.map((n, i) => (
+                <li key={i}>{t(`pesan_ulang.${n.kind}`, { name: n.name, from: rupiah(n.from), to: rupiah(n.to) })}</li>
+              ))}
+            </ul>
+          )}
+          <Button
+            small
+            variant="quiet"
+            className="mt-1 -ml-3"
+            onClick={() => {
+              forgetReorderNotes()
+              setNotes(null)
+            }}
+          >
+            {t('umum.tutup')}
+          </Button>
+        </Notice>
+      )}
       <ul className="space-y-2">
         {cart.lines.map((line) => (
           <li key={line.key}>

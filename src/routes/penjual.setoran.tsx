@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui'
 import { PayoutCard } from '@/features/payouts'
 import { useSeller, useTenantSettings } from '@/features/seller'
+import { SalesReport } from '@/features/sellerReport'
 import { clock } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { useTopic } from '@/lib/realtime'
@@ -38,6 +39,8 @@ function PayoutsPage() {
         description={payoutTime ? t('setoran.sub_jam', { time: clock(payoutTime, lang) }) : t('setoran.sub_tutup')}
       />
       <p className="text-sm text-muted">{t('setoran.simulasi')}</p>
+      <SalesReport tenantId={active.id} tenantSlug={active.slug} />
+      <h2 className="pt-2 text-lg font-bold">{t('setoran.daftar')}</h2>
       {payouts.isPending && <LoadingState />}
       {payouts.isError && <ErrorState onRetry={() => void payouts.refetch()} />}
       {payouts.data && payouts.data.length === 0 && <EmptyState title={t('setoran.kosong')} body={t('setoran.kosong_isi')} />}

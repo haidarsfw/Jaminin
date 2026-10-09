@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/auth'
 import { cartMaxPrep, cartSubtotal, forgetSlot, recalledSlot, useCart } from '@/lib/cart'
 import { rupiah, todayWib, tomorrowWib } from '@/lib/format'
 import { rpc, supabase, toAppError } from '@/lib/supabase'
-import { soldOutToday, useTenant } from '@/features/tenant'
+import { soldOutBothDays, soldOutToday, useMenuStock, useTenant } from '@/features/tenant'
 
 export const Route = createFileRoute('/checkout')({
   component: () => (
@@ -31,10 +31,11 @@ function Checkout() {
   const { profile, user } = useAuth()
   const settings = useSettings()
   const tenant = useTenant(cart?.tenantSlug ?? '')
+  const stock = useMenuStock(cart?.tenantId)
 
   const soldOutTodayInCart = !!cart && !!tenant.data && cart.lines.some((l) => {
     const item = tenant.data?.menu_items.find((i) => i.id === l.menuItemId)
-    return item ? soldOutToday(item) && !item.sold_out_indefinite : false
+    return item ? soldOutToday(item, stock.data) && !soldOutBothDays(item, stock.data) : false
   })
 
   const [pickedDate, setDate] = useState(() => recalledSlot()?.date ?? todayWib())

@@ -281,7 +281,10 @@
     "laporkan": "Laporkan masalah",
     "batalkan": "Batalkan pesanan",
     "batal_konfirmasi": "Batalkan pesanan? Uangmu kembali penuh.",
-    "tahap": "Tahap pesanan"
+    "tahap": "Tahap pesanan",
+    "pengeluaran": "Pengeluaran per bulan",
+    "pengeluaran_isi": "Dihitung dari yang kamu bayar, dikurangi uang kembali.",
+    "pengeluaran_jumlah": "{{count}} pesanan"
   },
   "nilai": {
     "judul": "Beri penilaian",
@@ -529,7 +532,15 @@
     "tenant_diaktifkan_judul": "{{tenant}} aktif lagi",
     "tenant_diaktifkan_isi": "Tenant sudah tampil lagi untuk pembeli.",
     "chat_baru_judul": "Pesan baru di pesanan {{nomor}}",
-    "chat_baru_isi": "{{dari}}: {{cuplikan}}"
+    "chat_baru_isi": "{{dari}}: {{cuplikan}}",
+    "pengingat_menyiapkan_judul": "Saatnya menyiapkan {{nomor}}",
+    "pengingat_menyiapkan_isi": "Jam ambil {{jam}} atas nama {{nama}}. Butuh sekitar {{menit}} menit.",
+    "kabar_pagi_judul": "{{tenant}} sudah buka",
+    "kabar_pagi_isi": "Pesanan {{nomor}} tercatat untuk jam {{jam}} hari ini.",
+    "jam_tersedia_judul": "Jam {{jam}} di {{tenant}} tersedia",
+    "jam_tersedia_isi": "Ada tempat kosong untuk {{tanggal}}. Yang lebih dulu membayar mendapat tempat.",
+    "jadi_karyawan_judul": "Kamu jadi karyawan {{tenant}}",
+    "jadi_karyawan_isi": "Buka mode Penjual untuk menangani pesanan."
   },
   "pasang": {
     "judul": "Pasang Jaminin",
@@ -909,7 +920,8 @@
     "tutup_rincian": "Tutup rincian",
     "promo_baris": "promo {{amount}}",
     "baris_tim": "Uang kembali dari tim, pesanan {{number}}",
-    "baris_aturan": "Uang kembali, pesanan {{number}} ({{date}})"
+    "baris_aturan": "Uang kembali, pesanan {{number}} ({{date}})",
+    "daftar": "Daftar setoran"
   },
   "tim": {
     "judul": "Ringkasan",
@@ -1131,6 +1143,70 @@
     "already_rated": "Pesanan ini sudah dinilai. Penilaian tidak bisa diubah.",
     "comment_too_long": "Komentar maksimal 200 karakter.",
     "chat_closed": "Chat untuk pesanan ini sudah ditutup.",
-    "message_invalid": "Pesan harus berisi 1 sampai 500 karakter."
+    "message_invalid": "Pesan harus berisi 1 sampai 500 karakter.",
+    "slot_not_full": "Jam itu masih tersedia. Langsung pilih saja.",
+    "already_member": "Akun itu sudah menjadi anggota tenant ini.",
+    "cannot_remove_owner": "Pemilik tenant tidak bisa dikeluarkan.",
+    "cannot_suspend_self": "Kamu tidak bisa menangguhkan akunmu sendiri."
+  },
+  "favorit": {
+    "judul": "Favoritmu",
+    "tombol": "Favorit",
+    "label": "Favorit: {{name}}"
+  },
+  "cari": {
+    "judul": "Cari menu",
+    "label": "Cari menu atau tenant",
+    "penanda": "Penanda menu",
+    "hasil": "Hasil pencarian",
+    "kosong": "Tidak ada yang cocok",
+    "kosong_isi": "Coba kata lain atau kurangi penanda yang dipilih."
+  },
+  "pesan_ulang": {
+    "tombol": "Pesan lagi",
+    "judul": "Isi pesanan {{number}} sudah masuk keranjang",
+    "kosong": "Semua menu di pesanan ini sudah tidak bisa dipesan.",
+    "tidak_tersedia": "{{name}} sudah tidak dijual, jadi tidak dimasukkan.",
+    "pilihan_berubah": "Pilihan untuk {{name}} sudah berubah. Tambahkan lagi dari halaman tenant.",
+    "habis": "{{name}} sedang habis, jadi tidak dimasukkan.",
+    "habis_hari_ini": "{{name}} habis untuk hari ini, jadi pesanan ini hanya bisa diambil besok.",
+    "harga_berubah": "Harga {{name}} berubah dari {{from}} menjadi {{to}}."
+  },
+  "laporan_penjual": {
+    "judul": "Laporan penjualan",
+    "rentang": "Rentang laporan",
+    "hari": "{{count}} hari",
+    "isi": "Per tanggal ambil, dari pesanan yang sudah dibayar. Jumlah yang disetor ada di daftar setoran.",
+    "unduh_pesanan": "Unduh rekap pesanan (CSV)",
+    "unduh_setoran": "Unduh rekap setoran (CSV)",
+    "kosong": "Belum ada pesanan di rentang ini",
+    "ringkas": "{{count}} pesanan, {{sales}}",
+    "penjualan": "Penjualan",
+    "uang_kembali_sebagian": "Uang kembali ke pembeli",
+    "batal": "Pesanan batal",
+    "k_tanggal": "Tanggal",
+    "k_jam": "Jam ambil",
+    "k_nomor": "Nomor",
+    "k_nama": "Nama pengambil",
+    "k_status": "Status",
+    "k_isi": "Isi pesanan",
+    "k_subtotal": "Subtotal",
+    "k_promo": "Potongan promo",
+    "k_biaya_layanan": "Biaya layanan",
+    "k_potongan": "Potongan Jaminin",
+    "k_dibayar": "Dibayar pembeli",
+    "k_uang_kembali": "Uang kembali",
+    "k_jumlah_pesanan": "Jumlah pesanan",
+    "k_penjualan": "Penjualan",
+    "k_uang_kembali_tim": "Uang kembali dari tim",
+    "k_disetor": "Disetor",
+    "k_rekening": "Rekening",
+    "k_waktu": "Waktu kirim"
+  },
+  "tunggu": {
+    "judul": "Jam yang kamu mau penuh?",
+    "isi": "Pilih jamnya. Kalau ada yang batal, semua yang menunggu dikabari bersamaan, dan yang lebih dulu membayar mendapat tempat.",
+    "label": "Daftar tunggu jam {{time}}",
+    "masuk": "Kamu masuk daftar tunggu jam {{time}}."
   }
 }

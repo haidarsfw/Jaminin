@@ -1,6 +1,6 @@
-import { ArrowSquareOutIcon, CalendarPlusIcon, CheckCircleIcon, ClockClockwiseIcon, FlagIcon, PaperPlaneRightIcon, QrCodeIcon, ReceiptIcon, ShareNetworkIcon, WhatsappLogoIcon, XCircleIcon } from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, ArrowSquareOutIcon, CalendarPlusIcon, CheckCircleIcon, ClockClockwiseIcon, FlagIcon, PaperPlaneRightIcon, QrCodeIcon, ReceiptIcon, ShareNetworkIcon, WhatsappLogoIcon, XCircleIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { QRCodeSVG } from 'qrcode.react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,7 @@ import { RequireAuth } from '@/components/Guard'
 import { SlotPicker } from '@/components/SlotPicker'
 import { Button, ButtonLink, buttonClass, Card, Dialog, EmptyState, ErrorState, Field, LoadingState, Notice, PageHeader, Select, StatusText, TextArea, useNow } from '@/components/ui'
 import { ChatThread, chatIsOpen } from '@/features/chat'
+import { reorder } from '@/features/buyer'
 import { cachedPickup, pickupQr, statusKey, useOrder, type OrderFull, type OrderItem } from '@/features/orders'
 import { downloadIcs, googleCalendarUrl, type PickupEvent } from '@/lib/calendar'
 import { installBannerDismissed, dismissInstallBanner, isIos, isStandalone } from '@/lib/device'
@@ -203,6 +204,7 @@ function OrderPage() {
               {t('struk.lihat')}
             </ButtonLink>
           )}
+          {['selesai', 'tidak_diambil', 'dibatalkan'].includes(o.status) && <ReorderButton order={o} />}
         </div>
       ) : null}
 
@@ -337,6 +339,45 @@ function OrderPage() {
       {reschedule && <RescheduleDialog order={o} onClose={() => setReschedule(false)} />}
       {report && <ReportDialog order={o} onClose={() => setReport(false)} />}
     </div>
+  )
+}
+
+// Isi pesanan lama masuk keranjang dengan harga dan pilihan yang berlaku sekarang, lalu pembeli memilih jam lagi.
+function ReorderButton({ order }: { order: OrderFull }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  return (
+    <>
+      <Button
+        small
+        icon={<ArrowClockwiseIcon />}
+        busy={busy}
+        busyText={t('umum.memproses')}
+        onClick={async () => {
+          setBusy(true)
+          setError(null)
+          try {
+            const result = await reorder(order, (name) => window.confirm(t('keranjang.ganti_konfirmasi', { name })))
+            if (!result) return
+            if (result.added === 0) setError(t('pesan_ulang.kosong'))
+            else await navigate({ to: '/keranjang' })
+          } catch (e) {
+            setError(t(`galat.${toAppError(e).code}`, { defaultValue: t('galat.unknown') }))
+          } finally {
+            setBusy(false)
+          }
+        }}
+      >
+        {t('pesan_ulang.tombol')}
+      </Button>
+      {error && (
+        <Notice tone="error" className="w-full">
+          {error}
+        </Notice>
+      )}
+    </>
   )
 }
 

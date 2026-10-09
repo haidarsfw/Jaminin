@@ -5,7 +5,7 @@ import { RequireAuth } from '@/components/Guard'
 import { ButtonLink, EmptyState, ErrorState, LoadingState, PageHeader, StatusText } from '@/components/ui'
 import { ACTIVE, statusKey } from '@/features/orders'
 import { useAuth } from '@/lib/auth'
-import { clock, dateLabel, orderNo, rupiah } from '@/lib/format'
+import { clock, dateLabel, monthLabel, orderNo, rupiah } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { useTopic } from '@/lib/realtime'
 import { supabase, type Enums } from '@/lib/supabase'
@@ -54,6 +54,30 @@ function OrdersPage() {
 
   useTopic(user ? `user:${user.id}` : null, ['order'], () => {
     void queryClient.invalidateQueries({ queryKey: ['pesanan-saya'] })
+    void queryClient.invalidateQueries({ queryKey: ['pengeluaran'] })
+  })
+
+  // Pengeluaran per bulan ambil: yang dibayar dikurangi uang kembali. Pesanan yang batal tidak dihitung sebagai pesanan.
+  const spending = useQuery({
+    queryKey: ['pengeluaran', user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('pickup_date, total_paid, refunded_total, status')
+        .eq('buyer_id', user!.id)
+        .not('paid_at', 'is', null)
+      if (error) throw error
+      const months = new Map<string, { amount: number; count: number }>()
+      for (const o of data) {
+        const key = o.pickup_date.slice(0, 7)
+        const m = months.get(key) ?? { amount: 0, count: 0 }
+        m.amount += o.total_paid - o.refunded_total
+        if (o.status !== 'dibatalkan') m.count += 1
+        months.set(key, m)
+      }
+      return [...months.entries()].sort(([a], [b]) => (a < b ? 1 : -1))
+    },
   })
 
   if (orders.isPending) return <LoadingState />
@@ -89,6 +113,25 @@ function OrdersPage() {
             {t('pesanan.riwayat')}
           </h2>
           <OrderList rows={history} lang={lang} />
+        </section>
+      )}
+      {(spending.data?.length ?? 0) > 0 && (
+        <section aria-labelledby="pengeluaran" className="space-y-2">
+          <h2 id="pengeluaran" className="text-lg font-bold">
+            {t('pesanan.pengeluaran')}
+          </h2>
+          <p className="text-sm text-muted">{t('pesanan.pengeluaran_isi')}</p>
+          <ul className="divide-y divide-line-soft rounded-xl border border-line-soft bg-surface">
+            {spending.data!.map(([month, m]) => (
+              <li key={month} className="flex items-center justify-between gap-3 p-3">
+                <span>
+                  <span className="block font-semibold">{monthLabel(month, lang)}</span>
+                  <span className="block text-sm text-muted">{t('pesanan.pengeluaran_jumlah', { count: m.count })}</span>
+                </span>
+                <span className="tabular font-bold">{rupiah(m.amount)}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
     </div>
