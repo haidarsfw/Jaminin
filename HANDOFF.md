@@ -126,7 +126,7 @@ Akar:
 | Layanan | Keadaan |
 |---|---|
 | Supabase | Proyek `jaminin`, ref `sbxowjvnkoxmsyuzmcpv`, URL `https://sbxowjvnkoxmsyuzmcpv.supabase.co`, organisasi pribadi haidarsfw, paket Free, region Singapura. Konektor Supabase di sesi Claude Haidar tersambung ke akun ini. Proyek gratis dijeda setelah 7 hari tanpa aktivitas. |
-| Edge Functions cloud | `simulasi-bayar`, `daftar`, `demo-masuk`, `kirim-kabar` (versi 2). Semua dengan `verify_jwt` mati karena fungsi memeriksa pemanggil sendiri. Susunan saat deploy lewat konektor: `<nama>/index.ts` ditambah `_shared/supabase.ts`, entrypoint `<nama>/index.ts`. |
+| Edge Functions cloud | `simulasi-bayar`, `daftar`, `demo-masuk`, `kirim-kabar` (versi 3, sudah memuat teks `chat_baru`; diuji: aksi `public_key` menjawab, pemanggil tanpa rahasia ditolak). Semua dengan `verify_jwt` mati karena fungsi memeriksa pemanggil sendiri. Susunan saat deploy lewat konektor: `<nama>/index.ts` ditambah `_shared/supabase.ts`, entrypoint `<nama>/index.ts`. |
 | Push | Kunci VAPID dibuat dan disimpan di server, tidak di repo. Jalur trigger, pg_net, lalu `kirim-kabar` sudah teruji di cloud. |
 | Sentry | Proyek `jaminin` (React) di organisasi haidarsfw. DSN di `.env`. |
 | Cloudflare | Belum tersambung. Haidar perlu membuat Worker `jaminin` lewat Workers Builds (langkah di `docs/PANDUAN-AKUN.md`). |
@@ -185,10 +185,12 @@ Deploy:
 
 ## 7. Keadaan database cloud
 
-- Migrasi 100 sampai 1100 terpasang. Sidik cloud dan lokal identik di 11 kategori (fungsi, hak fungsi, kebijakan RLS, kolom, trigger, hak tabel, hak kolom, cron, bucket, enum, indeks), juga ekstensi dan status RLS. Riwayat migrasi cloud berisi 12 catatan dengan versi dan nama yang sama dengan berkas.
-- **Belum terpasang di cloud: 1200, 1300, 1400, 1500, 1600.** Akibatnya, sampai dipasang, fitur berikut gagal di cloud: kartu Libur dan Jam khusus di Toko, tombol Tangguhkan di Tim, penolakan promo tumpang tindih, kartu Penilaian, dan Chat. Ini **wajib** dipasang sebelum Senin.
-- 1200 dan 1300 mengandung DROP atau DELETE, jadi konektor meminta persetujuan Haidar. Jalankan saat Haidar membuka chat dan beri tahu dia bahwa akan muncul permintaan persetujuan.
-- Cara memasang lewat konektor, berurutan dari 1200 sampai 1600:
+- Migrasi 100 sampai 1100 terpasang. Sidik cloud dan lokal identik di 11 kategori (fungsi, hak fungsi, kebijakan RLS, kolom, trigger, hak tabel, hak kolom, cron, bucket, enum, indeks), juga ekstensi dan status RLS.
+- Jumat, 9 Oktober dini hari: 1400 (promo tidak tumpang tindih), 1500 (penilaian), dan 1600 (chat) terpasang lewat `apply_migration` tanpa perlu persetujuan, dan versinya di riwayat sudah disamakan dengan berkas. Riwayat cloud sekarang 15 catatan. Ketiganya tidak memakai fungsi dari 1300, jadi urutan pemasangan ini aman (dicek dengan grep).
+- **Belum terpasang di cloud: 1200 dan 1300.** Akibatnya kartu Libur dan Jam khusus di Toko dan tombol Tangguhkan di Tim gagal di cloud sampai dipasang. Ini **wajib** dipasang sebelum Senin.
+- 1200 berisi DROP dan 1300 berisi DELETE, jadi konektor meminta persetujuan Haidar. Permintaan itu habis waktu tiga kali (Kamis malam sampai Jumat dini hari), termasuk sesaat setelah Haidar menjawab pertanyaan di chat, jadi kotak persetujuannya kemungkinan tidak muncul di layar Haidar. Cloud tidak berubah setiap kali (sudah dicek).
+- **Jalan utama sekarang: berkas siap tempel `supabase/cloud/pasang-1200-1300.sql`.** Isinya 1200 dan 1300 apa adanya plus catatan riwayat, dalam satu transaksi. Sudah diuji di database lokal yang disetel sama dengan cloud (`npx supabase db reset --version 20261008001100`, lalu 1400 sampai 1600 lewat psql, lalu berkas ini): lulus. Haidar membuka `https://supabase.com/dashboard/project/sbxowjvnkoxmsyuzmcpv/sql/new`, menempel seluruh isi berkas, menekan Run, dan menyetujui peringatan "destructive operation" kalau muncul. Sesudahnya agen memeriksa `list_migrations` (harus 17 catatan), pg_net di skema `extensions`, dan menjalankan advisor.
+- Cara memasang lewat konektor (kalau kotak persetujuan bisa dijawab), berurutan:
   1. `apply_migration` dengan `name` = bagian nama berkas setelah versi (contoh `rapikan_advisor`) dan `query` = isi berkas apa adanya.
   2. Konektor mencatat versi dengan waktu saat itu. Samakan dengan versi berkas: `update supabase_migrations.schema_migrations set version = '20261008001200' where name = 'rapikan_advisor';` (ulangi untuk 1300 `libur_dan_penangguhan`, 1400 `promo_tidak_tumpang`, 1500 `penilaian`, 1600 `chat_pesanan`).
   3. `list_migrations` harus menampilkan 17 catatan sesuai berkas.
@@ -224,7 +226,7 @@ Lapis 3 (P1), sejauh ini:
 | P1 | Isi | Status | Commit |
 |---|---|---|---|
 | 1 | Pusat notifikasi, struk digital, tambah ke kalender, penilaian sekali tanpa ubah | Selesai | `cb87a56`, `f6a7f74` |
-| 2 | Chat per pesanan, tutup 24 jam, tim membaca chat pesanan yang dilaporkan | Database, tampilan, dan uji pgTAP selesai. Belum: uji Playwright, teks push, pemasangan di cloud | commit "chat per pesanan" setelah `f6a7f74` |
+| 2 | Chat per pesanan, tutup 24 jam, tim membaca chat pesanan yang dilaporkan | Database, tampilan, uji pgTAP, teks push, dan pemasangan di cloud selesai. Belum: uji Playwright | `c9f7224`, `bf699af` |
 | 5 | Promo jam sepi | Selesai | `1aaa051` |
 | 6 | Jam khusus dan libur | Selesai. Belum: pengumuman tenant, profil toko lengkap, foto menu | `3c17530`, `a50b4d1` |
 | 11 | Tangguhkan tenant | Selesai. Belum: tangguhkan akun, atur biaya, catatan aktivitas, kabar tim, dasbor per tenant | `3c17530`, `a50b4d1` |
@@ -233,7 +235,7 @@ Lainnya: hosting dan uji cloud (`1fdb745`), panduan dashboard (`4e9d6b3`), uji n
 
 ## 9. Posisi kerja terakhir dan rencana lanjutan
 
-Posisi per Kamis, 8 Oktober 2026 malam: semua pekerjaan sudah di-push, termasuk chat per pesanan. Pemeriksaan terakhir lulus: typecheck 0, lint 0, Vitest 23, pgTAP 146. Playwright 19 lulus sebelum chat ditambahkan.
+Posisi per Jumat, 9 Oktober 2026 dini hari: semua pekerjaan sudah di-push, termasuk chat per pesanan dan teks push `chat_baru`. Pemeriksaan terakhir lulus: typecheck 0, lint 0, Vitest 23, pgTAP 146. Playwright 19 lulus sebelum chat ditambahkan. Di cloud: migrasi 1400 sampai 1600 dan `kirim-kabar` versi 3 terpasang; 1200 dan 1300 menunggu Haidar menjalankan `supabase/cloud/pasang-1200-1300.sql` di SQL Editor (bagian 7).
 
 Rincian chat (P1 nomor 2):
 
@@ -242,8 +244,8 @@ Rincian chat (P1 nomor 2):
 
 Rencana lanjutan, berurutan. Setiap langkah di-commit dan di-push begitu selesai, lalu bagian ini diperbarui.
 
-1. **Teks push `chat_baru`** di `supabase/functions/kirim-kabar/index.ts` (objek `TEXT`, pola sama dengan `tenant_diaktifkan`; params berisi `from` bernilai `tenant` atau `buyer`, `snippet`, dan params pesanan seperti `tenant_name`). Deploy ulang `kirim-kabar` ke cloud.
-2. **Pasang migrasi 1200 sampai 1600 di cloud** (bagian 7), selagi Haidar online. Cocokkan sidik cloud dan lokal, jalankan advisor, hapus akun uji cloud.
+1. Selesai: teks push `chat_baru` (`bf699af`) dan deploy `kirim-kabar` versi 3.
+2. **Migrasi 1200 dan 1300 di cloud** lewat berkas siap tempel (bagian 7). 1400 sampai 1600 sudah terpasang. Setelah Haidar menjalankan berkasnya: cek `list_migrations` (17 catatan), cocokkan sidik cloud dan lokal, jalankan advisor, hapus akun uji cloud (perlu persetujuan, atau Haidar menghapusnya di Dashboard, Authentication, Users).
 3. **Uji Playwright chat** (`tests/e2e/chat.spec.ts`): pembeli pesan dan bayar, kirim pesan, penjual melihat "Chat (1)" lalu membalas, pembeli melihat balasan, tim membaca chat setelah pesanan dilaporkan, tanpa galat console, tanpa gulir menyamping di HP.
 4. **Ikon** (permintaan Haidar, Kamis malam: "walau desain simpel, saya mau tetap ada icons" supaya navigasi dan bagian lain tidak terasa asing). Keputusan: Phosphor Icons (`@phosphor-icons/react`, cek versi terbaru lewat Context7 dan npm sebelum memasang). Alasan: antislop R-04 menolak Lucide sebagai bawaan; Phosphor punya bobot `regular` dan `fill`, sehingga tab aktif bisa memakai `fill` dan bentuknya akrab bagi pengguna. Pasang di:
    - Navigasi bawah dan atas: Beranda (`House`), Pesanan (`Receipt`), Kabar (`Bell`, dengan jumlah belum dibaca), Profil (`User`), Penjual (`Storefront`), Tim (`UsersThree`). Tab aktif `weight="fill"`, lainnya `regular`. Label teks tetap tampil.
