@@ -1,3 +1,4 @@
+import { ArrowLeftIcon, PrinterIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '@/components/Guard'
@@ -37,10 +38,10 @@ function ReceiptPage() {
   return (
     <div className="mx-auto max-w-md space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
-        <ButtonLink to="/pesanan/$orderId" params={{ orderId: o.id }} small variant="quiet">
+        <ButtonLink icon={<ArrowLeftIcon />} to="/pesanan/$orderId" params={{ orderId: o.id }} small variant="quiet">
           {t('struk.kembali')}
         </ButtonLink>
-        <Button small variant="primary" onClick={() => window.print()}>
+        <Button icon={<PrinterIcon />} small variant="primary" onClick={() => window.print()}>
           {t('struk.unduh')}
         </Button>
       </div>

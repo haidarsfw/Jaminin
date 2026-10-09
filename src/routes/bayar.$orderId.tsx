@@ -1,3 +1,4 @@
+import { QrCodeIcon, ReceiptIcon } from '@phosphor-icons/react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { QRCodeSVG } from 'qrcode.react'
 import { useEffect, useState } from 'react'
@@ -90,6 +91,7 @@ function PayPage() {
       </Card>
       <Notice>{t('bayar.cara_demo')}</Notice>
       <a href={`/simulator-bayar?kode=${o.payment_code}`} target="_blank" rel="noreferrer" className="block text-center font-semibold text-accent underline underline-offset-4">
+        <QrCodeIcon />
         {t('bayar.buka_simulator')}
       </a>
       {error && <Notice tone="error">{error}</Notice>}
@@ -115,6 +117,7 @@ function PayPage() {
         {t('bayar.batal')}
       </Button>
       <Link to="/pesanan" className="block text-center text-sm text-muted underline underline-offset-4">
+        <ReceiptIcon />
         {t('bayar.ke_pesanan')}
       </Link>
     </div>

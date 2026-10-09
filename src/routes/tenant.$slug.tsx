@@ -1,3 +1,4 @@
+import { PlusIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
@@ -219,7 +220,7 @@ function ItemDialog({ item, tenant, onClose }: { item: Item; tenant: TenantData;
           <Stepper value={quantity} onChange={setQuantity} min={1} label={t('tenant.jumlah')} />
         </div>
         {error && <Notice tone="error">{error}</Notice>}
-        <Button variant="primary" full onClick={add}>
+        <Button icon={<PlusIcon />} variant="primary" full onClick={add}>
           {t('tenant.tambah', { price: rupiah(unitPrice * quantity) })}
         </Button>
         <Button

@@ -1,3 +1,4 @@
+import { ArrowSquareOutIcon, CalendarPlusIcon, CheckCircleIcon, ClockClockwiseIcon, FlagIcon, PaperPlaneRightIcon, QrCodeIcon, ReceiptIcon, ShareNetworkIcon, WhatsappLogoIcon, XCircleIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { QRCodeSVG } from 'qrcode.react'
@@ -123,6 +124,7 @@ function OrderPage() {
         <Notice tone="warn">
           {t('pesanan.belum_bayar')}{' '}
           <Link to="/bayar/$orderId" params={{ orderId: o.id }} className="font-semibold underline">
+            <QrCodeIcon />
             {t('pesanan.ke_bayar')}
           </Link>
         </Notice>
@@ -133,7 +135,7 @@ function OrderPage() {
       {notReadyAtPickup && (
         <Notice tone="warn" title={t('pesanan.belum_siap_judul')}>
           <p>{t('pesanan.belum_siap_isi')}</p>
-          <Button
+          <Button icon={<XCircleIcon />}
             className="mt-2"
             variant="danger"
             small
@@ -164,7 +166,7 @@ function OrderPage() {
               {t('pesanan.hitung_mundur', { time: mmss(Math.floor((pickupMs - now) / 1000)) })}
             </p>
           )}
-          <Button
+          <Button icon={<ShareNetworkIcon />}
             className="mt-3"
             small
             onClick={async () => {
@@ -197,7 +199,7 @@ function OrderPage() {
         <div className="flex flex-wrap gap-2">
           {['diterima', 'disiapkan', 'siap'].includes(o.status) && beforePickup && <CalendarButtons order={o} />}
           {o.paid_at && (
-            <ButtonLink to="/struk/$orderId" params={{ orderId: o.id }} small>
+            <ButtonLink icon={<ReceiptIcon />} to="/struk/$orderId" params={{ orderId: o.id }} small>
               {t('struk.lihat')}
             </ButtonLink>
           )}
@@ -248,7 +250,7 @@ function OrderPage() {
 
       <div className="grid gap-2 sm:grid-cols-2">
         {canReceive && (
-          <Button
+          <Button icon={<CheckCircleIcon />}
             variant="primary"
             full
             busy={action.busy === 'terima'}
@@ -261,7 +263,7 @@ function OrderPage() {
           </Button>
         )}
         {canReschedule && (
-          <Button full onClick={() => setReschedule(true)}>
+          <Button icon={<ClockClockwiseIcon />} full onClick={() => setReschedule(true)}>
             {t('pesanan.geser')}
           </Button>
         )}
@@ -273,17 +275,18 @@ function OrderPage() {
             rel="noreferrer"
             className="inline-flex min-h-12 items-center justify-center rounded-lg border border-line bg-surface px-4 font-semibold"
           >
+            <WhatsappLogoIcon />
             {t('pesanan.hubungi_penjual')}
           </a>
         )}
         {o.tenants?.is_sample && o.paid_at && <p className="text-sm text-muted">{t('pesanan.wa_contoh')}</p>}
         {o.paid_at && (
-          <Button full onClick={() => setReport(true)}>
+          <Button icon={<FlagIcon />} full onClick={() => setReport(true)}>
             {t('pesanan.laporkan')}
           </Button>
         )}
         {canCancelEarly && (
-          <Button
+          <Button icon={<XCircleIcon />}
             variant="danger"
             full
             busy={action.busy === 'batal'}
@@ -350,10 +353,11 @@ function CalendarButtons({ order }: { order: OrderFull }) {
   }
   return (
     <>
-      <Button small onClick={() => downloadIcs(event, `jaminin-pesanan-${number.slice(1)}.ics`)}>
+      <Button icon={<CalendarPlusIcon />} small onClick={() => downloadIcs(event, `jaminin-pesanan-${number.slice(1)}.ics`)}>
         {t('kalender.tambah')}
       </Button>
       <a href={googleCalendarUrl(event)} target="_blank" rel="noreferrer" className={buttonClass('secondary', false, true)}>
+        <ArrowSquareOutIcon />
         {t('kalender.google')}
       </a>
     </>
@@ -417,7 +421,7 @@ function RatingCard({ order }: { order: OrderFull }) {
       </Field>
       {missing && <p className="text-sm font-medium text-danger">{t('nilai.pilih_dulu')}</p>}
       {action.error && <Notice tone="error">{action.error}</Notice>}
-      <Button variant="primary" busy={action.busy === 'nilai'} busyText={t('umum.memproses')} onClick={send}>
+      <Button icon={<PaperPlaneRightIcon />} variant="primary" busy={action.busy === 'nilai'} busyText={t('umum.memproses')} onClick={send}>
         {t('nilai.kirim')}
       </Button>
     </Card>

@@ -1,3 +1,4 @@
+import { ArrowLeftIcon, CheckCircleIcon, InfoIcon, MinusIcon, PlusIcon, WarningCircleIcon, WarningIcon, XIcon, type Icon } from '@phosphor-icons/react'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -30,19 +31,22 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   small?: boolean
   busy?: boolean
   busyText?: string
+  icon?: ReactNode
 }
 
-export function Button({ variant = 'secondary', full, small, busy, busyText, children, className = '', type = 'button', ...rest }: ButtonProps) {
+export function Button({ variant = 'secondary', full, small, busy, busyText, icon, children, className = '', type = 'button', ...rest }: ButtonProps) {
   return (
     <button type={type} className={`${buttonClass(variant, full, small)} ${className}`} disabled={busy || rest.disabled} aria-busy={busy || undefined} {...rest}>
+      {icon}
       {busy && busyText ? busyText : children}
     </button>
   )
 }
 
-export function ButtonLink({ variant = 'secondary', full, small, className = '', children, ...props }: LinkProps & { variant?: Variant; full?: boolean; small?: boolean; className?: string; children: ReactNode }) {
+export function ButtonLink({ variant = 'secondary', full, small, icon, className = '', children, ...props }: LinkProps & { variant?: Variant; full?: boolean; small?: boolean; icon?: ReactNode; className?: string; children: ReactNode }) {
   return (
     <Link {...props} className={`${buttonClass(variant, full, small)} ${className}`}>
+      {icon}
       {children}
     </Link>
   )
@@ -56,7 +60,8 @@ export function PageHeader({ title, description, back }: { title: string; descri
   return (
     <header className="mb-4">
       {back && (
-        <Link to={back.to} params={back.params} className="mb-2 inline-flex min-h-11 items-center text-sm font-medium text-accent underline-offset-4 hover:underline">
+        <Link to={back.to} params={back.params} className="mb-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">
+          <ArrowLeftIcon size={18} />
           {back.label}
         </Link>
       )}
@@ -75,11 +80,18 @@ const toneClass: Record<Tone, string> = {
   success: 'bg-accent-soft border-accent/40 text-ink',
 }
 
+// Ikon ikut membedakan nada, supaya status tidak hanya dibedakan lewat warna.
+const toneIcon: Record<Tone, Icon> = { info: InfoIcon, warn: WarningIcon, error: WarningCircleIcon, success: CheckCircleIcon }
+
 export function Notice({ tone = 'info', title, children, className = '' }: { tone?: Tone; title?: string; children?: ReactNode; className?: string }) {
+  const ToneIcon = toneIcon[tone]
   return (
-    <div role={tone === 'error' ? 'alert' : 'status'} className={`rounded-lg border p-3 text-sm ${toneClass[tone]} ${className}`}>
-      {title && <p className="font-semibold">{title}</p>}
-      {children && <div className={title ? 'mt-1' : ''}>{children}</div>}
+    <div role={tone === 'error' ? 'alert' : 'status'} className={`flex gap-2 rounded-lg border p-3 text-sm ${toneClass[tone]} ${className}`}>
+      <ToneIcon size={20} weight={tone === 'info' ? 'regular' : 'fill'} className="shrink-0" />
+      <div className="min-w-0 flex-1">
+        {title && <p className="font-semibold">{title}</p>}
+        {children && <div className={title ? 'mt-1' : ''}>{children}</div>}
+      </div>
     </div>
   )
 }
@@ -217,13 +229,13 @@ export function Stepper({ value, onChange, min = 0, max = 20, label }: { value: 
   return (
     <div className="inline-flex items-center gap-1" role="group" aria-label={label}>
       <button type="button" className={buttonClass('secondary', false, true) + ' w-11 px-0'} aria-label={t('umum.kurangi')} onClick={() => onChange(Math.max(min, value - 1))} disabled={value <= min}>
-        −
+        <MinusIcon size={18} weight="bold" />
       </button>
       <span className="tabular w-8 text-center font-semibold" aria-live="polite">
         {value}
       </span>
       <button type="button" className={buttonClass('secondary', false, true) + ' w-11 px-0'} aria-label={t('umum.tambah')} onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max}>
-        +
+        <PlusIcon size={18} weight="bold" />
       </button>
     </div>
   )
@@ -254,6 +266,7 @@ export function Dialog({ open, onClose, title, children }: { open: boolean; onCl
               {title}
             </h2>
             <button type="button" onClick={onClose} className={buttonClass('quiet', false, true)}>
+              <XIcon size={18} />
               {t('umum.tutup')}
             </button>
           </div>

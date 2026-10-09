@@ -1,3 +1,4 @@
+import { ScanIcon, WalletIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
@@ -80,10 +81,10 @@ function Simulator() {
             )}
           </Field>
           <div className="grid gap-2 sm:grid-cols-2">
-            <Button type="submit" variant="primary" full disabled={code.length !== 6} busy={busy === code} busyText={t('umum.memproses')}>
+            <Button icon={<WalletIcon />} type="submit" variant="primary" full disabled={code.length !== 6} busy={busy === code} busyText={t('umum.memproses')}>
               {t('simulator.bayar')}
             </Button>
-            <Button full onClick={() => setScan(true)}>
+            <Button icon={<ScanIcon />} full onClick={() => setScan(true)}>
               {t('simulator.pindai')}
             </Button>
           </div>
@@ -113,7 +114,7 @@ function Simulator() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="tabular font-bold">{rupiah(p.amount)}</span>
-                    <Button small variant="primary" busy={busy === p.payment_code} busyText={t('umum.memproses')} onClick={() => void pay(p.payment_code)}>
+                    <Button icon={<ScanIcon />} small variant="primary" busy={busy === p.payment_code} busyText={t('umum.memproses')} onClick={() => void pay(p.payment_code)}>
                       {t('simulator.bayar')}
                     </Button>
                   </div>

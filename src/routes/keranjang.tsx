@@ -1,3 +1,4 @@
+import { ClockIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { Button, ButtonLink, Card, EmptyState, PageHeader, Stepper } from '@/components/ui'
@@ -56,7 +57,7 @@ function CartPage() {
       </div>
       <p className="mt-1 text-sm text-muted">{t('keranjang.catatan_biaya')}</p>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <ButtonLink to="/checkout" variant="primary" full>
+        <ButtonLink icon={<ClockIcon />} to="/checkout" variant="primary" full>
           {t('keranjang.pilih_jam')}
         </ButtonLink>
         <Button

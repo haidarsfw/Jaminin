@@ -1,3 +1,4 @@
+import { BellRingingIcon, ChatCircleIcon, CheckCircleIcon, CookingPotIcon, HandArrowUpIcon, ScanIcon, SpeakerHighIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
@@ -177,7 +178,7 @@ function Board() {
       {!sound && (
         <Notice tone="warn" title={t('papan.bunyi_judul')}>
           <p>{t('papan.bunyi_isi')}</p>
-          <Button className="mt-2" small variant="primary" onClick={() => setSound(unlockAudio())}>
+          <Button icon={<SpeakerHighIcon />} className="mt-2" small variant="primary" onClick={() => setSound(unlockAudio())}>
             {t('papan.nyalakan_bunyi')}
           </Button>
         </Notice>
@@ -186,7 +187,7 @@ function Board() {
       {alarm.length > 0 && (
         <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-accent bg-accent-soft p-4">
           <p className="text-lg font-bold">{t('papan.pesanan_baru', { count: alarm.length })}</p>
-          <Button variant="primary" onClick={markSeen}>
+          <Button icon={<BellRingingIcon />} variant="primary" onClick={markSeen}>
             {t('papan.lihat')}
           </Button>
         </div>
@@ -239,12 +240,12 @@ function Board() {
               {day === todayWib() && (
                 <div className="flex gap-2">
                   {list.some((o) => o.status === 'diterima') && (
-                    <Button small busy={action.busy === `slot-disiapkan-${time}`} busyText={t('umum.memproses')} onClick={() => void action.run(`slot-disiapkan-${time}`, () => rpc('seller_update_slot', { p_tenant: active.id, p_date: day, p_time: time, p_status: 'disiapkan' }))}>
+                    <Button icon={<CookingPotIcon />} small busy={action.busy === `slot-disiapkan-${time}`} busyText={t('umum.memproses')} onClick={() => void action.run(`slot-disiapkan-${time}`, () => rpc('seller_update_slot', { p_tenant: active.id, p_date: day, p_time: time, p_status: 'disiapkan' }))}>
                       {t('papan.mulai_semua')}
                     </Button>
                   )}
                   {list.some((o) => o.status === 'diterima' || o.status === 'disiapkan') && (
-                    <Button small busy={action.busy === `slot-siap-${time}`} busyText={t('umum.memproses')} onClick={() => void action.run(`slot-siap-${time}`, () => rpc('seller_update_slot', { p_tenant: active.id, p_date: day, p_time: time, p_status: 'siap' }))}>
+                    <Button icon={<CheckCircleIcon />} small busy={action.busy === `slot-siap-${time}`} busyText={t('umum.memproses')} onClick={() => void action.run(`slot-siap-${time}`, () => rpc('seller_update_slot', { p_tenant: active.id, p_date: day, p_time: time, p_status: 'siap' }))}>
                       {t('papan.siap_semua')}
                     </Button>
                   )}
@@ -363,12 +364,12 @@ function OrderCard({
       )}
       <div className="flex flex-wrap gap-2">
         {today && order.status === 'diterima' && (
-          <Button small busy={action.busy === `mulai-${order.id}`} busyText={t('umum.memproses')} onClick={() => void action.run(`mulai-${order.id}`, () => rpc('seller_update_status', { p_order: order.id, p_status: 'disiapkan' }))}>
+          <Button icon={<CookingPotIcon />} small busy={action.busy === `mulai-${order.id}`} busyText={t('umum.memproses')} onClick={() => void action.run(`mulai-${order.id}`, () => rpc('seller_update_status', { p_order: order.id, p_status: 'disiapkan' }))}>
             {t('papan.mulai')}
           </Button>
         )}
         {today && ['diterima', 'disiapkan'].includes(order.status) && (
-          <Button
+          <Button icon={<CheckCircleIcon />}
             small
             variant="primary"
             disabled={order.needs_buyer_action}
@@ -380,11 +381,11 @@ function OrderCard({
           </Button>
         )}
         {today && ['diterima', 'disiapkan', 'siap'].includes(order.status) && (
-          <Button small variant={order.status === 'siap' ? 'primary' : 'secondary'} disabled={order.needs_buyer_action} onClick={onHandover}>
+          <Button icon={<HandArrowUpIcon />} small variant={order.status === 'siap' ? 'primary' : 'secondary'} disabled={order.needs_buyer_action} onClick={onHandover}>
             {t('papan.serahkan')}
           </Button>
         )}
-        <Button small variant="quiet" onClick={() => setChatOpen(true)}>
+        <Button icon={<ChatCircleIcon />} small variant="quiet" onClick={() => setChatOpen(true)}>
           {messageCount > 0 ? t('chat.buka_jumlah', { count: messageCount }) : t('chat.buka')}
         </Button>
       </div>
@@ -466,10 +467,10 @@ function HandoverDialog({ order, onClose, orders }: { order: BoardOrder; onClose
                 )}
               </Field>
               <div className="grid gap-2 sm:grid-cols-2">
-                <Button type="submit" variant="primary" full disabled={code.length !== 4} busy={busy} busyText={t('umum.memproses')}>
+                <Button icon={<HandArrowUpIcon />} type="submit" variant="primary" full disabled={code.length !== 4} busy={busy} busyText={t('umum.memproses')}>
                   {t('papan.serahkan')}
                 </Button>
-                <Button full onClick={() => setScan(true)}>
+                <Button icon={<ScanIcon />} full onClick={() => setScan(true)}>
                   {t('serahkan.pindai')}
                 </Button>
               </div>

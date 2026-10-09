@@ -1,3 +1,4 @@
+import { PaperPlaneRightIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -87,7 +88,7 @@ export function ChatThread({ orderId, side, open }: { orderId: string; side: Cha
             <TextArea id={`chat-${orderId}`} value={body} maxLength={500} rows={2} onChange={(e) => setBody(e.target.value)} />
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-xs text-muted">{t('chat.sisa', { count: 500 - body.length })}</p>
-              <Button type="submit" small variant="primary" busy={busy} busyText={t('umum.memproses')} disabled={!body.trim()}>
+              <Button icon={<PaperPlaneRightIcon />} type="submit" small variant="primary" busy={busy} busyText={t('umum.memproses')} disabled={!body.trim()}>
                 {t('chat.kirim')}
               </Button>
             </div>

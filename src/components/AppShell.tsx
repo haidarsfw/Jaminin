@@ -1,3 +1,23 @@
+import {
+  BellIcon,
+  ChartBarIcon,
+  ClipboardTextIcon,
+  FlagIcon,
+  ForkKnifeIcon,
+  HouseIcon,
+  IconContext,
+  QrCodeIcon,
+  ReceiptIcon,
+  ShoppingBagIcon,
+  SignInIcon,
+  StorefrontIcon,
+  UserIcon,
+  UserSwitchIcon,
+  UsersThreeIcon,
+  WalletIcon,
+  XIcon,
+  type Icon,
+} from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -14,7 +34,10 @@ import { Button, Dialog, Notice } from './ui'
 
 type Mode = 'pembeli' | 'penjual' | 'tim'
 
-type NavItem = { to: string; label: string; exact?: boolean }
+type NavItem = { to: string; label: string; icon: Icon; exact?: boolean }
+
+// Ikon hanya penanda visual; nama tombol dan tautan tetap dari teksnya.
+const iconDefaults = { size: 20, 'aria-hidden': true, className: 'shrink-0' } as const
 
 function useMode(): Mode {
   const { pathname } = useLocation()
@@ -62,22 +85,22 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const nav: Record<Mode, NavItem[]> = {
     pembeli: [
-      { to: '/', label: t('nav.beranda'), exact: true },
-      { to: '/pesanan', label: t('nav.pesanan') },
-      { to: '/profil', label: t('nav.profil') },
+      { to: '/', label: t('nav.beranda'), icon: HouseIcon, exact: true },
+      { to: '/pesanan', label: t('nav.pesanan'), icon: ReceiptIcon },
+      { to: '/profil', label: t('nav.profil'), icon: UserIcon },
     ],
     penjual: [
-      { to: '/penjual', label: t('nav.papan'), exact: true },
-      { to: '/penjual/menu', label: t('nav.menu') },
-      { to: '/penjual/toko', label: t('nav.toko') },
-      { to: '/penjual/setoran', label: t('nav.setoran') },
+      { to: '/penjual', label: t('nav.papan'), icon: ClipboardTextIcon, exact: true },
+      { to: '/penjual/menu', label: t('nav.menu'), icon: ForkKnifeIcon },
+      { to: '/penjual/toko', label: t('nav.toko'), icon: StorefrontIcon },
+      { to: '/penjual/setoran', label: t('nav.setoran'), icon: WalletIcon },
     ],
     tim: [
-      { to: '/tim', label: t('nav.ringkasan'), exact: true },
-      { to: '/tim/penjual', label: t('nav.penjual') },
-      { to: '/tim/laporan', label: t('nav.laporan') },
-      { to: '/tim/setoran', label: t('nav.setoran') },
-      { to: '/tim/anggota', label: t('nav.anggota') },
+      { to: '/tim', label: t('nav.ringkasan'), icon: ChartBarIcon, exact: true },
+      { to: '/tim/penjual', label: t('nav.penjual'), icon: StorefrontIcon },
+      { to: '/tim/laporan', label: t('nav.laporan'), icon: FlagIcon },
+      { to: '/tim/setoran', label: t('nav.setoran'), icon: WalletIcon },
+      { to: '/tim/anggota', label: t('nav.anggota'), icon: UsersThreeIcon },
     ],
   }
 
@@ -89,106 +112,124 @@ export function AppShell({ children }: { children: ReactNode }) {
   const showCartBar = mode === 'pembeli' && cart && !['/keranjang', '/checkout'].includes(pathname) && !pathname.startsWith('/bayar')
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <a href="#isi" className="print:hidden sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">
-        {t('umum.lewati_ke_isi')}
-      </a>
-      <header className="safe-top sticky top-0 z-30 border-b border-line-soft bg-canvas print:hidden">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
-          <Link to="/" className="flex min-h-11 items-center gap-2" aria-label={t('umum.ke_beranda')}>
-            <span className="text-xl font-extrabold tracking-tight">Jaminin</span>
-          </Link>
-          <span className="whitespace-nowrap rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted">{t('umum.draf_tampilan')}</span>
-          <div className="ml-auto flex items-center gap-1">
-            {canDemo && (
-              <button type="button" onClick={() => setDemoOpen(true)} className="min-h-11 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-accent underline-offset-4 hover:underline">
-                {t('demo.panel')}
-              </button>
-            )}
-            {modes.length > 1 && (
-              <nav aria-label={t('mode.label')} className="flex rounded-lg border border-line p-0.5">
-                {modes.map((m) => (
-                  <Link
-                    key={m.mode}
-                    to={m.to}
-                    className={`flex min-h-10 items-center whitespace-nowrap rounded-md px-2 text-sm font-semibold ${mode === m.mode ? 'bg-accent text-on-accent' : 'text-ink'}`}
-                    aria-current={mode === m.mode ? 'page' : undefined}
-                  >
-                    {m.label}
-                  </Link>
-                ))}
-              </nav>
-            )}
-            {session && <KabarLink />}
-            {!session && (
-              <Link to="/masuk" className="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-accent">
-                {t('akun.masuk')}
-              </Link>
-            )}
+    <IconContext.Provider value={iconDefaults}>
+      <div className="flex min-h-dvh flex-col">
+        <a href="#isi" className="print:hidden sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">
+          {t('umum.lewati_ke_isi')}
+        </a>
+        <header className="safe-top sticky top-0 z-30 border-b border-line-soft bg-canvas print:hidden">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
+            <Link to="/" className="flex min-h-11 items-center gap-2" aria-label={t('umum.ke_beranda')}>
+              <span className="text-xl font-extrabold tracking-tight">Jaminin</span>
+            </Link>
+            <span className="whitespace-nowrap rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted">{t('umum.draf_tampilan')}</span>
+            <div className="ml-auto flex items-center gap-1">
+              {canDemo && (
+                <button type="button" onClick={() => setDemoOpen(true)} className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-accent underline-offset-4 hover:underline">
+                  <UserSwitchIcon />
+                  {t('demo.panel')}
+                </button>
+              )}
+              {modes.length > 1 && (
+                <nav aria-label={t('mode.label')} className="flex rounded-lg border border-line p-0.5">
+                  {modes.map((m) => (
+                    <Link
+                      key={m.mode}
+                      to={m.to}
+                      className={`flex min-h-10 items-center whitespace-nowrap rounded-md px-2 text-sm font-semibold ${mode === m.mode ? 'bg-accent text-on-accent' : 'text-ink'}`}
+                      aria-current={mode === m.mode ? 'page' : undefined}
+                    >
+                      {m.label}
+                    </Link>
+                  ))}
+                </nav>
+              )}
+              {session && <KabarLink />}
+              {!session && (
+                <Link to="/masuk" className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-accent">
+                  <SignInIcon />
+                  {t('akun.masuk')}
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
-        <nav aria-label={t('nav.label')} className="mx-auto hidden max-w-6xl gap-1 px-4 pb-2 md:flex">
-          {nav[mode].map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              activeOptions={{ exact: item.exact }}
-              className="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted hover:text-ink"
-              activeProps={{ className: 'bg-surface text-ink border border-line-soft', 'aria-current': 'page' }}
-            >
-              {item.label}
-            </Link>
-          ))}
-          {mode === 'tim' && (
-            <Link to="/simulator-bayar" className="ml-auto min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-accent">
-              {t('nav.simulator')}
-            </Link>
-          )}
-        </nav>
-      </header>
-
-      {!online && (
-        <div className="mx-auto w-full max-w-6xl px-4 pt-3">
-          <Notice tone="warn">{t('umum.offline')}</Notice>
-        </div>
-      )}
-      {session && <KabarToast />}
-
-      <main id="isi" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-40 pt-4 md:pb-24 print:p-0">
-        {children}
-      </main>
-
-      {showCartBar && cart && (
-        <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 px-4 md:bottom-4 print:hidden">
-          <Link
-            to="/keranjang"
-            className="mx-auto flex min-h-12 max-w-md items-center justify-between rounded-xl bg-accent px-4 text-on-accent"
-          >
-            <span className="font-semibold">{t('keranjang.lihat', { count: cartCount(cart) })}</span>
-            <span className="tabular font-bold">{rupiah(cartSubtotal(cart))}</span>
-          </Link>
-        </div>
-      )}
-
-      <nav aria-label={t('nav.label')} className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line-soft bg-surface md:hidden print:hidden">
-        <ul className="mx-auto flex max-w-md">
-          {nav[mode].map((item) => (
-            <li key={item.to} className="flex-1">
+          <nav aria-label={t('nav.label')} className="mx-auto hidden max-w-6xl gap-1 px-4 pb-2 md:flex">
+            {nav[mode].map((item) => (
               <Link
+                key={item.to}
                 to={item.to}
                 activeOptions={{ exact: item.exact }}
-                className="flex min-h-14 items-center justify-center px-1 text-center text-sm font-semibold text-muted"
-                activeProps={{ className: 'text-accent underline underline-offset-4', 'aria-current': 'page' }}
+                className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-muted hover:text-ink"
+                activeProps={{ className: 'bg-surface text-ink border border-line-soft', 'aria-current': 'page' }}
               >
-                {item.label}
+                {({ isActive }) => (
+                  <>
+                    <item.icon weight={isActive ? 'fill' : 'regular'} />
+                    {item.label}
+                  </>
+                )}
               </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+            ))}
+            {mode === 'tim' && (
+              <Link to="/simulator-bayar" className="ml-auto flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-accent">
+                <QrCodeIcon />
+                {t('nav.simulator')}
+              </Link>
+            )}
+          </nav>
+        </header>
 
-      {canDemo && <DemoPanel open={demoOpen} onClose={() => setDemoOpen(false)} />}
-    </div>
+        {!online && (
+          <div className="mx-auto w-full max-w-6xl px-4 pt-3">
+            <Notice tone="warn">{t('umum.offline')}</Notice>
+          </div>
+        )}
+        {session && <KabarToast />}
+
+        <main id="isi" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-40 pt-4 md:pb-24 print:p-0">
+          {children}
+        </main>
+
+        {showCartBar && cart && (
+          <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 px-4 md:bottom-4 print:hidden">
+            <Link
+              to="/keranjang"
+              className="mx-auto flex min-h-12 max-w-md items-center justify-between rounded-xl bg-accent px-4 text-on-accent"
+            >
+              <span className="flex items-center gap-2 font-semibold">
+                <ShoppingBagIcon size={22} />
+                {t('keranjang.lihat', { count: cartCount(cart) })}
+              </span>
+              <span className="tabular font-bold">{rupiah(cartSubtotal(cart))}</span>
+            </Link>
+          </div>
+        )}
+
+        <nav aria-label={t('nav.label')} className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line-soft bg-surface md:hidden print:hidden">
+          <ul className="mx-auto flex max-w-md">
+            {nav[mode].map((item) => (
+              <li key={item.to} className="flex-1">
+                <Link
+                  to={item.to}
+                  activeOptions={{ exact: item.exact }}
+                  className="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 pt-1 text-center text-xs font-semibold text-muted"
+                  activeProps={{ className: 'text-accent', 'aria-current': 'page' }}
+                >
+                  {({ isActive }) => (
+                    <>
+                      <item.icon size={24} weight={isActive ? 'fill' : 'regular'} />
+                      {item.label}
+                    </>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {canDemo && <DemoPanel open={demoOpen} onClose={() => setDemoOpen(false)} />}
+      </div>
+    </IconContext.Provider>
   )
 }
 
@@ -201,13 +242,19 @@ function KabarLink() {
       to="/kabar"
       aria-label={unread > 0 ? t('kabar.tautan_belum_dibaca', { count: unread }) : undefined}
       className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-ink"
-      activeProps={{ className: 'underline underline-offset-4', 'aria-current': 'page' }}
+      activeProps={{ className: 'text-accent', 'aria-current': 'page' }}
     >
-      {t('kabar.tautan')}
-      {unread > 0 && (
-        <span aria-hidden="true" className="tabular min-w-6 rounded-full bg-accent px-1.5 text-center text-xs font-bold leading-6 text-on-accent">
-          {unread > 9 ? '9+' : unread}
-        </span>
+      {({ isActive }) => (
+        <>
+          <BellIcon size={22} weight={isActive ? 'fill' : 'regular'} />
+          {/* Di HP cukup lonceng dan jumlahnya; nama tautan tetap terbaca pembaca layar. */}
+          <span className="max-sm:sr-only">{t('kabar.tautan')}</span>
+          {unread > 0 && (
+            <span aria-hidden="true" className="tabular min-w-6 rounded-full bg-accent px-1.5 text-center text-xs font-bold leading-6 text-on-accent">
+              {unread > 9 ? '9+' : unread}
+            </span>
+          )}
+        </>
       )}
     </Link>
   )
@@ -241,6 +288,7 @@ function KabarToast() {
   return (
     <div className="fixed inset-x-0 bottom-[calc(7.75rem+env(safe-area-inset-bottom))] z-40 px-4 md:bottom-20 print:hidden">
       <div role="status" className="mx-auto flex max-w-md items-start gap-3 rounded-xl border border-line bg-surface p-3 shadow-md">
+        <BellIcon size={22} weight="fill" className="mt-0.5 shrink-0 text-accent" />
         <div className="min-w-0 flex-1">
           <p className="font-bold">{text.title}</p>
           {text.body && <p className="text-sm">{text.body}</p>}
@@ -258,8 +306,8 @@ function KabarToast() {
             </button>
           )}
         </div>
-        <button type="button" onClick={() => setToastId(null)} className="min-h-11 min-w-11 rounded-lg text-sm font-semibold text-muted" aria-label={t('umum.tutup')}>
-          ✕
+        <button type="button" onClick={() => setToastId(null)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-muted" aria-label={t('umum.tutup')}>
+          <XIcon size={20} />
         </button>
       </div>
     </div>

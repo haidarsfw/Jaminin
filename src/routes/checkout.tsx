@@ -1,3 +1,4 @@
+import { WalletIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -227,7 +228,7 @@ function Checkout() {
                 )}
               </Notice>
             )}
-            <Button variant="primary" full busy={busy} busyText={t('umum.memproses')} onClick={submit} disabled={!time}>
+            <Button variant="primary" full icon={<WalletIcon />} busy={busy} busyText={t('umum.memproses')} onClick={submit} disabled={!time}>
               {time ? t('checkout.bayar', { amount: rupiah(total) }) : t('checkout.pilih_jam_dulu')}
             </Button>
             <p className="text-xs text-muted">{t('checkout.batas_bayar')}</p>
