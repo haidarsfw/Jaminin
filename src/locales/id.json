@@ -5,6 +5,7 @@
     "pesanan": "Pesanan",
     "profil": "Profil",
     "papan": "Papan",
+    "dapur": "Dapur",
     "menu": "Menu",
     "toko": "Toko",
     "setoran": "Setoran",
@@ -607,6 +608,25 @@
     "mulai": "Mulai siapkan",
     "siap": "Siap diambil",
     "serahkan": "Serahkan"
+  },
+  "siap_masak": {
+    "judul": "Daftar siap-masak ({{count}} porsi)",
+    "isi": "Pesanan yang belum siap diambil. Menu habis yang menunggu pilihan pembeli belum dihitung.",
+    "untuk": "Untuk {{time}}:"
+  },
+  "dapur": {
+    "judul": "Dapur {{name}}",
+    "sub": "Pesanan hari ini yang belum siap, per jam ambil. Pesanan yang sudah siap pindah ke Papan untuk diserahkan.",
+    "pesanan": "{{count}} pesanan",
+    "porsi": "{{count}} porsi",
+    "layar_menyala": "Layar tetap menyala selama halaman ini terbuka.",
+    "layar_bisa_mati": "Layar bisa mati sendiri",
+    "layar_bisa_mati_isi": "Ketuk tombol di bawah supaya layar tetap menyala selama halaman Dapur terbuka.",
+    "jaga_layar": "Jaga layar tetap menyala",
+    "layar_tidak_didukung": "Browser ini tidak bisa menjaga layar tetap menyala. Matikan kunci layar otomatis di pengaturan perangkat selama memasak.",
+    "kosong": "Belum ada yang perlu disiapkan",
+    "kosong_isi": "Pesanan lunas untuk hari ini muncul di sini per jam ambil, lengkap dengan jumlah porsinya.",
+    "siap_info": "Pesanan {{number}} siap diambil dan pindah ke Papan untuk diserahkan."
   },
   "serahkan": {
     "judul": "Serahkan pesanan {{number}}",

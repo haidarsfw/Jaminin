@@ -87,7 +87,9 @@ export async function orderAndPay(b: Page, cashier: Page, item: { name: string; 
   await expect(b.getByRole('heading', { name: 'Checkout' })).toBeVisible()
   await expect(b.getByText('Biaya layanan')).toBeVisible()
   await expect(b.getByText(/sisa \d+/).first()).toBeVisible()
-  await b.getByRole('radiogroup', { name: 'Jam ambil' }).getByRole('radio').and(b.locator(':enabled')).first().click()
+  // Jam kedua memberi jarak 5 menit, supaya jam tercepat tidak keburu lewat saat Bayar ditekan.
+  const open = b.getByRole('radiogroup', { name: 'Jam ambil' }).getByRole('radio').and(b.locator(':enabled'))
+  await ((await open.count()) > 1 ? open.nth(1) : open.first()).click()
   await b.getByLabel('Nama pengambil', { exact: true }).fill(pickupName)
   await b.getByRole('button', { name: `Bayar ${item.total}` }).click()
   await expect(b.getByText('QR simulasi, bukan QRIS').first()).toBeVisible()

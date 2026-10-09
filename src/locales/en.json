@@ -5,6 +5,7 @@
     "pesanan": "Orders",
     "profil": "Profile",
     "papan": "Board",
+    "dapur": "Kitchen",
     "menu": "Menu",
     "toko": "Store",
     "setoran": "Payouts",
@@ -619,6 +620,28 @@
     "mulai": "Start preparing",
     "siap": "Ready for pickup",
     "serahkan": "Hand over"
+  },
+  "siap_masak": {
+    "judul_one": "Prep list ({{count}} portion)",
+    "judul_other": "Prep list ({{count}} portions)",
+    "isi": "Orders not ready for pickup yet. Sold-out items waiting for the buyer's choice are not counted.",
+    "untuk": "For the {{time}} pickup:"
+  },
+  "dapur": {
+    "judul": "{{name}} kitchen",
+    "sub": "Today's orders that are not ready yet, by pickup time. Ready orders move to the Board for handover.",
+    "pesanan_one": "{{count}} order",
+    "pesanan_other": "{{count}} orders",
+    "porsi_one": "{{count}} portion",
+    "porsi_other": "{{count}} portions",
+    "layar_menyala": "The screen stays on while this page is open.",
+    "layar_bisa_mati": "The screen may turn off on its own",
+    "layar_bisa_mati_isi": "Tap the button below so the screen stays on while the Kitchen page is open.",
+    "jaga_layar": "Keep the screen on",
+    "layar_tidak_didukung": "This browser cannot keep the screen on. Turn off auto-lock in the device settings while cooking.",
+    "kosong": "Nothing to prepare yet",
+    "kosong_isi": "Paid orders for today appear here by pickup time, with the number of portions.",
+    "siap_info": "Order {{number}} is ready and moved to the Board for handover."
   },
   "serahkan": {
     "judul": "Hand over order {{number}}",

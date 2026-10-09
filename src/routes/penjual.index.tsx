@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { QrScanner } from '@/components/QrScanner'
 import { Button, Card, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, StatusText, Tabs } from '@/components/ui'
 import { ChatThread, chatIsOpen } from '@/features/chat'
+import { prepSummary, type PrepSlot } from '@/features/kitchen'
 import { parsePickupQr } from '@/features/orders'
 import { OrderAlarm, useBoardAction, useBoardOrders, useSeller, useTenantSettings, type BoardOrder } from '@/features/seller'
 import { clock, clockFromDate, orderNo, todayWib, tomorrowWib } from '@/lib/format'
@@ -61,6 +62,7 @@ function Board() {
     return [...map.entries()]
   }, [orders.data])
   const finished = (orders.data ?? []).filter((o) => ['selesai', 'dibatalkan', 'tidak_diambil'].includes(o.status))
+  const prep = useMemo(() => prepSummary(orders.data ?? []), [orders.data])
 
   if (!active) return null
   const tenant = settings.data
@@ -132,6 +134,8 @@ function Board() {
         <EmptyState title={day === todayWib() ? t('papan.kosong') : t('papan.kosong_besok')} body={t('papan.kosong_isi')} />
       )}
 
+      {prep.length > 0 && <PrepList slots={prep} />}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {groups.map(([time, list]) => (
           <section key={time} aria-labelledby={`jam-${time}`} className="space-y-2">
@@ -191,6 +195,27 @@ function Board() {
 
       {handover && <HandoverDialog order={handover} onClose={() => setHandover(null)} orders={orders.data ?? []} />}
     </div>
+  )
+}
+
+// Porsi yang perlu dimasak per jam ambil, untuk hari yang dipilih di tab.
+function PrepList({ slots }: { slots: PrepSlot<BoardOrder>[] }) {
+  const { t } = useTranslation()
+  const lang = currentLang()
+  const portions = slots.reduce((sum, slot) => sum + slot.portions, 0)
+  return (
+    <details className="rounded-xl border border-line-soft bg-surface p-4">
+      <summary className="min-h-11 cursor-pointer py-2 font-semibold">{t('siap_masak.judul', { count: portions })}</summary>
+      <p className="text-sm text-muted">{t('siap_masak.isi')}</p>
+      <ul className="mt-3 space-y-2">
+        {slots.map((slot) => (
+          <li key={slot.time} className="wrap-break-word">
+            <span className="tabular font-semibold">{t('siap_masak.untuk', { time: clock(slot.time, lang) })}</span>{' '}
+            {slot.lines.length > 0 ? slot.lines.map((line) => `${line.quantity}x ${line.label}`).join(', ') : <span className="text-muted">{t('papan.menunggu_pembeli')}</span>}
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }
 
