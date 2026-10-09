@@ -94,6 +94,10 @@ const TEXT: Record<string, Record<Lang, (p: Params) => [string, string]>> = {
     id: (p) => [`${p.tenant_name} aktif lagi`, 'Tenant sudah tampil lagi untuk pembeli.'],
     en: (p) => [`${p.tenant_name} is active again`, 'The tenant is visible to buyers again.'],
   },
+  chat_baru: {
+    id: (p) => [`Pesan baru di pesanan ${num(p)}`, `${p.from === 'tenant' ? p.tenant_name : 'Pembeli'}: ${p.snippet}`],
+    en: (p) => [`New message on order ${num(p)}`, `${p.from === 'tenant' ? p.tenant_name : 'Buyer'}: ${p.snippet}`],
+  },
 }
 
 const URGENT = new Set(['pesanan_baru', 'siap_diambil', 'menu_habis', 'belum_siap_boleh_batal', 'pengingat_jam_ambil'])
