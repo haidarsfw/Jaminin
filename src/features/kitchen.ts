@@ -49,13 +49,13 @@ export function prepSummary<O extends PrepOrder>(orders: readonly O[]): PrepSlot
     })
 }
 
-export type WakeLockState = 'unsupported' | 'active' | 'inactive'
+export type WakeLockState = 'unsupported' | 'pending' | 'active' | 'inactive'
 
 // Menjaga layar tetap menyala selama halaman terbuka. Sistem melepas kunci saat halaman tersembunyi, jadi kunci
 // diminta ulang saat terlihat lagi. Safari hanya memberi kunci dari ketukan, jadi setiap ketukan juga mencoba lagi.
 export function useWakeLock(): { state: WakeLockState; request: () => void } {
   const supported = 'wakeLock' in navigator
-  const [active, setActive] = useState(false)
+  const [state, setState] = useState<'pending' | 'active' | 'inactive'>('pending')
   const acquireRef = useRef<() => void>(() => {})
 
   useEffect(() => {
@@ -75,13 +75,13 @@ export function useWakeLock(): { state: WakeLockState; request: () => void } {
             return
           }
           lock = sentinel
-          sentinel.addEventListener('release', () => setActive(false), { once: true })
-          setActive(true)
+          sentinel.addEventListener('release', () => setState('inactive'), { once: true })
+          setState('active')
         },
         () => {
           // Ditolak tanpa ketukan, saat hemat baterai, atau karena kebijakan browser. Tidak dicatat sebagai galat.
           pending = false
-          setActive(false)
+          setState('inactive')
         },
       )
     }
@@ -101,5 +101,5 @@ export function useWakeLock(): { state: WakeLockState; request: () => void } {
     }
   }, [supported])
 
-  return { state: supported ? (active ? 'active' : 'inactive') : 'unsupported', request: () => acquireRef.current() }
+  return { state: supported ? state : 'unsupported', request: () => acquireRef.current() }
 }

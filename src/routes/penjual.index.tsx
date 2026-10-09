@@ -144,7 +144,7 @@ function Board() {
                 {clock(time, lang)} <span className="text-base font-normal text-muted">({list.length})</span>
               </h2>
               {day === todayWib() && (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {list.some((o) => o.status === 'diterima') && (
                     <Button icon={<CookingPotIcon />} small busy={action.busy === `slot-disiapkan-${time}`} busyText={t('umum.memproses')} onClick={() => void action.run(`slot-disiapkan-${time}`, () => rpc('seller_update_slot', { p_tenant: active.id, p_date: day, p_time: time, p_status: 'disiapkan' }))}>
                       {t('papan.mulai_semua')}
@@ -241,7 +241,7 @@ function OrderCard({
     <Card as="div" className="space-y-2">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-xl font-bold">
+          <p className="text-xl font-bold wrap-anywhere">
             {orderNo(order.order_number)} <span className="font-semibold">{order.pickup_name}</span>
           </p>
           <p className="text-sm text-muted">
@@ -257,7 +257,7 @@ function OrderCard({
       </div>
       <ul className="space-y-1">
         {items.map((item) => (
-          <li key={item.id} className="flex items-start justify-between gap-2">
+          <li key={item.id} className="flex flex-wrap items-start justify-between gap-2">
             <span>
               <span className="font-semibold">{item.quantity}x</span> {item.name}
               {Array.isArray(item.options) && item.options.length > 0 && (

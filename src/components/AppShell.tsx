@@ -2,6 +2,7 @@ import {
   BellIcon,
   ChartBarIcon,
   ClipboardTextIcon,
+  CookingPotIcon,
   FlagIcon,
   ForkKnifeIcon,
   HouseIcon,
@@ -91,6 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     ],
     penjual: [
       { to: '/penjual', label: t('nav.papan'), icon: ClipboardTextIcon, exact: true },
+      { to: '/penjual/dapur', label: t('nav.dapur'), icon: CookingPotIcon },
       { to: '/penjual/menu', label: t('nav.menu'), icon: ForkKnifeIcon },
       { to: '/penjual/toko', label: t('nav.toko'), icon: StorefrontIcon },
       { to: '/penjual/setoran', label: t('nav.setoran'), icon: WalletIcon },
@@ -123,7 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="text-xl font-extrabold tracking-tight">Jaminin</span>
             </Link>
             <span className="whitespace-nowrap rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted">{t('umum.draf_tampilan')}</span>
-            <div className="ml-auto flex items-center gap-1">
+            <div className="ml-auto flex flex-wrap items-center justify-end gap-1">
               {canDemo && (
                 <button type="button" onClick={() => setDemoOpen(true)} className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-accent underline-offset-4 hover:underline">
                   <UserSwitchIcon />
@@ -153,7 +155,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
           </div>
-          <nav aria-label={t('nav.label')} className="mx-auto hidden max-w-6xl gap-1 px-4 pb-2 md:flex">
+          <nav aria-label={t('nav.label')} className="mx-auto hidden max-w-6xl flex-wrap gap-1 px-4 pb-2 md:flex">
             {nav[mode].map((item) => (
               <Link
                 key={item.to}
@@ -208,11 +210,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav aria-label={t('nav.label')} className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line-soft bg-surface md:hidden print:hidden">
           <ul className="mx-auto flex max-w-md">
             {nav[mode].map((item) => (
-              <li key={item.to} className="flex-1">
+              <li key={item.to} className="min-w-0 flex-1">
                 <Link
                   to={item.to}
                   activeOptions={{ exact: item.exact }}
-                  className="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 pt-1 text-center text-xs font-semibold text-muted"
+                  className="flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 pt-1 text-center text-xs font-semibold text-muted wrap-anywhere"
                   activeProps={{ className: 'text-accent', 'aria-current': 'page' }}
                 >
                   {({ isActive }) => (

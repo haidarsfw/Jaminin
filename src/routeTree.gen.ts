@@ -24,6 +24,7 @@ import { Route as TimRouteImport } from './routes/tim'
 import { Route as BayarOrderIdRouteImport } from './routes/bayar.$orderId'
 import { Route as PenjualIndexRouteImport } from './routes/penjual.index'
 import { Route as PenjualDaftarRouteImport } from './routes/penjual.daftar'
+import { Route as PenjualDapurRouteImport } from './routes/penjual.dapur'
 import { Route as PenjualMenuRouteImport } from './routes/penjual.menu'
 import { Route as PenjualSetoranRouteImport } from './routes/penjual.setoran'
 import { Route as PenjualTokoRouteImport } from './routes/penjual.toko'
@@ -112,6 +113,11 @@ const PenjualDaftarRoute = PenjualDaftarRouteImport.update({
   path: '/daftar',
   getParentRoute: () => PenjualRoute,
 } as any)
+const PenjualDapurRoute = PenjualDapurRouteImport.update({
+  id: '/dapur',
+  path: '/dapur',
+  getParentRoute: () => PenjualRoute,
+} as any)
 const PenjualMenuRoute = PenjualMenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/tim': typeof TimRouteWithChildren
   '/bayar/$orderId': typeof BayarOrderIdRoute
   '/penjual/daftar': typeof PenjualDaftarRoute
+  '/penjual/dapur': typeof PenjualDapurRoute
   '/penjual/menu': typeof PenjualMenuRoute
   '/penjual/setoran': typeof PenjualSetoranRoute
   '/penjual/toko': typeof PenjualTokoRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByTo {
   '/simulator-bayar': typeof SimulatorBayarRoute
   '/bayar/$orderId': typeof BayarOrderIdRoute
   '/penjual/daftar': typeof PenjualDaftarRoute
+  '/penjual/dapur': typeof PenjualDapurRoute
   '/penjual/menu': typeof PenjualMenuRoute
   '/penjual/setoran': typeof PenjualSetoranRoute
   '/penjual/toko': typeof PenjualTokoRoute
@@ -245,6 +253,7 @@ export interface FileRoutesById {
   '/tim': typeof TimRouteWithChildren
   '/bayar/$orderId': typeof BayarOrderIdRoute
   '/penjual/daftar': typeof PenjualDaftarRoute
+  '/penjual/dapur': typeof PenjualDapurRoute
   '/penjual/menu': typeof PenjualMenuRoute
   '/penjual/setoran': typeof PenjualSetoranRoute
   '/penjual/toko': typeof PenjualTokoRoute
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/tim'
     | '/bayar/$orderId'
     | '/penjual/daftar'
+    | '/penjual/dapur'
     | '/penjual/menu'
     | '/penjual/setoran'
     | '/penjual/toko'
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/simulator-bayar'
     | '/bayar/$orderId'
     | '/penjual/daftar'
+    | '/penjual/dapur'
     | '/penjual/menu'
     | '/penjual/setoran'
     | '/penjual/toko'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/tim'
     | '/bayar/$orderId'
     | '/penjual/daftar'
+    | '/penjual/dapur'
     | '/penjual/menu'
     | '/penjual/setoran'
     | '/penjual/toko'
@@ -474,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PenjualDaftarRouteImport
       parentRoute: typeof PenjualRoute
     }
+    '/penjual/dapur': {
+      id: '/penjual/dapur'
+      path: '/dapur'
+      fullPath: '/penjual/dapur'
+      preLoaderRoute: typeof PenjualDapurRouteImport
+      parentRoute: typeof PenjualRoute
+    }
     '/penjual/menu': {
       id: '/penjual/menu'
       path: '/menu'
@@ -563,6 +582,7 @@ declare module '@tanstack/react-router' {
 
 interface PenjualRouteChildren {
   PenjualDaftarRoute: typeof PenjualDaftarRoute
+  PenjualDapurRoute: typeof PenjualDapurRoute
   PenjualMenuRoute: typeof PenjualMenuRoute
   PenjualSetoranRoute: typeof PenjualSetoranRoute
   PenjualTokoRoute: typeof PenjualTokoRoute
@@ -571,6 +591,7 @@ interface PenjualRouteChildren {
 
 const PenjualRouteChildren: PenjualRouteChildren = {
   PenjualDaftarRoute: PenjualDaftarRoute,
+  PenjualDapurRoute: PenjualDapurRoute,
   PenjualMenuRoute: PenjualMenuRoute,
   PenjualSetoranRoute: PenjualSetoranRoute,
   PenjualTokoRoute: PenjualTokoRoute,

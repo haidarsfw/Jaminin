@@ -127,13 +127,18 @@ function readSeen(): Set<string> {
   }
 }
 
+export function useAudioUnlock() {
+  const [ready, setReady] = useState(audioReady)
+  return { ready, unlock: () => setReady(unlockAudio()) }
+}
+
 // Pesanan lunas hari ini yang belum pernah dilihat membunyikan alarm berulang sampai penjual menekan Lihat,
-// juga saat papan sedang menampilkan tab besok.
-export function OrderAlarm({ tenantId }: { tenantId: string }) {
+// juga saat papan sedang menampilkan tab besok. Layar dapur menampilkan ajakan bunyinya sendiri (soundPrompt).
+export function OrderAlarm({ tenantId, soundPrompt = true }: { tenantId: string; soundPrompt?: boolean }) {
   const { t } = useTranslation()
   const orders = useBoardOrders(tenantId, todayWib())
   const [seen, setSeen] = useState(readSeen)
-  const [sound, setSound] = useState(audioReady)
+  const sound = useAudioUnlock()
   const fresh = useMemo(() => (orders.data ?? []).filter((o) => o.status === 'diterima' && !seen.has(o.id)).map((o) => o.id), [orders.data, seen])
   const freshKey = fresh.join(',')
 
@@ -157,10 +162,10 @@ export function OrderAlarm({ tenantId }: { tenantId: string }) {
 
   return (
     <>
-      {!sound && (
+      {soundPrompt && !sound.ready && (
         <Notice tone="warn" title={t('papan.bunyi_judul')}>
           <p>{t('papan.bunyi_isi')}</p>
-          <Button icon={<SpeakerHighIcon />} className="mt-2" small variant="primary" onClick={() => setSound(unlockAudio())}>
+          <Button icon={<SpeakerHighIcon />} className="mt-2" small variant="primary" onClick={sound.unlock}>
             {t('papan.nyalakan_bunyi')}
           </Button>
         </Notice>

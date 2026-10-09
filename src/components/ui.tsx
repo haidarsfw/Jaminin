@@ -15,11 +15,11 @@ const variantClass: Record<Variant, string> = {
   quiet: 'bg-transparent text-accent border border-transparent underline-offset-4 hover:underline',
 }
 
-export function buttonClass(variant: Variant = 'secondary', full = false, small = false): string {
+export function buttonClass(variant: Variant = 'secondary', full = false, small = false, large = false): string {
   return [
     'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors',
     'disabled:cursor-not-allowed disabled:opacity-60',
-    small ? 'min-h-11 px-3 text-sm' : 'min-h-12 px-4 text-base',
+    small ? 'min-h-11 px-3 text-sm' : large ? 'min-h-14 px-5 text-lg' : 'min-h-12 px-4 text-base',
     full ? 'w-full' : '',
     variantClass[variant],
   ].join(' ')
@@ -29,14 +29,16 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant
   full?: boolean
   small?: boolean
+  // Tombol besar untuk layar dapur yang dipakai dengan tangan sibuk.
+  large?: boolean
   busy?: boolean
   busyText?: string
   icon?: ReactNode
 }
 
-export function Button({ variant = 'secondary', full, small, busy, busyText, icon, children, className = '', type = 'button', ...rest }: ButtonProps) {
+export function Button({ variant = 'secondary', full, small, large, busy, busyText, icon, children, className = '', type = 'button', ...rest }: ButtonProps) {
   return (
-    <button type={type} className={`${buttonClass(variant, full, small)} ${className}`} disabled={busy || rest.disabled} aria-busy={busy || undefined} {...rest}>
+    <button type={type} className={`${buttonClass(variant, full, small, large)} ${className}`} disabled={busy || rest.disabled} aria-busy={busy || undefined} {...rest}>
       {icon}
       {busy && busyText ? busyText : children}
     </button>

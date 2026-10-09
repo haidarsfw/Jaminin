@@ -27,7 +27,7 @@ test('halaman pembeli tanpa masuk', async ({ page }, info) => {
 test('halaman penjual', async ({ page }, info) => {
   await setPassword('demo+pemilik@jaminin.test', SANDI)
   await signIn(page, 'demo+pemilik@jaminin.test', SANDI)
-  await tour(page, ['/penjual', '/penjual/menu', '/penjual/toko', '/penjual/setoran', '/penjual/daftar', '/pesanan', '/kabar', '/profil'], 'penjual', info.project.name)
+  await tour(page, ['/penjual', '/penjual/dapur', '/penjual/menu', '/penjual/toko', '/penjual/setoran', '/penjual/daftar', '/pesanan', '/kabar', '/profil'], 'penjual', info.project.name)
 })
 
 test('halaman tim', async ({ page }, info) => {
