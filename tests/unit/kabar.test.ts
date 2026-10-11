@@ -49,6 +49,6 @@ describe('teks kabar', () => {
   })
 
   it('jenis yang belum dikenal tetap punya judul', () => {
-    expect(kabarText({ kind: 'jenis_baru', params: {} }, tId.t, 'id')).toEqual({ title: 'Kabar dari Jaminin', body: '', detail: null })
+    expect(kabarText({ kind: 'jenis_baru', params: {} }, tId.t, 'id')).toEqual({ title: 'Info dari Jaminin', body: '', detail: null })
   })
 })

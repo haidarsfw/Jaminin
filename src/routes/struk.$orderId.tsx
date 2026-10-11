@@ -92,7 +92,6 @@ function ReceiptPage() {
             ))}
           </ul>
         )}
-        <p className="border-t border-line-soft pt-3 text-xs text-muted">{t('struk.catatan_simulasi')}</p>
       </Card>
     </div>
   )

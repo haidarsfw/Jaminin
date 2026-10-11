@@ -1,4 +1,4 @@
-import { ArrowClockwiseIcon, ArrowSquareOutIcon, CalendarPlusIcon, CheckCircleIcon, ClockClockwiseIcon, FlagIcon, PaperPlaneRightIcon, QrCodeIcon, ReceiptIcon, ShareNetworkIcon, WhatsappLogoIcon, XCircleIcon } from '@phosphor-icons/react'
+import { ArrowClockwiseIcon, ArrowSquareOutIcon, CalendarPlusIcon, ChatCircleIcon, CheckCircleIcon, ClockClockwiseIcon, FlagIcon, PaperPlaneRightIcon, QrCodeIcon, ReceiptIcon, ShareNetworkIcon, WhatsappLogoIcon, XCircleIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { QRCodeSVG } from 'qrcode.react'
@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '@/components/Guard'
 import { SlotPicker } from '@/components/SlotPicker'
-import { Button, ButtonLink, buttonClass, Card, Dialog, EmptyState, ErrorState, Field, LoadingState, Notice, PageHeader, Select, StatusText, TextArea, useNow } from '@/components/ui'
+import { Button, ButtonLink, buttonClass, Card, Dialog, EmptyState, ErrorState, Field, FileInput, LoadingState, Notice, PageHeader, Select, StatusText, TextArea, useNow, confirmDialog } from '@/components/ui'
 import { ChatThread, chatIsOpen } from '@/features/chat'
 import { reorder } from '@/features/buyer'
 import { cachedPickup, pickupQr, statusKey, useOrder, type OrderFull, type OrderItem } from '@/features/orders'
@@ -56,6 +56,7 @@ function OrderPage() {
   const action = useAction()
   const [reschedule, setReschedule] = useState(false)
   const [report, setReport] = useState(false)
+  const [chat, setChat] = useState(false)
   const [bannerHidden, setBannerHidden] = useState(installBannerDismissed())
 
   if (order.isPending) return <LoadingState />
@@ -101,22 +102,18 @@ function OrderPage() {
       />
 
       {showInstall && (
-        <Notice title={t('pasang.banner_judul')}>
+        <Notice
+          title={t('pasang.banner_judul')}
+          onDismiss={() => {
+            dismissInstallBanner()
+            setBannerHidden(true)
+          }}
+        >
           <p>{t('pasang.banner_isi')}</p>
           <div className="mt-2 flex flex-wrap gap-3">
             <Link to="/panduan-pasang" className="font-semibold text-accent underline underline-offset-4">
               {t('pasang.lihat_panduan')}
             </Link>
-            <button
-              type="button"
-              className="font-semibold underline underline-offset-4"
-              onClick={() => {
-                dismissInstallBanner()
-                setBannerHidden(true)
-              }}
-            >
-              {t('umum.tutup')}
-            </button>
           </div>
         </Notice>
       )}
@@ -142,8 +139,8 @@ function OrderPage() {
             small
             busy={action.busy === 'batal-belum-siap'}
             busyText={t('umum.memproses')}
-            onClick={() => {
-              if (window.confirm(t('pesanan.batal_konfirmasi_penuh'))) void action.run('batal-belum-siap', () => rpc('buyer_cancel_order', { p_order: o.id }))
+            onClick={async () => {
+              if (await confirmDialog(t('pesanan.batal_konfirmasi_penuh'))) void action.run('batal-belum-siap', () => rpc('buyer_cancel_order', { p_order: o.id }))
             }}
           >
             {t('pesanan.batal_uang_penuh')}
@@ -257,11 +254,16 @@ function OrderPage() {
             full
             busy={action.busy === 'terima'}
             busyText={t('umum.memproses')}
-            onClick={() => {
-              if (window.confirm(t('pesanan.terima_konfirmasi'))) void action.run('terima', () => rpc('buyer_confirm_received', { p_order: o.id }))
+            onClick={async () => {
+              if (await confirmDialog(t('pesanan.terima_konfirmasi'))) void action.run('terima', () => rpc('buyer_confirm_received', { p_order: o.id }))
             }}
           >
             {t('pesanan.sudah_terima')}
+          </Button>
+        )}
+        {o.paid_at && (
+          <Button icon={<ChatCircleIcon />} full onClick={() => setChat(true)}>
+            {t('chat.judul')}
           </Button>
         )}
         {canReschedule && (
@@ -275,13 +277,12 @@ function OrderPage() {
             href={waLink(o.tenants.whatsapp, t('pesanan.wa_teks', { number: orderNo(o.order_number), name: o.pickup_name }))}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-12 items-center justify-center rounded-lg border border-line bg-surface px-4 font-semibold"
+            className={buttonClass('secondary', true)}
           >
             <WhatsappLogoIcon />
             {t('pesanan.hubungi_penjual')}
           </a>
         )}
-        {o.tenants?.is_sample && o.paid_at && <p className="text-sm text-muted">{t('pesanan.wa_contoh')}</p>}
         {o.paid_at && (
           <Button icon={<FlagIcon />} full onClick={() => setReport(true)}>
             {t('pesanan.laporkan')}
@@ -293,8 +294,8 @@ function OrderPage() {
             full
             busy={action.busy === 'batal'}
             busyText={t('umum.memproses')}
-            onClick={() => {
-              if (window.confirm(t('pesanan.batal_konfirmasi'))) void action.run('batal', () => rpc('buyer_cancel_order', { p_order: o.id }))
+            onClick={async () => {
+              if (await confirmDialog(t('pesanan.batal_konfirmasi'))) void action.run('batal', () => rpc('buyer_cancel_order', { p_order: o.id }))
             }}
           >
             {t('pesanan.batalkan')}
@@ -302,14 +303,10 @@ function OrderPage() {
         )}
       </div>
 
-      {o.paid_at && (
-        <Card className="space-y-3">
-          <div>
-            <h2 className="text-lg font-bold">{t('chat.judul')}</h2>
-            <p className="text-sm text-muted">{t('chat.isi')}</p>
-          </div>
-          <ChatThread orderId={o.id} side="pembeli" open={chatIsOpen(o)} />
-        </Card>
+      {chat && (
+        <Dialog full open onClose={() => setChat(false)} title={t('chat.judul')} subtitle={o.tenants?.name}>
+          <ChatThread orderId={o.id} side="pembeli" open={chatIsOpen(o)} fill />
+        </Dialog>
       )}
 
       {o.status === 'selesai' && <RatingCard order={o} />}
@@ -359,7 +356,7 @@ function ReorderButton({ order }: { order: OrderFull }) {
           setBusy(true)
           setError(null)
           try {
-            const result = await reorder(order, (name) => window.confirm(t('keranjang.ganti_konfirmasi', { name })))
+            const result = await reorder(order, (name) => confirmDialog(t('keranjang.ganti_konfirmasi', { name })))
             if (!result) return
             if (result.added === 0) setError(t('pesan_ulang.kosong'))
             else await navigate({ to: '/keranjang' })
@@ -383,6 +380,7 @@ function ReorderButton({ order }: { order: OrderFull }) {
 
 function CalendarButtons({ order }: { order: OrderFull }) {
   const { t } = useTranslation()
+  const [open, setOpen] = useState(false)
   const number = orderNo(order.order_number)
   const event: PickupEvent = {
     uid: order.id,
@@ -392,15 +390,30 @@ function CalendarButtons({ order }: { order: OrderFull }) {
     date: order.pickup_date,
     time: order.pickup_time,
   }
+  const file = `jaminin-pesanan-${number.slice(1)}.ics`
   return (
     <>
-      <Button icon={<CalendarPlusIcon />} small onClick={() => downloadIcs(event, `jaminin-pesanan-${number.slice(1)}.ics`)}>
+      <Button icon={<CalendarPlusIcon />} small onClick={() => setOpen(true)}>
         {t('kalender.tambah')}
       </Button>
-      <a href={googleCalendarUrl(event)} target="_blank" rel="noreferrer" className={buttonClass('secondary', false, true)}>
-        <ArrowSquareOutIcon />
-        {t('kalender.google')}
-      </a>
+      <Dialog open={open} onClose={() => setOpen(false)} title={t('kalender.tambah')}>
+        <div className="grid gap-2">
+          <a href={googleCalendarUrl(event)} target="_blank" rel="noreferrer" onClick={() => setOpen(false)} className={buttonClass('secondary', true)}>
+            <ArrowSquareOutIcon />
+            {t('kalender.google')}
+          </a>
+          <Button
+            full
+            icon={<CalendarPlusIcon />}
+            onClick={() => {
+              downloadIcs(event, file)
+              setOpen(false)
+            }}
+          >
+            {t('kalender.lainnya')}
+          </Button>
+        </div>
+      </Dialog>
     </>
   )
 }
@@ -538,8 +551,8 @@ function SoldOutResolver({ order, items, now, onDone }: { order: OrderFull; item
                   variant="danger"
                   busy={action.busy === `batal-${item.id}`}
                   busyText={t('umum.memproses')}
-                  onClick={() => {
-                    if (window.confirm(t('menu_habis.batal_konfirmasi')))
+                  onClick={async () => {
+                    if (await confirmDialog(t('menu_habis.batal_konfirmasi')))
                       void action.run(`batal-${item.id}`, () => rpc('buyer_resolve_sold_out', { p_order_item: item.id, p_action: 'batal' })).then(onDone)
                   }}
                 >
@@ -701,7 +714,7 @@ function ReportDialog({ order, onClose }: { order: OrderFull; onClose: () => voi
             {(p) => <TextArea id={p.id} aria-describedby={p.describedBy} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} rows={4} />}
           </Field>
           <Field label={t('laporan.foto')} optional>
-            {(p) => <input id={p.id} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setPhoto(e.target.files?.[0] ?? null)} className="block min-h-12 w-full text-sm" />}
+            {(p) => <FileInput id={p.id} file={photo} onChange={setPhoto} />}
           </Field>
           {action.error && <Notice tone="error">{action.error}</Notice>}
           <Button
@@ -719,3 +732,4 @@ function ReportDialog({ order, onClose }: { order: OrderFull; onClose: () => voi
     </Dialog>
   )
 }
+

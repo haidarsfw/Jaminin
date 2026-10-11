@@ -6,7 +6,7 @@ import { useAuth } from '@/lib/auth'
 import { clock, todayWib, tomorrowWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { rpc, supabase, toAppError } from '@/lib/supabase'
-import { ErrorState, LoadingState, Notice, Tabs } from './ui'
+import { ErrorState, Field, LoadingState, Notice, Select, Tabs } from './ui'
 
 export type Slot = {
   slot_time: string
@@ -27,7 +27,8 @@ export function useSlots(tenantId: string | undefined, date: string, maxPrep: nu
   })
 }
 
-// Daftar jam ambil 5 menit: hari ini atau besok, dengan sisa kuota dan tanda promo.
+// Jam ambil 5 menit untuk hari ini atau besok dalam satu daftar pilihan yang dikelompokkan per jam,
+// dengan sisa kuota dan tanda promo. Jam yang penuh tetap terlihat tetapi tidak bisa dipilih.
 export function SlotPicker({
   tenantId,
   maxPrep,
@@ -50,6 +51,19 @@ export function SlotPicker({
   const slots = useSlots(tenantId, date, maxPrep)
   const visible = (slots.data ?? []).filter((s) => s.status !== 'lewat')
   const blocked = visible.length > 0 && visible.every((s) => s.status === 'jeda' || s.status === 'batas_harian') ? visible[0].status : null
+  const open = visible.filter((s) => s.status === 'tersedia')
+  const selected = open.find((s) => s.slot_time === value)
+  const byHour = new Map<string, Slot[]>()
+  for (const s of visible) byHour.set(s.slot_time.slice(0, 2), [...(byHour.get(s.slot_time.slice(0, 2)) ?? []), s])
+
+  function optionLabel(s: Slot): string {
+    if (s.status !== 'tersedia') return `${clock(s.slot_time, lang)} · ${t(`jam.status_singkat.${s.status}`)}`
+    const parts = [clock(s.slot_time, lang)]
+    if (s === open[0]) parts.push(t('jam.tercepat'))
+    parts.push(t('jam.sisa', { count: s.remaining }))
+    if (s.promo_value) parts.push(s.promo_kind === 'persen' ? `-${s.promo_value}%` : t('jam.promo'))
+    return parts.join(' · ')
+  }
 
   return (
     <div className="space-y-3">
@@ -64,38 +78,38 @@ export function SlotPicker({
       />
       {slots.isPending && <LoadingState text={t('jam.memuat')} />}
       {slots.isError && <ErrorState onRetry={() => void slots.refetch()} />}
-      {slots.isSuccess && visible.length === 0 && <Notice>{t('jam.tidak_ada')}</Notice>}
+      {slots.isSuccess && open.length === 0 && !blocked && <Notice>{t('jam.tidak_ada')}</Notice>}
       {blocked && <Notice tone="warn">{t(`jam.status.${blocked}`)}</Notice>}
-      {visible.length > 0 && !blocked && (
-        <div role="radiogroup" aria-label={t('jam.pilih')} className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-          {visible.map((s) => {
-            const available = s.status === 'tersedia'
-            const selected = value === s.slot_time
-            return (
-              <button
-                key={s.slot_time}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                disabled={!available}
-                onClick={() => onChange(s.slot_time, s)}
-                className={`tabular flex min-h-14 flex-col items-center justify-center rounded-lg border px-1 text-center ${
-                  selected
-                    ? 'border-accent bg-accent text-on-accent'
-                    : available
-                      ? 'border-line bg-surface'
-                      : 'border-line-soft bg-canvas text-muted line-through'
-                }`}
-              >
-                <span className="font-bold">{clock(s.slot_time, lang)}</span>
-                <span className="text-xs">
-                  {available ? t('jam.sisa', { count: s.remaining }) : t(`jam.status_singkat.${s.status}`)}
-                  {available && s.promo_value ? ` · ${s.promo_kind === 'persen' ? `-${s.promo_value}%` : t('jam.promo')}` : ''}
-                </span>
-              </button>
-            )
-          })}
-        </div>
+      {open.length > 0 && !blocked && (
+        <Field label={t('jam.pilih')} hint={t('jam.rentang', { from: clock(open[0].slot_time, lang), to: clock(open[open.length - 1].slot_time, lang) })}>
+          {(p) => (
+            <Select
+              id={p.id}
+              aria-describedby={p.describedBy}
+              value={selected ? selected.slot_time : ''}
+              onChange={(e) => {
+                const s = open.find((x) => x.slot_time === e.target.value)
+                if (s) onChange(s.slot_time, s)
+              }}
+              className="tabular"
+            >
+              {!selected && (
+                <option value="" disabled>
+                  {t('jam.pilih_dulu')}
+                </option>
+              )}
+              {[...byHour].map(([hour, list]) => (
+                <optgroup key={hour} label={clock(`${hour}:00:00`, lang)}>
+                  {list.map((s) => (
+                    <option key={s.slot_time} value={s.slot_time} disabled={s.status !== 'tersedia'}>
+                      {optionLabel(s)}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </Select>
+          )}
+        </Field>
       )}
       {!blocked && <Waitlist tenantId={tenantId} date={date} maxPrep={maxPrep} full={visible.filter((s) => s.status === 'penuh')} />}
     </div>

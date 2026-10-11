@@ -1,6 +1,8 @@
 import {
   BellIcon,
+  CaretDownIcon,
   ChartBarIcon,
+  CheckIcon,
   ClipboardTextIcon,
   CookingPotIcon,
   FlagIcon,
@@ -22,30 +24,26 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState, type ReactNode } from 'react'
+import { AnimatePresence, LazyMotion, MotionConfig } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useTranslation } from 'react-i18next'
-import { kabarText, markKabarRead, useKabar } from '@/features/kabar'
+import { kabarMode, kabarText, markKabarRead, unreadByMode, useKabar } from '@/features/kabar'
 import { useAuth } from '@/lib/auth'
 import { cartCount, cartSubtotal, useCart } from '@/lib/cart'
 import { hasOriginSession, returnToOrigin, switchToDemo } from '@/lib/demo'
 import { rupiah } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
+import { useMode, type Mode } from '@/lib/mode'
 import { useTopic } from '@/lib/realtime'
 import { rpc, supabase, toAppError } from '@/lib/supabase'
-import { Button, Dialog, Notice } from './ui'
+import { Button, Dialog, Notice, confirmDialog, ConfirmHost } from './ui'
 
-type Mode = 'pembeli' | 'penjual' | 'tim'
+const loadMotionFeatures = () => import('@/lib/motionFeatures').then((r) => r.default)
 
 type NavItem = { to: string; label: string; icon: Icon; exact?: boolean }
 
 // Ikon hanya penanda visual; nama tombol dan tautan tetap dari teksnya.
 const iconDefaults = { size: 20, 'aria-hidden': true, className: 'shrink-0' } as const
-
-function useMode(): Mode {
-  const { pathname } = useLocation()
-  if (pathname.startsWith('/penjual')) return 'penjual'
-  if (pathname.startsWith('/tim')) return 'tim'
-  return 'pembeli'
-}
 
 function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine)
@@ -81,8 +79,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { session, teamRole, tenants, profile } = useAuth()
   const { pathname } = useLocation()
   const cart = useCart()
-  const settings = useSettings()
   const [demoOpen, setDemoOpen] = useState(false)
+  const kabar = useKabar()
+  const unread = unreadByMode(kabar.data)
 
   const nav: Record<Mode, NavItem[]> = {
     pembeli: [
@@ -110,43 +109,31 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (tenants.length > 0) modes.push({ mode: 'penjual', to: '/penjual', label: t('mode.penjual') })
   if (teamRole) modes.push({ mode: 'tim', to: '/tim', label: t('mode.tim') })
 
-  const canDemo = !!settings.data?.demo_mode && !!session && (!!teamRole || !!profile?.is_demo || hasOriginSession())
+  const canDemo = !!session && (!!teamRole || !!profile?.is_demo || hasOriginSession())
   const showCartBar = mode === 'pembeli' && cart && !['/keranjang', '/checkout'].includes(pathname) && !pathname.startsWith('/bayar')
 
   return (
     <IconContext.Provider value={iconDefaults}>
+      <MotionConfig reducedMotion="user">
+      <LazyMotion features={loadMotionFeatures} strict>
       <div className="flex min-h-dvh flex-col">
         <a href="#isi" className="print:hidden sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-surface focus:p-3">
           {t('umum.lewati_ke_isi')}
         </a>
-        <header className="safe-top sticky top-0 z-30 border-b border-line-soft bg-canvas print:hidden">
+        <header className="safe-top sticky top-0 z-30 [view-transition-name:app-header] border-b border-line-soft bg-canvas print:hidden">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
             <Link to="/" className="flex min-h-11 items-center gap-2" aria-label={t('umum.ke_beranda')}>
               <span className="text-xl font-extrabold tracking-tight">Jaminin</span>
             </Link>
-            <span className="whitespace-nowrap rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted">{t('umum.draf_tampilan')}</span>
             <div className="ml-auto flex flex-wrap items-center justify-end gap-1">
               {canDemo && (
                 <button type="button" onClick={() => setDemoOpen(true)} className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 text-sm font-semibold text-accent underline-offset-4 hover:underline">
                   <UserSwitchIcon />
-                  {t('demo.panel')}
+                  <span className="max-sm:sr-only">{t('demo.panel')}</span>
                 </button>
               )}
-              {modes.length > 1 && (
-                <nav aria-label={t('mode.label')} className="flex rounded-lg border border-line p-0.5">
-                  {modes.map((m) => (
-                    <Link
-                      key={m.mode}
-                      to={m.to}
-                      className={`flex min-h-10 items-center whitespace-nowrap rounded-md px-2 text-sm font-semibold ${mode === m.mode ? 'bg-accent text-on-accent' : 'text-ink'}`}
-                      aria-current={mode === m.mode ? 'page' : undefined}
-                    >
-                      {m.label}
-                    </Link>
-                  ))}
-                </nav>
-              )}
-              {session && <KabarLink />}
+              {modes.length > 1 && <ModeSwitch modes={modes} current={mode} unread={unread} />}
+              {session && <KabarLink unread={unread[mode]} />}
               {!session && (
                 <Link to="/masuk" className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-accent">
                   <SignInIcon />
@@ -186,14 +173,22 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Notice tone="warn">{t('umum.offline')}</Notice>
           </div>
         )}
-        {session && <KabarToast />}
+        {session && <KabarToast mode={mode} />}
 
         <main id="isi" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-40 pt-4 md:pb-24 print:p-0">
           {children}
         </main>
 
-        {showCartBar && cart && (
-          <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 px-4 md:bottom-4 print:hidden">
+        <AnimatePresence>
+          {showCartBar && cart && (
+          <m.div
+            key="bilah-keranjang"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16, transition: { duration: 0.15 } }}
+            transition={{ type: 'spring', duration: 0.35, bounce: 0.1 }}
+            className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-20 px-4 md:bottom-4 print:hidden"
+          >
             <Link
               to="/keranjang"
               className="mx-auto flex min-h-12 max-w-md items-center justify-between rounded-xl bg-accent px-4 text-on-accent"
@@ -204,10 +199,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
               <span className="tabular font-bold">{rupiah(cartSubtotal(cart))}</span>
             </Link>
-          </div>
-        )}
+          </m.div>
+          )}
+        </AnimatePresence>
 
-        <nav aria-label={t('nav.label')} className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line-soft bg-surface md:hidden print:hidden">
+        <nav aria-label={t('nav.label')} className="safe-bottom fixed inset-x-0 bottom-0 z-30 [view-transition-name:app-tabbar] border-t border-line-soft bg-surface md:hidden print:hidden">
           <ul className="mx-auto flex max-w-md">
             {nav[mode].map((item) => (
               <li key={item.to} className="min-w-0 flex-1">
@@ -229,16 +225,77 @@ export function AppShell({ children }: { children: ReactNode }) {
           </ul>
         </nav>
 
+        <ConfirmHost />
         {canDemo && <DemoPanel open={demoOpen} onClose={() => setDemoOpen(false)} />}
       </div>
+      </LazyMotion>
+      </MotionConfig>
     </IconContext.Provider>
   )
 }
 
-function KabarLink() {
+// Satu tombol "Mode" yang jelas untuk berpindah antara pembeli, penjual, dan tim, seperti "Beralih ke mode tuan rumah" di Airbnb.
+// Pilihannya muncul di jendela berisi nama dan penjelasan singkat tiap mode, supaya tidak perlu menebak artinya.
+const MODE_ICON: Record<Mode, Icon> = { pembeli: ShoppingBagIcon, penjual: StorefrontIcon, tim: UsersThreeIcon }
+
+function ModeSwitch({ modes, current, unread }: { modes: { mode: Mode; to: string; label: string }[]; current: Mode; unread: Record<Mode, number> }) {
   const { t } = useTranslation()
-  const kabar = useKabar()
-  const unread = (kabar.data ?? []).filter((k) => !k.read_at).length
+  const [open, setOpen] = useState(false)
+  const CurrentIcon = MODE_ICON[current]
+  // Notifikasi mode lain tidak muncul di mode ini, jadi cukup ditandai titik di tombol Mode.
+  const elsewhere = modes.reduce((sum, x) => (x.mode === current ? sum : sum + unread[x.mode]), 0)
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+        className="relative flex min-h-11 items-center gap-2 whitespace-nowrap rounded-lg border border-line bg-surface px-3 text-sm font-semibold transition-colors hover:bg-canvas"
+      >
+        <CurrentIcon size={18} aria-hidden="true" />
+        <span>
+          <span className="text-muted max-sm:sr-only">{t('mode.tombol')} </span>
+          {modes.find((x) => x.mode === current)?.label}
+          {elsewhere > 0 && <span className="sr-only">, {t('mode.ada_baru', { count: elsewhere })}</span>}
+        </span>
+        <CaretDownIcon size={16} aria-hidden="true" className="text-muted" />
+        {elsewhere > 0 && <span aria-hidden="true" className="absolute -top-1 -right-1 size-3 rounded-full border-2 border-canvas bg-accent" />}
+      </button>
+      <Dialog open={open} onClose={() => setOpen(false)} title={t('mode.ganti')}>
+        <ul className="space-y-2">
+          {modes.map((x) => {
+            const ModeIcon = MODE_ICON[x.mode]
+            const active = x.mode === current
+            const count = active ? 0 : unread[x.mode]
+            return (
+              <li key={x.mode}>
+                <Link
+                  to={x.to}
+                  onClick={() => setOpen(false)}
+                  aria-current={active ? 'page' : undefined}
+                  className={`flex min-h-16 items-center gap-3 rounded-lg border px-3 py-2 transition-colors ${active ? 'border-accent bg-accent-soft' : 'border-line bg-surface hover:bg-canvas'}`}
+                >
+                  <ModeIcon size={26} aria-hidden="true" className="shrink-0" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-semibold">{x.label}</span>
+                    <span className="block text-sm text-muted">{t(`mode.isi_${x.mode}`)}</span>
+                  </span>
+                  {count > 0 && (
+                    <span className="tabular shrink-0 rounded-full bg-accent px-2 text-xs font-bold leading-6 text-on-accent">{t('mode.baru', { count })}</span>
+                  )}
+                  {active && <CheckIcon size={20} weight="bold" aria-hidden="true" className="shrink-0" />}
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </Dialog>
+    </>
+  )
+}
+
+function KabarLink({ unread }: { unread: number }) {
+  const { t } = useTranslation()
   return (
     <Link
       to="/kabar"
@@ -252,9 +309,16 @@ function KabarLink() {
           {/* Di HP cukup lonceng dan jumlahnya; nama tautan tetap terbaca pembaca layar. */}
           <span className="max-sm:sr-only">{t('kabar.tautan')}</span>
           {unread > 0 && (
-            <span aria-hidden="true" className="tabular min-w-6 rounded-full bg-accent px-1.5 text-center text-xs font-bold leading-6 text-on-accent">
+            <m.span
+              key={unread}
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', duration: 0.3, bounce: 0.4 }}
+              aria-hidden="true"
+              className="tabular min-w-6 rounded-full bg-accent px-1.5 text-center text-xs font-bold leading-6 text-on-accent"
+            >
               {unread > 9 ? '9+' : unread}
-            </span>
+            </m.span>
           )}
         </>
       )}
@@ -262,8 +326,9 @@ function KabarLink() {
   )
 }
 
-// Kabar baru yang masuk lewat Realtime saat aplikasi terbuka, tampil sebentar di atas halaman.
-function KabarToast() {
+// Notifikasi baru yang masuk saat aplikasi terbuka, tampil sebentar di kanan atas (di HP: di atas, selebar layar).
+// Hanya notifikasi untuk mode yang sedang dipakai; notifikasi mode lain ditandai di tombol Mode.
+function KabarToast({ mode }: { mode: Mode }) {
   const { t } = useTranslation()
   const { user } = useAuth()
   const kabar = useKabar()
@@ -277,41 +342,52 @@ function KabarToast() {
 
   useEffect(() => {
     if (!toastId) return
-    const timer = setTimeout(() => setToastId(null), 10_000)
+    const timer = setTimeout(() => setToastId(null), 8_000)
     return () => clearTimeout(timer)
   }, [toastId])
 
   const item = toastId ? kabar.data?.find((k) => k.id === toastId) : undefined
   const url = item?.url?.startsWith('/') ? item.url : null
-  // Halaman tujuan kabar sudah menampilkan perubahannya sendiri, jadi toast tidak perlu menutupinya.
-  if (!item || url === pathname) return null
-  const text = kabarText(item, t, currentLang())
+  // Halaman tujuan sudah menampilkan perubahannya sendiri, jadi toast tidak perlu menutupinya.
+  const show = !!item && url !== pathname && kabarMode(item) === mode
+  const text = item ? kabarText(item, t, currentLang()) : null
 
   return (
-    <div className="fixed inset-x-0 bottom-[calc(7.75rem+env(safe-area-inset-bottom))] z-40 px-4 md:bottom-20 print:hidden">
-      <div role="status" className="mx-auto flex max-w-md items-start gap-3 rounded-xl border border-line bg-surface p-3 shadow-md">
-        <BellIcon size={22} weight="fill" className="mt-0.5 shrink-0 text-accent" />
-        <div className="min-w-0 flex-1">
-          <p className="font-bold">{text.title}</p>
-          {text.body && <p className="text-sm">{text.body}</p>}
-          {url && (
-            <button
-              type="button"
-              className="mt-1 min-h-11 text-sm font-semibold text-accent underline underline-offset-4"
-              onClick={() => {
-                setToastId(null)
-                void markKabarRead([item.id])
-                void navigate({ href: url })
-              }}
-            >
-              {t('kabar.lihat')}
+    <div role="status" className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+4rem)] z-40 flex justify-center px-3 sm:justify-end sm:px-4 print:hidden">
+      <AnimatePresence mode="wait">
+        {show && item && text && (
+          <m.div
+            key={item.id}
+            initial={{ opacity: 0, y: -12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
+            transition={{ type: 'spring', duration: 0.4, bounce: 0.15 }}
+            className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border border-line bg-surface p-3 shadow-lg"
+          >
+            <BellIcon size={22} weight="fill" className="mt-0.5 shrink-0 text-accent" />
+            <div className="min-w-0 flex-1">
+              <p className="font-bold">{text.title}</p>
+              {text.body && <p className="text-sm">{text.body}</p>}
+              {url && (
+                <button
+                  type="button"
+                  className="mt-1 min-h-11 text-sm font-semibold text-accent underline underline-offset-4"
+                  onClick={() => {
+                    setToastId(null)
+                    void markKabarRead([item.id])
+                    void navigate({ href: url })
+                  }}
+                >
+                  {t('kabar.lihat')}
+                </button>
+              )}
+            </div>
+            <button type="button" onClick={() => setToastId(null)} className="-mt-1 -mr-1 flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-canvas" aria-label={t('umum.tutup')}>
+              <XIcon size={20} />
             </button>
-          )}
-        </div>
-        <button type="button" onClick={() => setToastId(null)} className="flex min-h-11 min-w-11 items-center justify-center rounded-lg text-muted" aria-label={t('umum.tutup')}>
-          <XIcon size={20} />
-        </button>
-      </div>
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -399,8 +475,8 @@ function DemoPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
           variant="danger"
           busy={busy === 'reset'}
           busyText={t('umum.memproses')}
-          onClick={() => {
-            if (window.confirm(t('demo.reset_konfirmasi'))) void run('reset', () => rpc('demo_reset'))
+          onClick={async () => {
+            if (await confirmDialog(t('demo.reset_konfirmasi'))) void run('reset', () => rpc('demo_reset'))
           }}
         >
           {t('demo.reset')}

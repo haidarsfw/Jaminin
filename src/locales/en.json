@@ -4,7 +4,7 @@
     "beranda": "Home",
     "pesanan": "Orders",
     "profil": "Profile",
-    "papan": "Board",
+    "papan": "Incoming orders",
     "dapur": "Kitchen",
     "menu": "Menu",
     "toko": "Store",
@@ -19,7 +19,16 @@
     "label": "Choose mode",
     "pembeli": "Buyer",
     "penjual": "Seller",
-    "tim": "Team"
+    "tim": "Team",
+    "tombol": "Mode",
+    "ganti": "Switch mode",
+    "isi_pembeli": "Order food and drinks, then track your orders.",
+    "isi_penjual": "Take orders, manage the menu, and run your store.",
+    "isi_tim": "Monitor all tenants, reports, payouts, and team members.",
+    "baru_one": "{{count}} new",
+    "baru_other": "{{count}} new",
+    "ada_baru_one": "{{count}} new notification in another mode",
+    "ada_baru_other": "{{count}} new notifications in other modes"
   },
   "umum": {
     "lewati_ke_isi": "Skip to content",
@@ -44,16 +53,19 @@
     "menyimpan": "Saving...",
     "simpan": "Save",
     "tersimpan": "Changes saved.",
-    "selesai": "Done"
+    "selesai": "Done",
+    "pilih_foto": "Choose photo",
+    "ganti_foto": "Change photo",
+    "belum_ada_foto": "No photo chosen"
   },
   "demo": {
-    "panel": "Demo mode",
+    "panel": "Demo accounts",
     "judul": "Demo mode",
-    "penjelasan": "Switch to a demo account without a password to show the buyer, seller, and team sides. Reset only deletes orders from demo accounts and sample data.",
+    "penjelasan": "Switch to a demo account without a password to show the buyer, seller, and team views. Reset removes new orders and restores the starting orders.",
     "sedang_dipakai": "in use",
     "kembali": "Back to my account",
     "reset": "Reset demo data",
-    "reset_konfirmasi": "Delete all demo account orders and recreate the sample orders?",
+    "reset_konfirmasi": "Remove all new orders and restore the starting orders?",
     "reset_selesai": "Demo data has been reset.",
     "matikan": "Turn off demo mode",
     "akun_demo": "This is a demo account. Its data can be reset at any time.",
@@ -63,7 +75,8 @@
       "karyawan": "Tenant staff (demo)",
       "admin": "Jaminin admin (demo)",
       "staf": "Jaminin staff (demo)",
-      "lainnya": "Other demo account"
+      "lainnya": "Other demo account",
+      "semua": "Full access (admin)"
     }
   },
   "akun": {
@@ -86,7 +99,15 @@
     "sandi_baru": "New password",
     "simpan_sandi": "Save password",
     "keluar": "Sign out",
-    "galat_email": "Enter a valid email address."
+    "galat_email": "Enter a valid email address.",
+    "judul_daftar": "Create a Jaminin account",
+    "judul_lupa": "Forgot password",
+    "sub_lupa": "Enter your account email. We will send a link to set a new password.",
+    "lupa_tanya": "Forgot password?",
+    "atau": "or",
+    "belum_punya": "No account yet?",
+    "sudah_punya": "Already have an account?",
+    "kembali_masuk": "Back to sign in"
   },
   "keranjang": {
     "judul": "Cart",
@@ -111,19 +132,21 @@
     "jam_istirahat": "When do you want to pick up?",
     "jam_dipilih": "Tenants available at {{time}} {{day}} are marked. This time is preselected at checkout.",
     "daftar_tenant": "Tenants",
-    "urutan": "Sort",
+    "urutan": "Sort by",
     "urut_cepat": "Fastest",
     "urut_abjad": "A to Z",
     "kosong": "No tenant is open yet",
     "kosong_isi": "You can still order for tomorrow.",
-    "paling_cepat": "Earliest {{time}}",
-    "paling_cepat_besok": "Earliest tomorrow {{time}}",
+    "paling_cepat": "Pickup from {{time}}",
+    "paling_cepat_besok": "Pickup tomorrow from {{time}}",
     "tidak_ada_jam": "No pickup times today or tomorrow",
     "jeda": "Temporarily closed",
     "buka_sampai": "Open until {{time}}",
     "tutup_sekarang": "Closed now",
     "bisa_jam_ini_one": "Available then, {{count}} left",
-    "bisa_jam_ini_other": "Available then, {{count}} left"
+    "bisa_jam_ini_other": "Available then, {{count}} left",
+    "secepatnya": "As soon as possible",
+    "buka_24_jam": "Open 24 hours"
   },
   "waktu": {
     "hari_ini": "Today",
@@ -151,9 +174,7 @@
     "jeda": "This tenant is temporarily closed. You can still order for a time after it reopens.",
     "pengumuman": "Announcement",
     "menu_kosong": "No menu yet",
-    "menit_one": "{{count}} minute",
-    "menit_other": "{{count}} minutes",
-    "bisa_diatur": "Customizable",
+    "bisa_diatur": "Has options",
     "habis": "Sold out",
     "habis_hari_ini": "Sold out today",
     "harga_contoh": "Sample price",
@@ -164,7 +185,10 @@
     "maksimal_other": "up to {{count}}",
     "jumlah": "Quantity",
     "tambah": "Add to cart, {{price}}",
-    "tambah_lalu_keranjang": "Add and open cart"
+    "menit_one": "Ready in {{count}} minute",
+    "menit_other": "Ready in {{count}} minutes",
+    "langsung_siap": "Ready right away",
+    "buka_24_jam": "Open 24 hours today"
   },
   "penanda": {
     "pedas": "Spicy",
@@ -196,7 +220,10 @@
       "jeda": "closed",
       "batas_harian": "full",
       "tutup": "closed"
-    }
+    },
+    "tercepat": "earliest",
+    "rentang": "Available from {{from}} to {{to}}.",
+    "pilih_dulu": "Choose a time"
   },
   "checkout": {
     "judul": "Checkout",
@@ -247,7 +274,8 @@
     "habis_isi": "The order was cancelled and the time slot released. You have not paid anything.",
     "dibatalkan": "Order cancelled",
     "dibatalkan_isi": "The order was cancelled before payment.",
-    "pilih_jam_lagi": "Choose a time again"
+    "pilih_jam_lagi": "Choose a time again",
+    "bayar_sekarang": "Pay now {{total}}"
   },
   "pesanan": {
     "judul": "My orders",
@@ -330,7 +358,8 @@
     "tambah": "Add to calendar",
     "google": "Google Calendar",
     "judul_acara": "Pick up order {{number}} at {{tenant}}",
-    "isi_acara": "Pickup code {{code}}, for {{name}}. Open the order: {{url}}"
+    "isi_acara": "Pickup code {{code}}, for {{name}}. Open the order: {{url}}",
+    "lainnya": "Other calendar (Apple, Outlook)"
   },
   "chat": {
     "judul": "Chat with the seller",
@@ -481,15 +510,14 @@
     "daftar_tenant_isi": "Run a tenant at the BINUS @Bekasi canteen? Register to start receiving orders."
   },
   "kabar": {
-    "judul": "Updates",
-    "sub": "Updates about your orders and account, newest first.",
-    "kosong": "No updates yet",
-    "kosong_isi": "Order updates appear here, even when notifications on your phone are off.",
+    "judul": "Notifications",
+    "kosong": "No notifications yet",
+    "kosong_isi": "Order notifications stay here, even when notifications on your phone are off.",
     "belum_dibaca_one": "{{count}} unread",
     "belum_dibaca_other": "{{count}} unread",
-    "tautan": "Updates",
-    "tautan_belum_dibaca_one": "Updates, {{count}} unread",
-    "tautan_belum_dibaca_other": "Updates, {{count}} unread",
+    "tautan": "Notifications",
+    "tautan_belum_dibaca_one": "Notifications, {{count}} unread",
+    "tautan_belum_dibaca_other": "Notifications, {{count}} unread",
     "tandai_semua": "Mark all as read",
     "baru": "New",
     "lihat": "View",
@@ -526,7 +554,7 @@
     "aksi_ganti": "replaced",
     "aksi_hapus": "removed",
     "aksi_batal": "order cancelled",
-    "setoran_terkirim_judul": "Payout sent (simulated)",
+    "setoran_terkirim_judul": "Payout sent",
     "setoran_terkirim_isi": "{{jumlah}} for {{banyak}} orders.",
     "pendaftaran_disetujui_judul": "Registration approved",
     "pendaftaran_disetujui_isi": "{{tenant}} is now visible to buyers.",
@@ -551,7 +579,8 @@
     "jam_tersedia_judul": "{{jam}} at {{tenant}} is open",
     "jam_tersedia_isi": "A spot opened up for {{tanggal}}. Whoever pays first gets it.",
     "jadi_karyawan_judul": "You are now staff at {{tenant}}",
-    "jadi_karyawan_isi": "Open Seller mode to handle orders."
+    "jadi_karyawan_isi": "Open Seller mode to handle orders.",
+    "sub_mode": "Notifications for {{mode}} mode, newest first."
   },
   "pasang": {
     "judul": "Install Jaminin",
@@ -593,7 +622,7 @@
   "penjual": {
     "belum_punya": "You do not have a tenant yet",
     "belum_punya_isi": "Register a tenant to start receiving orders, or ask a tenant owner to add you as staff.",
-    "tenant_aktif": "Tenant",
+    "tenant_aktif": "Managed tenant",
     "alasan": "Reason: {{reason}}",
     "perbaiki": "Fix the details and resubmit",
     "menunggu_isi": "The Jaminin team is reviewing the registration. The tenant appears on the home page once approved.",
@@ -602,7 +631,9 @@
       "disetujui": "Approved",
       "ditolak": "Rejected",
       "ditangguhkan": "Suspended"
-    }
+    },
+    "pesanan_aktif_one": "{{count}} active order",
+    "pesanan_aktif_other": "{{count}} active orders"
   },
   "papan": {
     "sub": "Paid orders, grouped by pickup time.",
@@ -631,7 +662,8 @@
     "riwayat_pembeli": "Buyer history at this tenant: cancelled {{cancelled}} times, not picked up {{notPicked}} times.",
     "mulai": "Start preparing",
     "siap": "Ready for pickup",
-    "serahkan": "Hand over"
+    "serahkan": "Hand over",
+    "besok_info": "These orders are for tomorrow. The Start preparing and Hand over buttons appear tomorrow, on the pickup day."
   },
   "siap_masak": {
     "judul_one": "Prep list ({{count}} portion)",
@@ -896,7 +928,7 @@
     "tambah_kategori": "Add category",
     "pilihan_nanti": "Options such as spice level are set on the Menu page after registration.",
     "bagian_setoran": "Payout account",
-    "setoran_isi": "Sales are sent daily after a {{fee}} deduction per completed order. In the prototype, this transfer is simulated.",
+    "setoran_isi": "Sales are sent daily after a {{fee}} deduction per completed order.",
     "bank": "Bank name",
     "rekening": "Account number",
     "pemilik_rekening": "Account holder name",
@@ -934,7 +966,7 @@
     "simulasi": "In the prototype, payouts are simulated. No real transfer happens.",
     "kosong": "No payouts yet",
     "kosong_isi": "The first payout is sent after an order is completed.",
-    "terkirim": "Sent {{time}} (simulated)",
+    "terkirim": "Sent {{time}}",
     "penjualan_one": "Sales ({{count}} order)",
     "penjualan_other": "Sales ({{count}} orders)",
     "promo": "Promo discount",
@@ -950,7 +982,7 @@
   },
   "tim": {
     "judul": "Overview",
-    "sub": "Paid orders by pickup date. Sample data is kept apart from real data.",
+    "sub": "Paid orders by pickup date.",
     "rentang": "Range",
     "tujuh_hari": "7 days",
     "tiga_puluh_hari": "30 days",
@@ -1064,7 +1096,7 @@
   },
   "timsetoran": {
     "judul": "Tenant payouts",
-    "sub": "Automatic payouts to every tenant (simulated).",
+    "sub": "Automatic payouts to every tenant.",
     "total": "Total real payouts: {{amount}}",
     "kosong": "No payouts in this range yet"
   },
@@ -1190,7 +1222,7 @@
     "penanda": "Menu labels",
     "hasil": "Search results",
     "kosong": "No matches",
-    "kosong_isi": "Try another word or remove some labels."
+    "kosong_isi": "Try another word."
   },
   "pesan_ulang": {
     "tombol": "Order again",
@@ -1240,5 +1272,10 @@
     "isi": "Pick the time. If someone cancels, everyone waiting is told at once, and whoever pays first gets the spot.",
     "label": "Waitlist for {{time}}",
     "masuk": "You are on the waitlist for {{time}}."
+  },
+  "konfirmasi": {
+    "judul": "Confirm",
+    "kembali": "Go back",
+    "ya": "Yes, continue"
   }
 }

@@ -1,6 +1,6 @@
-import { ArrowLeftIcon, CheckCircleIcon, InfoIcon, MinusIcon, PlusIcon, WarningCircleIcon, WarningIcon, XIcon, type Icon } from '@phosphor-icons/react'
+import { ArrowLeftIcon, CaretDownIcon, CheckCircleIcon, ForkKnifeIcon, ImageIcon, InfoIcon, MinusIcon, PlusIcon, WarningCircleIcon, WarningIcon, XIcon, type Icon } from '@phosphor-icons/react'
 import { Link, type LinkProps } from '@tanstack/react-router'
-import { useEffect, useId, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 // Komponen dasar draf tampilan. Satu radius untuk kontrol (8px) dan satu untuk kartu (12px).
@@ -17,7 +17,7 @@ const variantClass: Record<Variant, string> = {
 
 export function buttonClass(variant: Variant = 'secondary', full = false, small = false, large = false): string {
   return [
-    'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors',
+    'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition duration-150 active:scale-[0.98] disabled:active:scale-100',
     'disabled:cursor-not-allowed disabled:opacity-60',
     small ? 'min-h-11 px-3 text-sm' : large ? 'min-h-14 px-5 text-lg' : 'min-h-12 px-4 text-base',
     full ? 'w-full' : '',
@@ -85,8 +85,9 @@ const toneClass: Record<Tone, string> = {
 // Ikon ikut membedakan nada, supaya status tidak hanya dibedakan lewat warna.
 const toneIcon: Record<Tone, Icon> = { info: InfoIcon, warn: WarningIcon, error: WarningCircleIcon, success: CheckCircleIcon }
 
-export function Notice({ tone = 'info', title, children, className = '' }: { tone?: Tone; title?: string; children?: ReactNode; className?: string }) {
+export function Notice({ tone = 'info', title, children, className = '', onDismiss }: { tone?: Tone; title?: string; children?: ReactNode; className?: string; onDismiss?: () => void }) {
   const ToneIcon = toneIcon[tone]
+  const { t } = useTranslation()
   return (
     <div role={tone === 'error' ? 'alert' : 'status'} className={`flex gap-2 rounded-lg border p-3 text-sm ${toneClass[tone]} ${className}`}>
       <ToneIcon size={20} weight={tone === 'info' ? 'regular' : 'fill'} className="shrink-0" />
@@ -94,6 +95,11 @@ export function Notice({ tone = 'info', title, children, className = '' }: { ton
         {title && <p className="font-semibold">{title}</p>}
         {children && <div className={title ? 'mt-1' : ''}>{children}</div>}
       </div>
+      {onDismiss && (
+        <button type="button" onClick={onDismiss} aria-label={t('umum.tutup')} className="-mt-2.5 -mr-2.5 flex size-11 shrink-0 items-center justify-center rounded-lg opacity-80 hover:opacity-100">
+          <XIcon size={18} aria-hidden="true" />
+        </button>
+      )}
     </div>
   )
 }
@@ -186,7 +192,14 @@ export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
 
 export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement> & { invalid?: boolean }) {
   const { invalid, className = '', ...rest } = props
-  return <select {...rest} aria-invalid={invalid || undefined} className={`${controlClass} min-h-12 ${className}`} />
+  // Panah bawaan browser menempel di tepi kotak, jadi diganti ikon sendiri yang berjarak sama dengan isi.
+  // className dipasang di pembungkus supaya batas lebar (contoh max-w-xs) ikut membatasi letak ikon.
+  return (
+    <span className={`relative block ${className}`}>
+      <select {...rest} aria-invalid={invalid || undefined} className={`${controlClass} min-h-12 appearance-none pr-10`} />
+      <CaretDownIcon size={18} aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted" />
+    </span>
+  )
 }
 
 export function Choice({
@@ -208,7 +221,7 @@ export function Choice({
 }) {
   return (
     <label
-      className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 ${
+      className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 transition-colors ${
         checked ? 'border-accent bg-accent-soft' : 'border-line bg-surface'
       } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
     >
@@ -223,6 +236,66 @@ export function Choice({
       />
       <span className="flex-1">{children}</span>
     </label>
+  )
+}
+
+// Sakelar nyala/mati untuk pilihan ya atau tidak. Tetap checkbox asli supaya jalan dengan papan ketik dan pembaca layar.
+export function Switch({ checked, onChange, children, disabled }: { checked: boolean; onChange: (checked: boolean) => void; children: ReactNode; disabled?: boolean }) {
+  return (
+    <label
+      className={`flex min-h-12 items-center justify-between gap-3 rounded-lg border border-line bg-surface px-3 py-2 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent ${
+        disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+      }`}
+    >
+      <span className="flex-1">{children}</span>
+      <input type="checkbox" role="switch" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} className="sr-only" />
+      <span
+        aria-hidden="true"
+        className={`flex h-7 w-12 shrink-0 items-center rounded-full border p-0.5 transition-colors motion-reduce:transition-none ${checked ? 'border-accent bg-accent' : 'border-line bg-canvas'}`}
+      >
+        <span className={`size-5.5 rounded-full transition-transform motion-reduce:transition-none ${checked ? 'translate-x-5 bg-on-accent' : 'bg-muted'}`} />
+      </span>
+    </label>
+  )
+}
+
+// Pilih foto dengan tombol berbahasa aplikasi. Tombol bawaan browser ("Choose File") mengikuti bahasa browser.
+export function FileInput({
+  id,
+  describedBy,
+  file,
+  onChange,
+  accept = 'image/jpeg,image/png,image/webp',
+}: {
+  id: string
+  describedBy?: string
+  file: File | null
+  onChange: (file: File | null) => void
+  accept?: string
+}) {
+  const { t } = useTranslation()
+  return (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <label
+        className={`${buttonClass('secondary', false, true)} cursor-pointer has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent`}
+      >
+        <ImageIcon size={18} aria-hidden="true" />
+        {file ? t('umum.ganti_foto') : t('umum.pilih_foto')}
+        <input id={id} type="file" accept={accept} aria-describedby={describedBy} onChange={(e) => onChange(e.target.files?.[0] ?? null)} className="sr-only" />
+      </label>
+      <span className="min-w-0 truncate text-sm text-muted">{file ? file.name : t('umum.belum_ada_foto')}</span>
+    </div>
+  )
+}
+
+// Foto makanan, atau tempat fotonya kalau belum ada: kotak polos berikon dengan ukuran yang sama,
+// supaya kartu tidak bergeser saat foto ditambahkan. Gambar hanya hiasan karena namanya sudah tertulis di sebelahnya.
+export function FoodPhoto({ src, className = '', iconSize = 28 }: { src?: string | null; className?: string; iconSize?: number }) {
+  if (src) return <img src={src} alt="" loading="lazy" className={`shrink-0 rounded-lg bg-canvas object-cover ${className}`} />
+  return (
+    <span aria-hidden="true" className={`flex shrink-0 items-center justify-center rounded-lg border border-line-soft bg-canvas text-muted ${className}`}>
+      <ForkKnifeIcon size={iconSize} />
+    </span>
   )
 }
 
@@ -243,10 +316,19 @@ export function Stepper({ value, onChange, min = 0, max = 20, label }: { value: 
   )
 }
 
-export function Dialog({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+// full: layar penuh di HP dan panel tinggi di iPad atau laptop, untuk isi dengan bagian bawah tetap seperti jendela chat.
+export function Dialog({ open, onClose, title, subtitle, full, children }: { open: boolean; onClose: () => void; title: string; subtitle?: string; full?: boolean; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const { t } = useTranslation()
+  // Klik di latar gelap di luar kotak menutup jendela. Tekanan harus mulai dan selesai di luar kotak,
+  // supaya menyeret pilihan teks dari dalam kotak ke luar tidak ikut menutup.
+  const pressedOutside = useRef(false)
+  const outside = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target !== e.currentTarget) return false
+    const r = e.currentTarget.getBoundingClientRect()
+    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom
+  }
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -258,24 +340,88 @@ export function Dialog({ open, onClose, title, children }: { open: boolean; onCl
       ref={ref}
       onClose={onClose}
       onCancel={onClose}
+      onPointerDown={(e) => {
+        pressedOutside.current = outside(e)
+      }}
+      onClick={(e) => {
+        if (pressedOutside.current && outside(e)) onClose()
+        pressedOutside.current = false
+      }}
       aria-labelledby={titleId}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-line-soft bg-surface p-0 text-ink"
+      className={
+        full
+          ? 'm-0 h-dvh max-h-none w-full max-w-none overflow-hidden overscroll-contain bg-surface p-0 text-ink sm:m-auto sm:h-[min(44rem,calc(100dvh-2rem))] sm:w-[min(32rem,calc(100vw-2rem))] sm:rounded-xl sm:border sm:border-line-soft'
+          : 'm-auto max-h-[calc(100dvh-2rem)] w-[min(32rem,calc(100vw-2rem))] overflow-y-auto overscroll-contain rounded-xl border border-line-soft bg-surface p-0 text-ink'
+      }
     >
       {open && (
-        <div className="p-4">
-          <div className="mb-3 flex items-start justify-between gap-3">
-            <h2 id={titleId} className="text-lg font-bold">
-              {title}
-            </h2>
-            <button type="button" onClick={onClose} className={buttonClass('quiet', false, true)}>
-              <XIcon size={18} />
-              {t('umum.tutup')}
+        <div className={full ? 'flex h-full flex-col' : 'p-4'}>
+          <div className={`flex items-center justify-between gap-3 ${full ? 'border-b border-line-soft py-1.5 pr-2 pl-4' : 'sticky top-0 z-10 -mx-4 -mt-4 mb-2 bg-surface pt-3 pr-2 pb-1 pl-4'}`}>
+            <div className="min-w-0">
+              <h2 id={titleId} className="text-lg font-bold">
+                {title}
+              </h2>
+              {subtitle && <p className="truncate text-sm text-muted">{subtitle}</p>}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={t('umum.tutup')}
+              className={`flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-canvas hover:text-ink`}
+            >
+              <XIcon size={22} aria-hidden="true" />
             </button>
           </div>
           {children}
         </div>
       )}
     </dialog>
+  )
+}
+
+// Konfirmasi di dalam aplikasi sebagai pengganti window.confirm ("localhost says ...").
+// Tombolnya "Kembali" dan "Ya, lanjutkan", supaya tidak tertukar dengan kata Batal pada "Batalkan pesanan?".
+let pendingConfirm: { message: string; resolve: (ok: boolean) => void } | null = null
+const confirmListeners = new Set<() => void>()
+const emitConfirm = () => confirmListeners.forEach((l) => l())
+
+export function confirmDialog(message: string): Promise<boolean> {
+  pendingConfirm?.resolve(false)
+  return new Promise((resolve) => {
+    pendingConfirm = { message, resolve }
+    emitConfirm()
+  })
+}
+
+export function ConfirmHost() {
+  const { t } = useTranslation()
+  const request = useSyncExternalStore(
+    (l) => {
+      confirmListeners.add(l)
+      return () => {
+        confirmListeners.delete(l)
+      }
+    },
+    () => pendingConfirm,
+  )
+  function answer(ok: boolean) {
+    const r = pendingConfirm
+    pendingConfirm = null
+    emitConfirm()
+    r?.resolve(ok)
+  }
+  return (
+    <Dialog open={!!request} onClose={() => answer(false)} title={t('konfirmasi.judul')}>
+      <p>{request?.message}</p>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Button full onClick={() => answer(false)}>
+          {t('konfirmasi.kembali')}
+        </Button>
+        <Button full variant="primary" onClick={() => answer(true)}>
+          {t('konfirmasi.ya')}
+        </Button>
+      </div>
+    </Dialog>
   )
 }
 
@@ -289,7 +435,7 @@ export function Tabs<T extends string>({ value, onChange, items, label }: { valu
           role="tab"
           aria-selected={value === item.value}
           onClick={() => onChange(item.value)}
-          className={`min-h-11 shrink-0 rounded-lg border px-3 text-sm font-semibold ${
+          className={`min-h-11 shrink-0 rounded-lg border px-3 text-sm font-semibold transition-colors ${
             value === item.value ? 'border-accent bg-accent text-on-accent' : 'border-line bg-surface text-ink'
           }`}
         >

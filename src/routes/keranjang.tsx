@@ -2,7 +2,7 @@ import { ClockIcon } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, ButtonLink, Card, EmptyState, Notice, PageHeader, Stepper } from '@/components/ui'
+import { Button, ButtonLink, Card, EmptyState, Notice, PageHeader, Stepper, confirmDialog } from '@/components/ui'
 import { forgetReorderNotes, reorderNotes } from '@/features/buyer'
 import { cartSubtotal, clearCart, getCart, setQuantity, useCart } from '@/lib/cart'
 import { orderNo, rupiah } from '@/lib/format'
@@ -41,7 +41,12 @@ function CartPage() {
         back={{ to: '/tenant/$slug', params: { slug: cart.tenantSlug }, label: t('keranjang.tambah_menu') }}
       />
       {notes && notes.tenantId === cart.tenantId && (
-        <Notice tone={notes.notes.length > 0 ? 'warn' : 'success'} title={t('pesan_ulang.judul', { number: orderNo(notes.number) })} className="mb-4">
+        <Notice tone={notes.notes.length > 0 ? 'warn' : 'success'} title={t('pesan_ulang.judul', { number: orderNo(notes.number) })} className="mb-4"
+          onDismiss={() => {
+            forgetReorderNotes()
+            setNotes(null)
+          }}
+        >
           {notes.notes.length > 0 && (
             <ul className="list-disc space-y-1 pl-5">
               {notes.notes.map((n, i) => (
@@ -49,17 +54,6 @@ function CartPage() {
               ))}
             </ul>
           )}
-          <Button
-            small
-            variant="quiet"
-            className="mt-1 -ml-3"
-            onClick={() => {
-              forgetReorderNotes()
-              setNotes(null)
-            }}
-          >
-            {t('umum.tutup')}
-          </Button>
         </Notice>
       )}
       <ul className="space-y-2">
@@ -88,8 +82,8 @@ function CartPage() {
         <Button
           variant="quiet"
           full
-          onClick={() => {
-            if (window.confirm(t('keranjang.kosongkan_konfirmasi'))) clearCart()
+          onClick={async () => {
+            if (await confirmDialog(t('keranjang.kosongkan_konfirmasi'))) clearCart()
           }}
         >
           {t('keranjang.kosongkan')}

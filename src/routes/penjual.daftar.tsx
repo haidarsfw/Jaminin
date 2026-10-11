@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, Choice, Dialog, Field, Input, Notice, PageHeader, TextArea } from '@/components/ui'
+import { Button, Card, Choice, Dialog, Field, FileInput, Input, Notice, PageHeader, TextArea } from '@/components/ui'
 import { useSettings } from '@/components/AppShell'
 import {
   defaultHours,
@@ -219,14 +219,7 @@ function Register() {
           )}
           <Field label={t('daftar.logo')} optional hint={t('foto.isi')} error={errors.logo}>
             {(p) => (
-              <input
-                id={p.id}
-                aria-describedby={p.describedBy}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => setLogo(e.target.files?.[0] ?? null)}
-                className="block min-h-12 w-full text-sm file:mr-3 file:min-h-11 file:rounded-lg file:border file:border-line file:bg-surface file:px-3 file:font-semibold"
-              />
+              <FileInput id={p.id} describedBy={p.describedBy} file={logo} onChange={setLogo} />
             )}
           </Field>
         </Card>
@@ -345,7 +338,6 @@ function Register() {
             <li>{t('daftar.syarat_4')}</li>
             <li>{t('daftar.syarat_5')}</li>
           </ul>
-          <p className="text-sm text-muted">{t('daftar.syarat_draf')}</p>
           <Choice type="checkbox" name="syarat" value="setuju" checked={terms} onChange={setTerms}>
             {t('daftar.setuju')}
           </Choice>

@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, ErrorState, Field, Input, LoadingState, Notice, PageHeader, Select } from '@/components/ui'
+import { Button, Card, ErrorState, Field, Input, LoadingState, Notice, PageHeader, Select, confirmDialog } from '@/components/ui'
 import { useAuth } from '@/lib/auth'
 import { rpc, toAppError, type Enums } from '@/lib/supabase'
 
@@ -116,8 +116,8 @@ function Members() {
                     variant="danger"
                     busy={busy === `hapus-${m.user_id}`}
                     busyText={t('umum.memproses')}
-                    onClick={() => {
-                      if (window.confirm(t('anggota.hapus_tanya', { name: m.full_name || m.email })))
+                    onClick={async () => {
+                      if (await confirmDialog(t('anggota.hapus_tanya', { name: m.full_name || m.email })))
                         void run(`hapus-${m.user_id}`, () => rpc('team_update_member', { p_user: m.user_id, p_role: null }), t('anggota.dihapus'))
                     }}
                   >

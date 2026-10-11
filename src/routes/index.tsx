@@ -1,10 +1,12 @@
+import { MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EmptyState, ErrorState, Field, Input, LoadingState, Tabs } from '@/components/ui'
+import { EmptyState, ErrorState, Field, FoodPhoto, Input, LoadingState, Select } from '@/components/ui'
 import { cleanQuery, useFavoriteMenus, useFavorites, useMenuSearch, type SearchHit } from '@/features/buyer'
-import { rememberSlot } from '@/lib/cart'
+import { allDay } from '@/features/tenant'
+import { forgetSlot, recalledSlot, rememberSlot } from '@/lib/cart'
 import { clock, nowWib, rupiah, todayWib, tomorrowWib, type Lang } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { rpc } from '@/lib/supabase'
@@ -12,9 +14,6 @@ import { rpc } from '@/lib/supabase'
 export const Route = createFileRoute('/')({
   component: Home,
 })
-
-// Penanda menu yang dinyatakan penjual, sama dengan pilihan di halaman menu penjual.
-const TAGS = ['pedas', 'vegetarian', 'dingin', 'panas', 'halal']
 
 type HomeTenant = {
   id: string
@@ -34,21 +33,38 @@ type HomeTenant = {
 
 type SlotStatus = { tenant_id: string; status: string; remaining: number }
 
-// Jeda kuliah jatuh pada jam 9, 11, 13, 15, 17, dan 19, kelas berikutnya mulai 20 menit kemudian.
-const BREAKS = ['09:05', '11:05', '13:05', '15:05', '17:05', '19:05']
+type Chosen = { date: string; time: string; tomorrow: boolean }
 
-function breakTarget(time: string): { date: string; time: string; tomorrow: boolean } {
+const toMinutes = (time: string) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5))
+const toClock = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}:00`
+
+// Pilihan jam di beranda tiap 15 menit dalam rentang buka tenant hari ini (07.00 sampai 17.00 kalau semua tutup).
+// Jam pastinya tiap 5 menit dipilih di checkout, mulai dari jam ini atau jam terdekat sesudahnya.
+function pickupChoices(tenants: HomeTenant[]): { date: string; tomorrow: boolean; times: string[] }[] {
+  const ranges = tenants.flatMap((x) => x.today_ranges)
+  const open = ranges.length ? Math.min(...ranges.map((r) => toMinutes(r.open))) : 7 * 60
+  const close = ranges.length ? Math.max(...ranges.map((r) => toMinutes(r.close))) : 17 * 60
   const now = nowWib()
-  const [h, m] = time.split(':').map(Number)
-  const passed = now.getHours() * 60 + now.getMinutes() >= h * 60 + m
-  return { date: passed ? tomorrowWib() : todayWib(), time: `${time}:00`, tomorrow: passed }
+  const steps = (from: number) => {
+    const out: string[] = []
+    for (let m = Math.ceil(from / 15) * 15; m <= close - 5; m += 15) out.push(toClock(m))
+    return out
+  }
+  return [
+    { date: todayWib(), tomorrow: false, times: steps(Math.max(open, now.getHours() * 60 + now.getMinutes() + 15)) },
+    { date: tomorrowWib(), tomorrow: true, times: steps(open) },
+  ].filter((g) => g.times.length > 0)
 }
 
 function Home() {
   const { t } = useTranslation()
   const lang = currentLang()
   const [sort, setSort] = useState<'cepat' | 'abjad'>('cepat')
-  const [chosen, setChosen] = useState<{ date: string; time: string; tomorrow: boolean } | null>(null)
+  // Jam yang sudah dipilih tetap tampil saat kembali ke beranda, karena checkout juga memakainya.
+  const [chosen, setChosen] = useState<Chosen | null>(() => {
+    const r = recalledSlot()
+    return r && (r.date === todayWib() || r.date === tomorrowWib()) ? { ...r, tomorrow: r.date !== todayWib() } : null
+  })
 
   const tenants = useQuery({
     queryKey: ['beranda'],
@@ -64,8 +80,18 @@ function Home() {
 
   const statusByTenant = useMemo(() => new Map((slotStatus.data ?? []).map((s) => [s.tenant_id, s])), [slotStatus.data])
 
-  // Jam istirahat yang masih bisa hari ini tampil lebih dulu, sisanya untuk besok.
-  const breakTargets = BREAKS.map(breakTarget).sort((a, b) => Number(a.tomorrow) - Number(b.tomorrow) || a.time.localeCompare(b.time))
+  const choices = pickupChoices(tenants.data ?? [])
+
+  function choose(value: string) {
+    if (!value) {
+      setChosen(null)
+      forgetSlot()
+      return
+    }
+    const [date, time] = value.split('|')
+    setChosen({ date, time, tomorrow: date !== todayWib() })
+    rememberSlot(date, time)
+  }
 
   const sorted = useMemo(() => {
     const list = [...(tenants.data ?? [])]
@@ -75,12 +101,11 @@ function Home() {
   }, [tenants.data, sort])
 
   const [query, setQuery] = useState('')
-  const [tags, setTags] = useState<string[]>([])
-  const search = useMenuSearch(query, tags)
+  const search = useMenuSearch(query, [])
   const q = cleanQuery(query).toLowerCase()
-  const searching = q.length >= 2 || tags.length > 0
+  const searching = q.length >= 2
   const tenantById = useMemo(() => new Map((tenants.data ?? []).map((x) => [x.id, x])), [tenants.data])
-  const matchedTenants = q.length >= 2 && tags.length === 0 ? sorted.filter((x) => x.name.toLowerCase().includes(q)) : []
+  const matchedTenants = q.length >= 2 ? sorted.filter((x) => x.name.toLowerCase().includes(q)) : []
 
   const favorites = useFavorites()
   const favTenantIds = new Set((favorites.data ?? []).flatMap((f) => (f.tenant_id ? [f.tenant_id] : [])))
@@ -114,28 +139,23 @@ function Home() {
         </section>
       )}
 
-      <section aria-labelledby="judul-cari" className="space-y-2">
+      <section aria-labelledby="judul-cari" className="space-y-3">
         <h2 id="judul-cari" className="sr-only">
           {t('cari.judul')}
         </h2>
-        <Field label={t('cari.label')}>
-          {(p) => <Input id={p.id} type="search" value={query} onChange={(e) => setQuery(e.target.value)} maxLength={60} autoComplete="off" enterKeyHint="search" />}
-        </Field>
-        <div role="group" aria-label={t('cari.penanda')} className="flex flex-wrap gap-2">
-          {TAGS.map((tag) => {
-            const on = tags.includes(tag)
-            return (
-              <button
-                key={tag}
-                type="button"
-                aria-pressed={on}
-                onClick={() => setTags((prev) => (on ? prev.filter((x) => x !== tag) : [...prev, tag]))}
-                className={`min-h-11 rounded-lg border px-3 text-sm font-semibold ${on ? 'border-accent bg-accent text-on-accent' : 'border-line bg-surface'}`}
-              >
-                {t(`penanda.${tag}`)}
-              </button>
-            )
-          })}
+        <div className="relative">
+          <MagnifyingGlassIcon size={20} aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" />
+          <Input
+            type="search"
+            aria-label={t('cari.label')}
+            placeholder={t('cari.label')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            maxLength={60}
+            autoComplete="off"
+            enterKeyHint="search"
+            className="pl-10"
+          />
         </div>
       </section>
 
@@ -160,41 +180,26 @@ function Home() {
         </section>
       )}
 
-      <section aria-labelledby="judul-istirahat" className="space-y-2">
-        <h2 id="judul-istirahat" className="text-sm font-semibold">
-          {t('beranda.jam_istirahat')}
-        </h2>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {breakTargets.map((target) => {
-            const active = chosen?.time === target.time && chosen?.date === target.date
-            return (
-              <button
-                key={target.time}
-                type="button"
-                aria-pressed={active}
-                onClick={() => {
-                  if (active) {
-                    setChosen(null)
-                    return
-                  }
-                  setChosen(target)
-                  rememberSlot(target.date, target.time)
-                }}
-                className={`tabular min-h-11 shrink-0 rounded-lg border px-3 text-sm font-semibold ${
-                  active ? 'border-accent bg-accent text-on-accent' : 'border-line bg-surface'
-                }`}
-              >
-                {clock(target.time, lang)}
-                {target.tomorrow ? ` ${t('waktu.besok_kecil')}` : ''}
-              </button>
-            )
-          })}
-        </div>
-        {chosen && (
-          <p className="text-sm text-muted" role="status">
-            {t('beranda.jam_dipilih', { time: clock(chosen.time, lang), day: chosen.tomorrow ? t('waktu.besok_kecil') : t('waktu.hari_ini_kecil') })}
-          </p>
-        )}
+      <section className="sm:max-w-sm">
+        <Field
+          label={t('beranda.jam_istirahat')}
+          hint={chosen ? t('beranda.jam_dipilih', { time: clock(chosen.time, lang), day: chosen.tomorrow ? t('waktu.besok_kecil') : t('waktu.hari_ini_kecil') }) : undefined}
+        >
+          {(p) => (
+            <Select id={p.id} aria-describedby={p.describedBy} value={chosen ? `${chosen.date}|${chosen.time}` : ''} onChange={(e) => choose(e.target.value)} className="tabular">
+              <option value="">{t('beranda.secepatnya')}</option>
+              {choices.map((g) => (
+                <optgroup key={g.date} label={g.tomorrow ? t('waktu.besok') : t('waktu.hari_ini')}>
+                  {g.times.map((time) => (
+                    <option key={time} value={`${g.date}|${time}`}>
+                      {clock(time, lang)}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </Select>
+          )}
+        </Field>
       </section>
 
       <section aria-labelledby="judul-tenant" className="space-y-3">
@@ -202,15 +207,15 @@ function Home() {
           <h2 id="judul-tenant" className="text-lg font-bold">
             {t('beranda.daftar_tenant')}
           </h2>
-          <Tabs
-            label={t('beranda.urutan')}
-            value={sort}
-            onChange={setSort}
-            items={[
-              { value: 'cepat', label: t('beranda.urut_cepat') },
-              { value: 'abjad', label: t('beranda.urut_abjad') },
-            ]}
-          />
+          <label className="flex items-center gap-2 text-sm font-semibold">
+            {t('beranda.urutan')}
+            <span className="block w-40">
+              <Select value={sort} onChange={(e) => setSort(e.target.value as 'cepat' | 'abjad')}>
+                <option value="cepat">{t('beranda.urut_cepat')}</option>
+                <option value="abjad">{t('beranda.urut_abjad')}</option>
+              </Select>
+            </span>
+          </label>
         </div>
 
         {tenants.isPending && <LoadingState />}
@@ -246,15 +251,16 @@ function MenuList({ items, tenants, lang }: { items: (Pick<SearchHit, 'id' | 'na
           <Link
             to="/tenant/$slug"
             params={{ slug: item.tenants.slug }}
-            className="flex h-full items-start justify-between gap-3 rounded-xl border border-line-soft bg-surface p-3 hover:border-line"
+            className="flex h-full items-start gap-3 rounded-xl border border-line-soft bg-surface p-3 transition hover:border-line active:scale-[0.99]"
           >
-            <span className="min-w-0">
+            <span className="min-w-0 flex-1">
               <span className="block font-semibold">{item.name}</span>
               <span className="block text-sm text-muted">{item.tenants.name}</span>
               {item.tags && item.tags.length > 0 && <span className="block text-sm text-muted">{item.tags.map((tag) => t(`penanda.${tag}`)).join(' · ')}</span>}
-              <span className="tabular mt-1 block text-sm font-semibold text-accent">{earliestLabel(tenants.get(item.tenant_id), t, lang)}</span>
+              <span className="tabular block text-sm text-muted">{earliestLabel(tenants.get(item.tenant_id), t, lang)}</span>
+              <span className="tabular mt-1 block font-bold">{rupiah(item.price)}</span>
             </span>
-            <span className="tabular shrink-0 font-bold">{rupiah(item.price)}</span>
+            <FoodPhoto className="size-16" />
           </Link>
         </li>
       ))}
@@ -262,37 +268,36 @@ function MenuList({ items, tenants, lang }: { items: (Pick<SearchHit, 'id' | 'na
   )
 }
 
+// Kartu tenant: nama dan isi jualannya lebih dulu, lalu status buka dan jam ambil tercepat sebagai keterangan,
+// dengan foto di kanan seperti daftar restoran di GoFood dan GrabFood. Fotonya masih tempat kosong.
 function TenantCard({ tenant, lang, breakStatus }: { tenant: HomeTenant; lang: Lang; breakStatus?: SlotStatus }) {
   const { t } = useTranslation()
-  const closeToday = tenant.today_ranges.length ? tenant.today_ranges[tenant.today_ranges.length - 1].close : null
-  const earliest = earliestLabel(tenant, t, lang)
+  const ranges = tenant.today_ranges
+  const last = ranges.length ? ranges[ranges.length - 1] : null
+  const status = tenant.paused
+    ? t('beranda.jeda')
+    : tenant.open_now && last
+      ? allDay(ranges[0].open, last.close)
+        ? t('beranda.buka_24_jam')
+        : t('beranda.buka_sampai', { time: clock(last.close, lang) })
+      : t('beranda.tutup_sekarang')
 
   return (
-    <Link
-      to="/tenant/$slug"
-      params={{ slug: tenant.slug }}
-      className="block h-full rounded-xl border border-line-soft bg-surface p-4 hover:border-line"
-    >
-      <div className="flex items-start justify-between gap-2">
+    <Link to="/tenant/$slug" params={{ slug: tenant.slug }} className="flex h-full items-start gap-3 rounded-xl border border-line-soft bg-surface p-4 transition hover:border-line active:scale-[0.99]">
+      <div className="min-w-0 flex-1">
         <h3 className="text-base font-bold">{tenant.name}</h3>
-        {tenant.is_sample && <span className="shrink-0 text-xs text-muted">{t('umum.data_contoh')}</span>}
-      </div>
-      <p className="text-sm text-muted">{tenant.kiosk_location}</p>
-      <p className="mt-3 text-lg font-bold text-accent tabular">{earliest}</p>
-      <p className="text-sm text-muted">
-        {tenant.paused
-          ? t('beranda.jeda')
-          : tenant.open_now && closeToday
-            ? t('beranda.buka_sampai', { time: clock(closeToday, lang) })
-            : t('beranda.tutup_sekarang')}
-      </p>
-      {breakStatus && (
-        <p className="mt-2 text-sm font-semibold">
-          {breakStatus.status === 'tersedia'
-            ? t('beranda.bisa_jam_ini', { count: breakStatus.remaining })
-            : t(`jam.status.${breakStatus.status}`)}
+        <p className="line-clamp-2 text-sm text-muted">{tenant.description || tenant.kiosk_location}</p>
+        <p className="tabular mt-2 text-sm">
+          <span className={tenant.open_now && !tenant.paused ? 'font-semibold text-accent' : 'font-semibold'}>{status}</span>
+          <span className="text-muted"> · {earliestLabel(tenant, t, lang)}</span>
         </p>
-      )}
+        {breakStatus && (
+          <p className="mt-1 text-sm font-semibold">
+            {breakStatus.status === 'tersedia' ? t('beranda.bisa_jam_ini', { count: breakStatus.remaining }) : t(`jam.status.${breakStatus.status}`)}
+          </p>
+        )}
+      </div>
+      <FoodPhoto className="size-20" />
     </Link>
   )
 }

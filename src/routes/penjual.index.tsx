@@ -1,10 +1,12 @@
 import { ChatCircleIcon, CheckCircleIcon, CookingPotIcon, HandArrowUpIcon, ScanIcon } from '@phosphor-icons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { AnimatePresence } from 'motion/react'
+import * as m from 'motion/react-m'
 import { useMemo, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { QrScanner } from '@/components/QrScanner'
-import { Button, Card, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, StatusText, Tabs } from '@/components/ui'
+import { Button, Card, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, StatusText, Tabs, confirmDialog } from '@/components/ui'
 import { ChatThread, chatIsOpen } from '@/features/chat'
 import { prepSummary, type PrepSlot } from '@/features/kitchen'
 import { parsePickupQr } from '@/features/orders'
@@ -28,7 +30,13 @@ function Board() {
   const [handover, setHandover] = useState<BoardOrder | null>(null)
   const [codeSearch, setCodeSearch] = useState('')
   const action = useBoardAction()
-  const orders = useBoardOrders(active?.id, day)
+  const todayOrders = useBoardOrders(active?.id, todayWib())
+  const tomorrowOrders = useBoardOrders(active?.id, tomorrowWib())
+  const orders = day === todayWib() ? todayOrders : tomorrowOrders
+  const dayLabel = (label: string, list?: BoardOrder[]) => {
+    const n = (list ?? []).filter((o) => ['diterima', 'disiapkan', 'siap'].includes(o.status)).length
+    return n > 0 ? `${label} (${n})` : label
+  }
 
   const history = useQuery({
     queryKey: ['papan-riwayat', active?.id, orders.data?.map((o) => o.buyer_id).join(',')],
@@ -105,8 +113,8 @@ function Board() {
           value={day}
           onChange={setDay}
           items={[
-            { value: todayWib(), label: t('waktu.hari_ini') },
-            { value: tomorrowWib(), label: t('waktu.besok') },
+            { value: todayWib(), label: dayLabel(t('waktu.hari_ini'), todayOrders.data) },
+            { value: tomorrowWib(), label: dayLabel(t('waktu.besok'), tomorrowOrders.data) },
           ]}
         />
         <form onSubmit={findByCode} className="flex items-end gap-2">
@@ -127,6 +135,7 @@ function Board() {
         </form>
       </div>
 
+      {day === tomorrowWib() && groups.length > 0 && <Notice>{t('papan.besok_info')}</Notice>}
       {action.error && <Notice tone="error">{action.error}</Notice>}
       {orders.isPending && <LoadingState />}
       {orders.isError && <ErrorState onRetry={() => void orders.refetch()} />}
@@ -159,11 +168,19 @@ function Board() {
               )}
             </div>
             <ul className="space-y-2">
-              {list.map((o) => (
-                <li key={o.id}>
-                  <OrderCard order={o} today={day === todayWib()} action={action} onHandover={() => setHandover(o)} history={history.data?.get(o.buyer_id)} />
-                </li>
-              ))}
+              <AnimatePresence initial={false}>
+                {list.map((o) => (
+                  <m.li
+                    key={o.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                    transition={{ type: 'spring', duration: 0.4, bounce: 0.1 }}
+                  >
+                    <OrderCard order={o} today={day === todayWib()} action={action} onHandover={() => setHandover(o)} history={history.data?.get(o.buyer_id)} />
+                  </m.li>
+                ))}
+              </AnimatePresence>
             </ul>
           </section>
         ))}
@@ -271,8 +288,8 @@ function OrderCard({
                 variant="quiet"
                 busy={action.busy === `habis-${item.id}`}
                 busyText={t('umum.memproses')}
-                onClick={() => {
-                  if (window.confirm(t('papan.habis_konfirmasi', { item: item.name }))) void action.run(`habis-${item.id}`, () => rpc('seller_flag_item_sold_out', { p_order_item: item.id }))
+                onClick={async () => {
+                  if (await confirmDialog(t('papan.habis_konfirmasi', { item: item.name }))) void action.run(`habis-${item.id}`, () => rpc('seller_flag_item_sold_out', { p_order_item: item.id }))
                 }}
               >
                 {t('papan.tandai_habis')}
@@ -316,8 +333,8 @@ function OrderCard({
           {messageCount > 0 ? t('chat.buka_jumlah', { count: messageCount }) : t('chat.buka')}
         </Button>
       </div>
-      <Dialog open={chatOpen} onClose={() => setChatOpen(false)} title={t('chat.judul_penjual', { name: order.pickup_name })}>
-        <ChatThread orderId={order.id} side="penjual" open={chatIsOpen(order)} />
+      <Dialog full open={chatOpen} onClose={() => setChatOpen(false)} title={t('chat.judul_penjual', { name: order.pickup_name })}>
+        <ChatThread orderId={order.id} side="penjual" open={chatIsOpen(order)} fill />
       </Dialog>
     </Card>
   )

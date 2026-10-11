@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, Choice, Dialog, EmptyState, ErrorState, Field, Input, LoadingState, Notice, PageHeader, Select, StatusText, TextArea } from '@/components/ui'
+import { Button, Card, Choice, Dialog, EmptyState, ErrorState, Field, FileInput, Input, LoadingState, Notice, PageHeader, Select, StatusText, TextArea, confirmDialog } from '@/components/ui'
 import { useSeller } from '@/features/seller'
 import { imageProblem, newKey, TagPicker, unusualNumbers, uploadTenantImage } from '@/features/tenantForm'
 import { clock, dateLabel, orderNo, rupiah, todayWib } from '@/lib/format'
@@ -98,7 +98,7 @@ function MenuPage() {
   }
 
   async function deleteCategory(cat: Tables<'menu_categories'>) {
-    if (!window.confirm(t('menu.hapus_kategori_tanya', { name: cat.name }))) return
+    if (!await confirmDialog(t('menu.hapus_kategori_tanya', { name: cat.name }))) return
     const { error: err } = await supabase.from('menu_categories').delete().eq('id', cat.id)
     if (err) setError(errorText(t, err))
     else await refresh()
@@ -360,7 +360,7 @@ function ItemDialog({
   }
 
   async function remove() {
-    if (!item || !window.confirm(t('menu.hapus_tanya', { name: item.name }))) return
+    if (!item || !await confirmDialog(t('menu.hapus_tanya', { name: item.name }))) return
     setBusy(true)
     const { error } = await supabase.from('menu_items').delete().eq('id', item.id)
     setBusy(false)
@@ -403,14 +403,7 @@ function ItemDialog({
         </Field>
         <Field label={t('menu.foto')} optional hint={t('foto.isi')} error={errors.photo}>
           {(p) => (
-            <input
-              id={p.id}
-              aria-describedby={p.describedBy}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-              className="block min-h-12 w-full text-sm file:mr-3 file:min-h-11 file:rounded-lg file:border file:border-line file:bg-surface file:px-3 file:font-semibold"
-            />
+            <FileInput id={p.id} describedBy={p.describedBy} file={photo} onChange={setPhoto} />
           )}
         </Field>
         <Choice type="checkbox" name="tampil" value="tampil" checked={visible} onChange={setVisible}>
@@ -518,7 +511,7 @@ function OptionGroups({ item, onChanged }: { item: Item; onChanged: () => Promis
 
   async function removeGroup(d: DraftGroup) {
     if (d.id) {
-      if (!window.confirm(t('pilihan.hapus_tanya', { name: d.name }))) return
+      if (!await confirmDialog(t('pilihan.hapus_tanya', { name: d.name }))) return
       setBusy(d.key)
       const { error: e } = await supabase.from('option_groups').delete().eq('id', d.id)
       setBusy(null)

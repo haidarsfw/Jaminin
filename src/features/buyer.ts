@@ -97,14 +97,14 @@ type OrderLine = Pick<Tables<'order_items'>, 'menu_item_id' | 'name' | 'quantity
 type ReorderTenant = Pick<Tables<'tenants'>, 'id' | 'slug' | 'name' | 'status'> & { menu_items: Item[] }
 
 // Isi pesanan lama dimasukkan lagi ke keranjang dengan harga dan pilihan yang berlaku sekarang.
-export async function reorder(order: { tenant_id: string; order_number: number | null; order_items: OrderLine[] }, confirmReplace: (name: string) => boolean): Promise<ReorderResult | null> {
+export async function reorder(order: { tenant_id: string; order_number: number | null; order_items: OrderLine[] }, confirmReplace: (name: string) => boolean | Promise<boolean>): Promise<ReorderResult | null> {
   const [{ data: tenant, error }, stock] = await Promise.all([
     supabase.from('tenants').select('id, slug, name, status, menu_items(*, option_groups(*, options(*)))').eq('id', order.tenant_id).maybeSingle(),
     rpc<MenuStock>('menu_stock', { p_tenant: order.tenant_id }).catch(() => [] as MenuStock),
   ])
   if (error) throw error
   const current = getCart()
-  if (current && current.tenantId !== order.tenant_id && !confirmReplace(current.tenantName)) return null
+  if (current && current.tenantId !== order.tenant_id && !(await confirmReplace(current.tenantName))) return null
   const result: ReorderResult = { tenantId: order.tenant_id, number: order.order_number, notes: [], added: 0 }
   const data = tenant as ReorderTenant | null
   for (const line of order.order_items) {

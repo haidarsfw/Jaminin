@@ -38,7 +38,6 @@ function PayoutsPage() {
         title={t('setoran.judul')}
         description={payoutTime ? t('setoran.sub_jam', { time: clock(payoutTime, lang) }) : t('setoran.sub_tutup')}
       />
-      <p className="text-sm text-muted">{t('setoran.simulasi')}</p>
       <SalesReport tenantId={active.id} tenantSlug={active.slug} />
       <h2 className="pt-2 text-lg font-bold">{t('setoran.daftar')}</h2>
       {payouts.isPending && <LoadingState />}

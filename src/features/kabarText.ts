@@ -1,5 +1,6 @@
 // Tanpa alias @/ karena modul ini juga dipakai uji unit yang dikompilasi dengan tsconfig.node.json.
 import { clock, dateLabel, orderNo, rupiah, type Lang } from '../lib/format'
+import type { Mode } from '../lib/modeType'
 
 export type KabarParams = Record<string, unknown>
 
@@ -45,4 +46,27 @@ export function kabarText(n: { kind: string; params: KabarParams }, t: T, lang: 
   // Alasan penolakan dan penangguhan adalah teks bebas dari tim; selain itu alasan berupa kode yang diterjemahkan.
   const detail = !FREE_TEXT_REASON.includes(n.kind) && p.reason ? t(`alasan.${str(p.reason)}`, { defaultValue: '' }) : ''
   return { title: t(`kabar.${n.kind}_judul`, values), body: t(bodyKey, values), detail: detail || null }
+}
+
+// Notifikasi dikelompokkan per mode lewat halaman tujuannya, karena satu jenis bisa untuk dua pihak
+// (contoh chat_baru dan pesanan_dibatalkan dikirim ke pembeli dan ke penjual dengan tujuan berbeda).
+const SELLER_KINDS = [
+  'pesanan_baru', 'pilihan_menu_habis', 'setoran_terkirim', 'pendaftaran_disetujui', 'pendaftaran_ditolak',
+  'ringkasan_pesanan_masuk', 'tenant_ditangguhkan', 'tenant_diaktifkan', 'pengingat_menyiapkan', 'jadi_karyawan',
+]
+const TEAM_KINDS = ['pendaftaran_baru', 'laporan_baru']
+
+export function kabarMode(k: { kind: string; url: string | null }): Mode {
+  if (k.url?.startsWith('/penjual')) return 'penjual'
+  if (k.url?.startsWith('/tim')) return 'tim'
+  if (k.url?.startsWith('/pesanan') || k.url?.startsWith('/tenant')) return 'pembeli'
+  if (TEAM_KINDS.includes(k.kind)) return 'tim'
+  if (SELLER_KINDS.includes(k.kind)) return 'penjual'
+  return 'pembeli'
+}
+
+export function unreadByMode(list: { kind: string; url: string | null; read_at: string | null }[] | undefined): Record<Mode, number> {
+  const counts: Record<Mode, number> = { pembeli: 0, penjual: 0, tim: 0 }
+  for (const k of list ?? []) if (!k.read_at) counts[kabarMode(k)]++
+  return counts
 }

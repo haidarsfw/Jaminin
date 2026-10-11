@@ -112,7 +112,7 @@ select lives_ok(
 select tests.as_postgres();
 select is(
   (select max(slot_time) from public.get_slots((select tenant from t_libur), (select tomorrow from t_libur), 5)),
-  '21:55'::time, 'jam demo berlaku lagi'
+  '23:50'::time, 'jam demo berlaku lagi'
 );
 
 -- 17-26. Penangguhan oleh tim membatalkan pesanan aktif dan menyembunyikan tenant.

@@ -43,7 +43,9 @@ npm run dev
 
 Lima akun demo memakai sandi `rahasia123`, hanya di database lokal: `demo+pembeli@jaminin.test`, `demo+pemilik@jaminin.test`, `demo+karyawan@jaminin.test`, `demo+admin@jaminin.test`, dan `demo+staf@jaminin.test`.
 
-Masuk sebagai `demo+admin@jaminin.test`, lalu pakai tombol Mode demo di bagian atas untuk berpindah peran. Simulator Bayar ada di http://localhost:5173/simulator-bayar. Reset demo juga ada di panel Mode demo.
+Cara tercepat: ketik `admin` dan sandi `admin` di halaman Masuk. Akun ini (hanya di database lokal) punya semua akses: pembeli, pemilik semua tenant contoh, dan admin tim. Pindah tampilan lewat tombol Mode di kanan atas. Simulator Bayar ada di http://localhost:5173/simulator-bayar. Pindah ke akun demo lain dan Reset demo ada di tombol Akun demo di kanan atas.
+
+Setelah `npm run demo:lokal`, Mode demo menyala sehingga tenant contoh buka 24 jam. Setelah membayar sebagai pembeli, pindah ke mode Penjual lewat tombol Mode untuk memproses pesanan itu di menu Pesanan masuk. Titik di tombol Mode menandai notifikasi baru di mode lain.
 
 Untuk melihat tampilan HP di laptop, buka DevTools di Chrome (F12, atau Cmd+Option+I di Mac), tekan Toggle device toolbar (Ctrl+Shift+M, atau Cmd+Shift+M di Mac), lalu pilih ukuran 390 x 844.
 

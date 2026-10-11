@@ -4,10 +4,11 @@ import { useState, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '@/components/Guard'
 import { Button, EmptyState, ErrorState, LoadingState, Notice, PageHeader, StatusText } from '@/components/ui'
-import { kabarQueryKey, kabarText, markKabarRead, useKabar, type Kabar } from '@/features/kabar'
+import { kabarMode, kabarQueryKey, kabarText, markKabarRead, useKabar, type Kabar } from '@/features/kabar'
 import { useAuth } from '@/lib/auth'
 import { clockFromDate, dateLabel, wibDate, type Lang } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
+import { useMode } from '@/lib/mode'
 import { toAppError } from '@/lib/supabase'
 
 export const Route = createFileRoute('/kabar')({
@@ -23,6 +24,7 @@ function KabarPage() {
   const lang = currentLang()
   const { user } = useAuth()
   const kabar = useKabar()
+  const mode = useMode()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [busy, setBusy] = useState(false)
@@ -31,7 +33,8 @@ function KabarPage() {
   if (kabar.isPending) return <LoadingState />
   if (kabar.isError) return <ErrorState onRetry={() => void kabar.refetch()} />
 
-  const unread = kabar.data.filter((k) => !k.read_at)
+  const list = kabar.data.filter((k) => kabarMode(k) === mode)
+  const unread = list.filter((k) => !k.read_at)
   const refresh = () => queryClient.invalidateQueries({ queryKey: kabarQueryKey(user?.id ?? null) })
 
   async function markAll() {
@@ -54,7 +57,7 @@ function KabarPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <PageHeader title={t('kabar.judul')} description={t('kabar.sub')} />
+      <PageHeader title={t('kabar.judul')} description={t('kabar.sub_mode', { mode: t(`mode.${mode}`) })} />
       {unread.length > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="font-semibold">{t('kabar.belum_dibaca', { count: unread.length })}</p>
@@ -64,11 +67,11 @@ function KabarPage() {
         </div>
       )}
       {error && <Notice tone="error">{error}</Notice>}
-      {kabar.data.length === 0 ? (
+      {list.length === 0 ? (
         <EmptyState title={t('kabar.kosong')} body={t('kabar.kosong_isi')} />
       ) : (
         <ul className="space-y-2">
-          {kabar.data.map((item) => (
+          {list.map((item) => (
             <KabarItem key={item.id} item={item} lang={lang} onOpen={() => open(item)} />
           ))}
         </ul>

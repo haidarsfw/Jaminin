@@ -51,6 +51,7 @@ export function useSeller(): SellerState {
   return ctx
 }
 
+
 export type TenantFull = Tables<'tenants'> & {
   tenant_hours: Tables<'tenant_hours'>[]
   tenant_quota_rules: Tables<'tenant_quota_rules'>[]

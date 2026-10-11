@@ -32,7 +32,7 @@ export function PayoutCard({ payout, tenantName }: { payout: Tables<'payouts'>; 
           <p className="font-semibold">{dateLabel(payout.payout_date, lang, t)}</p>
           <p className="text-sm text-muted">
             {t('setoran.terkirim', { time: clockFromDate(payout.sent_at, lang) })}
-            {payout.is_sample && ` · ${t('umum.contoh')}`}
+            
           </p>
         </div>
         <p className="tabular text-xl font-bold">{rupiah(payout.amount)}</p>

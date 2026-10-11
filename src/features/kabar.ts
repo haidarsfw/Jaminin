@@ -3,7 +3,7 @@ import { useAuth } from '@/lib/auth'
 import { useTopic } from '@/lib/realtime'
 import { supabase } from '@/lib/supabase'
 
-export { KABAR_KINDS, kabarText } from './kabarText'
+export { KABAR_KINDS, kabarMode, kabarText, unreadByMode } from './kabarText'
 
 export type Kabar = { id: string; kind: string; params: Record<string, unknown>; url: string | null; read_at: string | null; created_at: string }
 
@@ -26,7 +26,7 @@ export function useKabar() {
         .from('notifications')
         .select('id, kind, params, url, read_at, created_at')
         .order('created_at', { ascending: false })
-        .limit(50)
+        .limit(100)
       if (error) throw error
       return data as Kabar[]
     },

@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, Choice, Dialog, ErrorState, Field, Input, LoadingState, Notice, PageHeader, StatusText, TextArea } from '@/components/ui'
+import { Button, Card, Choice, Dialog, ErrorState, Field, FileInput, Input, LoadingState, Notice, PageHeader, StatusText, TextArea } from '@/components/ui'
 import { useSeller, useTenantSettings, type TenantFull } from '@/features/seller'
 import {
   hhmm,
@@ -230,14 +230,7 @@ function ProfileCard({ tenant }: { tenant: TenantFull }) {
           {logoUrl && <img src={logoUrl} alt={t('toko.logo_sekarang')} className="size-16 rounded-lg object-cover" />}
           <Field label={t('daftar.logo')} optional hint={t('foto.isi')} error={errors.logo}>
             {(p) => (
-              <input
-                id={p.id}
-                aria-describedby={p.describedBy}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => setLogo(e.target.files?.[0] ?? null)}
-                className="block min-h-12 w-full text-sm file:mr-3 file:min-h-11 file:rounded-lg file:border file:border-line file:bg-surface file:px-3 file:font-semibold"
-              />
+              <FileInput id={p.id} describedBy={p.describedBy} file={logo} onChange={setLogo} />
             )}
           </Field>
         </div>

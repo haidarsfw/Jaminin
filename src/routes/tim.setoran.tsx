@@ -38,7 +38,7 @@ function TeamPayouts() {
     },
   })
   useTopic('team', ['payout'], () => void queryClient.invalidateQueries({ queryKey: ['tim-setoran'] }))
-  const total = (payouts.data ?? []).filter((p) => !p.is_sample).reduce((acc, p) => acc + p.amount, 0)
+  const total = (payouts.data ?? []).reduce((acc, p) => acc + p.amount, 0)
 
   return (
     <div className="space-y-4">

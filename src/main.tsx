@@ -26,6 +26,8 @@ const router = createRouter({
   context: { queryClient },
   defaultPreload: 'intent',
   scrollRestoration: true,
+  // Pindah halaman memudar halus di browser yang mendukung View Transitions; browser lain langsung berpindah.
+  defaultViewTransition: true,
 })
 
 declare module '@tanstack/react-router' {

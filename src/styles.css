@@ -67,6 +67,13 @@ html {
   background: var(--c-canvas);
   color: var(--c-ink);
   -webkit-text-size-adjust: 100%;
+  /* Ruang batang gulir tetap disediakan, supaya halaman tidak bergeser saat jendela pop-up mengunci gulir. */
+  scrollbar-gutter: stable;
+}
+
+/* Halaman di belakang jendela pop-up tidak ikut tergulir. */
+html:has(dialog:modal) {
+  overflow: hidden;
 }
 
 body {
@@ -99,11 +106,62 @@ dialog::backdrop {
   background: rgb(0 0 0 / 0.45);
 }
 
+/* Jendela pop-up muncul halus: latar meredup, kotak naik sedikit. Menutup tetap seketika supaya terasa cepat. */
+dialog[open] {
+  animation: dialog-masuk 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+dialog[open]::backdrop {
+  animation: latar-masuk 200ms ease-out;
+}
+
+@keyframes dialog-masuk {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@keyframes latar-masuk {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Pindah halaman: isi lama memudar cepat, isi baru muncul dan naik sedikit. Kepala halaman dan navigasi bawah tetap diam. */
+::view-transition-old(root) {
+  animation: 90ms ease-out both halaman-keluar;
+}
+
+::view-transition-new(root) {
+  animation: 200ms cubic-bezier(0.2, 0, 0, 1) both halaman-masuk;
+}
+
+@keyframes halaman-keluar {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes halaman-masuk {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  dialog::backdrop,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

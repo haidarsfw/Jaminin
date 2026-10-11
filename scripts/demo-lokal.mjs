@@ -31,4 +31,4 @@ for (const peran of PERAN) {
   const res = await fetch(`${url}/auth/v1/admin/users/${user.id}`, { method: 'PUT', headers, body: JSON.stringify({ password: SANDI }) })
   if (!res.ok) throw new Error(`Gagal memasang sandi ${email}: ${res.status}`)
 }
-console.log(`Akun demo siap. Buka http://localhost:5173/masuk, masuk dengan demo+admin@jaminin.test dan sandi ${SANDI}, lalu pindah peran lewat tombol Mode demo.`)
+console.log(`Akun demo siap. Buka http://localhost:5173/masuk, ketik admin dan sandi admin, lalu pindah tampilan lewat tombol Mode di kanan atas.`)

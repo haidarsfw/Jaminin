@@ -50,7 +50,7 @@ select is((select price from public.menu_items where id = (select rice_bowl from
 select tests.as_user((select staff from t_akses));
 select throws_ok($$insert into public.menu_categories (tenant_id, name) values ((select tenant from t_akses), 'Karyawan')$$,
   '42501', null, 'karyawan tidak bisa menambah kategori');
-select throws_ok($$insert into public.tenant_hours (tenant_id, weekday, open_time, close_time) values ((select tenant from t_akses), 6, '08:00', '12:00')$$,
+select throws_ok($$insert into public.tenant_hours (tenant_id, weekday, open_time, close_time) values ((select tenant from t_akses), 6, '18:00', '20:00')$$,
   '42501', null, 'karyawan tidak bisa menambah jadwal');
 select throws_ok($$insert into public.promos (tenant_id, kind, value, weekdays, start_time, end_time) values ((select tenant from t_akses), 'persen', 10, array[1]::smallint[], '14:00', '15:00')$$,
   '42501', null, 'karyawan tidak bisa menambah promo');

@@ -3,7 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '@/components/AppShell'
-import { Button, Card, EmptyState, ErrorState, Field, Input, LoadingState, Notice, PageHeader, StatusText, Tabs } from '@/components/ui'
+import { Button, Card, EmptyState, ErrorState, Field, Input, LoadingState, Notice, PageHeader, Tabs } from '@/components/ui'
 import { useAuth } from '@/lib/auth'
 import { dateLabel, rupiah } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
@@ -26,8 +26,7 @@ function Dashboard() {
     refetchInterval: 30_000,
   })
 
-  const real = (dashboard.data ?? []).filter((r) => !r.is_sample)
-  const sample = (dashboard.data ?? []).filter((r) => r.is_sample)
+  const all = dashboard.data ?? []
   const sum = (rows: Row[], key: keyof Row) => rows.reduce((acc, r) => acc + Number(r[key]), 0)
 
   return (
@@ -54,10 +53,10 @@ function Dashboard() {
         <>
           <dl className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             {[
-              { label: t('tim.pesanan_lunas'), value: String(sum(real, 'orders')) },
-              { label: t('tim.pendapatan'), value: rupiah(sum(real, 'jaminin_revenue')) },
-              { label: t('tim.penjualan_tenant'), value: rupiah(sum(real, 'gross')) },
-              { label: t('tim.batal_tidak_diambil'), value: `${sum(real, 'cancelled')} / ${sum(real, 'not_picked_up')}` },
+              { label: t('tim.pesanan_lunas'), value: String(sum(all, 'orders')) },
+              { label: t('tim.pendapatan'), value: rupiah(sum(all, 'jaminin_revenue')) },
+              { label: t('tim.penjualan_tenant'), value: rupiah(sum(all, 'gross')) },
+              { label: t('tim.batal_tidak_diambil'), value: `${sum(all, 'cancelled')} / ${sum(all, 'not_picked_up')}` },
             ].map((m) => (
               <Card key={m.label} as="div">
                 <dt className="text-sm text-muted">{m.label}</dt>
@@ -88,7 +87,7 @@ function Dashboard() {
                   {dashboard.data.map((r) => (
                     <tr key={`${r.day}-${r.is_sample}`} className="border-b border-line-soft last:border-0">
                       <th scope="row" className="p-3 font-semibold">
-                        {dateLabel(r.day, lang, t)} {r.is_sample && <StatusText>{t('umum.contoh')}</StatusText>}
+                        {dateLabel(r.day, lang, t)}
                       </th>
                       <td className="tabular p-3 text-right">{r.orders}</td>
                       <td className="tabular p-3 text-right">{r.cancelled}</td>
@@ -102,12 +101,10 @@ function Dashboard() {
               </table>
             </Card>
           )}
-          {sample.length > 0 && <p className="text-sm text-muted">{t('tim.ada_contoh')}</p>}
         </>
       )}
 
       {teamRole === 'admin' && <FeesCard />}
-      {teamRole === 'admin' && <SampleDataCard />}
     </div>
   )
 }
@@ -161,32 +158,3 @@ function FeesCard() {
   )
 }
 
-function SampleDataCard() {
-  const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  const [state, setState] = useState<{ busy: boolean; ok: boolean; error: string | null }>({ busy: false, ok: false, error: null })
-
-  async function remove() {
-    if (!window.confirm(t('contoh.tanya'))) return
-    setState({ busy: true, ok: false, error: null })
-    try {
-      await rpc('admin_delete_sample_data')
-      await queryClient.invalidateQueries()
-      setState({ busy: false, ok: true, error: null })
-    } catch (err) {
-      setState({ busy: false, ok: false, error: t(`galat.${toAppError(err).code}`, { defaultValue: t('galat.unknown') }) })
-    }
-  }
-
-  return (
-    <Card className="space-y-3">
-      <h2 className="text-lg font-bold">{t('contoh.judul')}</h2>
-      <p className="text-sm text-muted">{t('contoh.isi')}</p>
-      {state.error && <Notice tone="error">{state.error}</Notice>}
-      {state.ok && <Notice tone="success">{t('contoh.terhapus')}</Notice>}
-      <Button variant="danger" busy={state.busy} busyText={t('umum.memproses')} onClick={() => void remove()}>
-        {t('contoh.hapus')}
-      </Button>
-    </Card>
-  )
-}

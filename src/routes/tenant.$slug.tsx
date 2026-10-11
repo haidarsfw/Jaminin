@@ -1,15 +1,15 @@
 import { PlusIcon } from '@phosphor-icons/react'
 import { useQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Choice, Dialog, EmptyState, ErrorState, LoadingState, Notice, PageHeader, Stepper } from '@/components/ui'
+import { Button, Choice, Dialog, EmptyState, ErrorState, FoodPhoto, LoadingState, Notice, PageHeader, Stepper, confirmDialog } from '@/components/ui'
 import { FavoriteButton } from '@/components/FavoriteButton'
 import { addToCart, getCart } from '@/lib/cart'
 import { clock, rupiah, todayWib } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
 import { publicImage, rpc } from '@/lib/supabase'
-import { soldOutBothDays, soldOutToday, useMenuStock, useTenant, type Group, type Item, type MenuStock, type TenantData } from '@/features/tenant'
+import { allDay, soldOutBothDays, soldOutToday, useMenuStock, useTenant, type Group, type Item, type MenuStock, type TenantData } from '@/features/tenant'
 
 export const Route = createFileRoute('/tenant/$slug')({
   component: TenantPage,
@@ -57,7 +57,9 @@ function TenantPage() {
           <>
             <span className="block">{tenant.kiosk_location}</span>
             <span className="block">
-              {todayHours.length
+              {todayHours.length && allDay(todayHours[0].open_time, todayHours[todayHours.length - 1].close_time)
+                ? t('tenant.buka_24_jam')
+                : todayHours.length
                 ? t('tenant.jam_hari_ini', { ranges: todayHours.map((h) => t('tenant.rentang', { open: clock(h.open_time, lang), close: clock(h.close_time, lang) })).join(', ') })
                 : t('tenant.tutup_hari_ini')}
             </span>
@@ -67,11 +69,6 @@ function TenantPage() {
       <div className="mb-4">
         <FavoriteButton target={{ tenant_id: tenant.id }} name={tenant.name} />
       </div>
-      {tenant.is_sample && (
-        <Notice className="mb-4" title={t('tenant.contoh_judul')}>
-          {t('tenant.contoh_isi')}
-        </Notice>
-      )}
       {paused && (
         <Notice tone="warn" className="mb-4">
           {t('tenant.jeda')}
@@ -102,15 +99,14 @@ function TenantPage() {
                       type="button"
                       onClick={() => setSelected(item)}
                       disabled={gone}
-                      className="flex min-h-16 w-full items-start justify-between gap-3 rounded-xl border border-line-soft bg-surface p-3 text-left hover:border-line disabled:cursor-not-allowed disabled:opacity-60"
+                      className="flex h-full w-full items-start gap-3 rounded-xl border border-line-soft bg-surface p-3 text-left transition hover:border-line active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
                     >
-                      {photo && <img src={photo} alt="" className="size-16 shrink-0 rounded-lg object-cover" loading="lazy" />}
                       <span className="min-w-0 flex-1">
                         <span className="block font-semibold">{item.name}</span>
-                        {item.description && <span className="block text-sm text-muted">{item.description}</span>}
+                        {item.description && <span className="mt-0.5 line-clamp-2 block text-sm text-muted">{item.description}</span>}
                         <span className="mt-1 block text-sm text-muted">
                           {[
-                            t('tenant.menit', { count: item.prep_minutes }),
+                            prepLabel(item.prep_minutes, t),
                             ...item.tags.map((tag) => t(`penanda.${tag}`)),
                             item.option_groups.length ? t('tenant.bisa_diatur') : null,
                           ]
@@ -122,11 +118,9 @@ function TenantPage() {
                             {gone ? t('tenant.habis') : t('tenant.habis_hari_ini')}
                           </span>
                         )}
+                        <span className="tabular mt-2 block font-bold">{rupiah(item.price)}</span>
                       </span>
-                      <span className="shrink-0 text-right">
-                        <span className="tabular block font-bold">{rupiah(item.price)}</span>
-                        {tenant.is_sample && <span className="block text-xs text-muted">{t('tenant.harga_contoh')}</span>}
-                      </span>
+                      <FoodPhoto src={photo} className="size-20" />
                     </button>
                   </li>
                 )
@@ -143,7 +137,6 @@ function TenantPage() {
 
 function ItemDialog({ item, tenant, stock, onClose }: { item: Item; tenant: TenantData; stock?: MenuStock; onClose: () => void }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const groups = [...item.option_groups].sort((a, b) => a.sort_order - b.sort_order)
   const [picked, setPicked] = useState<Record<string, string[]>>(() => Object.fromEntries(groups.map((g) => [g.id, []])))
   const [quantity, setQuantity] = useState(1)
@@ -163,14 +156,14 @@ function ItemDialog({ item, tenant, stock, onClose }: { item: Item; tenant: Tena
     })
   }
 
-  function add(): boolean {
+  async function add(): Promise<boolean> {
     const missing = groups.find((g) => (picked[g.id]?.length ?? 0) < g.min_select)
     if (missing) {
       setError(t('tenant.pilih_dulu', { name: missing.name }))
       return false
     }
     const current = getCart()
-    if (current && current.tenantId !== tenant.id && !window.confirm(t('keranjang.ganti_konfirmasi', { name: current.tenantName }))) return false
+    if (current && current.tenantId !== tenant.id && !await confirmDialog(t('keranjang.ganti_konfirmasi', { name: current.tenantName }))) return false
     addToCart(
       { id: tenant.id, slug: tenant.slug, name: tenant.name },
       {
@@ -190,10 +183,17 @@ function ItemDialog({ item, tenant, stock, onClose }: { item: Item; tenant: Tena
   return (
     <Dialog open onClose={onClose} title={item.name}>
       <div className="space-y-4">
-        <p className="text-muted">
-          {rupiah(item.price)} · {t('tenant.menit', { count: item.prep_minutes })}
-        </p>
-        <FavoriteButton target={{ menu_item_id: item.id }} name={item.name} />
+        <FoodPhoto src={publicImage(item.photo_path)} className="h-44 w-full" iconSize={48} />
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            {item.description && <p className="mb-1 text-sm text-muted">{item.description}</p>}
+            <p>
+              <span className="tabular font-bold">{rupiah(item.price)}</span>
+              <span className="text-muted"> · {prepLabel(item.prep_minutes, t)}</span>
+            </p>
+          </div>
+          <FavoriteButton compact target={{ menu_item_id: item.id }} name={item.name} />
+        </div>
         {soldOutToday(item, stock) && <Notice tone="warn">{t('tenant.habis_hari_ini_bisa_besok')}</Notice>}
         {groups.map((group) => (
           <fieldset key={group.id} className="space-y-2">
@@ -228,20 +228,18 @@ function ItemDialog({ item, tenant, stock, onClose }: { item: Item; tenant: Tena
           <span className="font-semibold">{t('tenant.jumlah')}</span>
           <Stepper value={quantity} onChange={setQuantity} min={1} label={t('tenant.jumlah')} />
         </div>
-        {error && <Notice tone="error">{error}</Notice>}
-        <Button icon={<PlusIcon />} variant="primary" full onClick={add}>
-          {t('tenant.tambah', { price: rupiah(unitPrice * quantity) })}
-        </Button>
-        <Button
-          variant="quiet"
-          full
-          onClick={() => {
-            if (add()) void navigate({ to: '/keranjang' })
-          }}
-        >
-          {t('tenant.tambah_lalu_keranjang')}
-        </Button>
+        <div className="sticky bottom-0 z-10 -mx-4 -mb-4 space-y-2 border-t border-line-soft bg-surface px-4 pt-3 pb-4">
+          {error && <Notice tone="error">{error}</Notice>}
+          <Button icon={<PlusIcon />} variant="primary" full onClick={() => void add()}>
+            {t('tenant.tambah', { price: rupiah(unitPrice * quantity) })}
+          </Button>
+        </div>
       </div>
     </Dialog>
   )
+}
+
+// Lama menyiapkan dalam kata-kata pembeli. Menu tanpa waktu siap (contoh air mineral) langsung siap.
+function prepLabel(minutes: number, t: (key: string, options?: Record<string, unknown>) => string): string {
+  return minutes > 0 ? t('tenant.menit', { count: minutes }) : t('tenant.langsung_siap')
 }

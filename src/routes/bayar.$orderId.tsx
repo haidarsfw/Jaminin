@@ -1,15 +1,15 @@
-import { QrCodeIcon, ReceiptIcon } from '@phosphor-icons/react'
+import { ReceiptIcon, WalletIcon } from '@phosphor-icons/react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { QRCodeSVG } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '@/components/Guard'
-import { Button, ButtonLink, Card, EmptyState, ErrorState, LoadingState, Notice, PageHeader, useNow } from '@/components/ui'
+import { Button, ButtonLink, Card, EmptyState, ErrorState, LoadingState, Notice, PageHeader, useNow, confirmDialog } from '@/components/ui'
 import { useOrder } from '@/features/orders'
 import { clearCart } from '@/lib/cart'
 import { clock, dateLabel, mmss, rupiah } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
-import { rpc, toAppError } from '@/lib/supabase'
+import { callFunction, rpc, toAppError } from '@/lib/supabase'
 
 export const Route = createFileRoute('/bayar/$orderId')({
   component: () => (
@@ -27,6 +27,7 @@ function PayPage() {
   const order = useOrder(orderId)
   const now = useNow(1000)
   const [cancelling, setCancelling] = useState(false)
+  const [paying, setPaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const status = order.data?.status
@@ -77,7 +78,6 @@ function PayPage() {
         <div className="mx-auto w-fit rounded-lg bg-white p-3">
           <QRCodeSVG value={`JMNPAY:${o.payment_code}`} size={208} level="M" aria-label={t('bayar.qr_label')} />
         </div>
-        <p className="text-sm font-semibold">{t('bayar.qr_simulasi')}</p>
         <div>
           <p className="text-sm text-muted">{t('bayar.kode')}</p>
           <p className="font-mono text-3xl font-bold tracking-[0.2em]">{o.payment_code}</p>
@@ -89,11 +89,27 @@ function PayPage() {
           {t('bayar.jam_ambil', { day: dateLabel(o.pickup_date, lang, t), time: clock(o.pickup_time, lang) })}
         </p>
       </Card>
-      <Notice>{t('bayar.cara_demo')}</Notice>
-      <a href={`/simulator-bayar?kode=${o.payment_code}`} target="_blank" rel="noreferrer" className="block text-center font-semibold text-accent underline underline-offset-4">
-        <QrCodeIcon />
-        {t('bayar.buka_simulator')}
-      </a>
+      <Button
+        variant="primary"
+        full
+        icon={<WalletIcon />}
+        busy={paying}
+        busyText={t('umum.memproses')}
+        onClick={async () => {
+          setPaying(true)
+          setError(null)
+          try {
+            await callFunction('simulasi-bayar', { code: o.payment_code })
+            await order.refetch()
+          } catch (e) {
+            setError(t(`galat.${toAppError(e).code}`, { defaultValue: t('galat.unknown') }))
+          } finally {
+            setPaying(false)
+          }
+        }}
+      >
+        {t('bayar.bayar_sekarang', { total: rupiah(o.total_paid) })}
+      </Button>
       {error && <Notice tone="error">{error}</Notice>}
       <Button
         variant="danger"
@@ -101,7 +117,7 @@ function PayPage() {
         busy={cancelling}
         busyText={t('umum.memproses')}
         onClick={async () => {
-          if (!window.confirm(t('bayar.batal_konfirmasi'))) return
+          if (!await confirmDialog(t('bayar.batal_konfirmasi'))) return
           setCancelling(true)
           setError(null)
           try {

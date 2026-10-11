@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Card, Dialog, EmptyState, ErrorState, Field, LoadingState, Notice, PageHeader, StatusText, Tabs, TextArea } from '@/components/ui'
+import { Button, Card, Dialog, EmptyState, ErrorState, Field, LoadingState, Notice, PageHeader, Tabs, TextArea } from '@/components/ui'
 import { WEEKDAYS } from '@/features/tenantForm'
 import { clock, clockFromDate, dateLabel } from '@/lib/format'
 import { currentLang } from '@/lib/i18n'
@@ -135,7 +135,7 @@ function TenantCard({ tenant }: { tenant: TenantRow }) {
         {logo && <img src={logo} alt="" className="size-14 rounded-lg object-cover" />}
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-bold">
-            {tenant.name} {tenant.is_sample && <StatusText>{t('umum.contoh')}</StatusText>}
+            {tenant.name}
           </h2>
           <p className="text-sm text-muted">
             {t(`daftar.jenis_${tenant.type}`)} · {tenant.kiosk_location}

@@ -52,3 +52,6 @@ export function soldOutBothDays(item: Tables<'menu_items'>, stock?: MenuStock): 
   return item.sold_out_indefinite || (soldOutToday(item, stock) && (item.sold_out_date === tomorrow || noStock(stock, item.id, tomorrow)))
 }
 
+
+// Buka sepanjang hari (mode demo memakai 00.00 sampai 23.59.59), ditampilkan sebagai "Buka 24 jam".
+export const allDay = (open: string, close: string): boolean => open.startsWith('00:00') && close >= '23:59'

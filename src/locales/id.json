@@ -4,7 +4,7 @@
     "beranda": "Beranda",
     "pesanan": "Pesanan",
     "profil": "Profil",
-    "papan": "Papan",
+    "papan": "Pesanan masuk",
     "dapur": "Dapur",
     "menu": "Menu",
     "toko": "Toko",
@@ -19,7 +19,14 @@
     "label": "Pilih mode",
     "pembeli": "Pembeli",
     "penjual": "Penjual",
-    "tim": "Tim"
+    "tim": "Tim",
+    "tombol": "Mode",
+    "ganti": "Ganti mode",
+    "isi_pembeli": "Pesan makanan dan minuman, lalu lihat pesananmu.",
+    "isi_penjual": "Terima pesanan, atur menu, dan kelola toko.",
+    "isi_tim": "Pantau semua tenant, laporan, setoran, dan anggota tim.",
+    "baru": "{{count}} baru",
+    "ada_baru": "{{count}} notifikasi baru di mode lain"
   },
   "umum": {
     "lewati_ke_isi": "Lewati ke isi halaman",
@@ -44,16 +51,19 @@
     "menyimpan": "Menyimpan...",
     "simpan": "Simpan",
     "tersimpan": "Perubahan tersimpan.",
-    "selesai": "Selesai"
+    "selesai": "Selesai",
+    "pilih_foto": "Pilih foto",
+    "ganti_foto": "Ganti foto",
+    "belum_ada_foto": "Belum ada foto dipilih"
   },
   "demo": {
-    "panel": "Mode demo",
+    "panel": "Akun demo",
     "judul": "Mode demo",
-    "penjelasan": "Pindah ke akun demo tanpa kata sandi untuk menunjukkan sisi pembeli, penjual, dan tim. Reset hanya menghapus pesanan akun demo dan data contoh.",
+    "penjelasan": "Pindah ke akun demo tanpa kata sandi untuk menunjukkan sisi pembeli, penjual, dan tim. Reset menghapus pesanan baru dan mengembalikan pesanan awal.",
     "sedang_dipakai": "sedang dipakai",
     "kembali": "Kembali ke akun saya",
     "reset": "Reset data demo",
-    "reset_konfirmasi": "Hapus semua pesanan akun demo dan buat ulang pesanan contoh?",
+    "reset_konfirmasi": "Hapus semua pesanan baru dan kembalikan pesanan awal?",
     "reset_selesai": "Data demo sudah di-reset.",
     "matikan": "Matikan mode demo",
     "akun_demo": "Ini akun demo. Datanya bisa di-reset kapan saja.",
@@ -63,12 +73,13 @@
       "karyawan": "Karyawan tenant (demo)",
       "admin": "Admin Jaminin (demo)",
       "staf": "Staf Jaminin (demo)",
-      "lainnya": "Akun demo lain"
+      "lainnya": "Akun demo lain",
+      "semua": "Semua akses (admin)"
     }
   },
   "akun": {
     "judul": "Masuk ke Jaminin",
-    "sub": "Masuk untuk memesan, melihat pesanan, dan menerima kabar saat pesanan siap.",
+    "sub": "Masuk untuk memesan, melihat pesanan, dan menerima notifikasi saat pesanan siap.",
     "pilihan": "Pilih cara",
     "masuk": "Masuk",
     "daftar": "Daftar",
@@ -86,7 +97,15 @@
     "sandi_baru": "Kata sandi baru",
     "simpan_sandi": "Simpan kata sandi",
     "keluar": "Keluar",
-    "galat_email": "Tulis alamat email yang benar."
+    "galat_email": "Tulis alamat email yang benar.",
+    "judul_daftar": "Buat akun Jaminin",
+    "judul_lupa": "Lupa kata sandi",
+    "sub_lupa": "Tulis email akunmu. Kami kirim tautan untuk membuat kata sandi baru.",
+    "lupa_tanya": "Lupa kata sandi?",
+    "atau": "atau",
+    "belum_punya": "Belum punya akun?",
+    "sudah_punya": "Sudah punya akun?",
+    "kembali_masuk": "Kembali ke halaman masuk"
   },
   "keranjang": {
     "judul": "Keranjang",
@@ -107,21 +126,23 @@
   "beranda": {
     "judul": "Pesan dulu, ambil tanpa antre",
     "sub": "Pilih jam ambil tiap 5 menit, bayar di muka, lalu ambil sendiri di kantin BINUS @Bekasi.",
-    "jam_istirahat": "Mau ambil jam berapa?",
+    "jam_istirahat": "Mau ambil kapan?",
     "jam_dipilih": "Tenant yang bisa jam {{time}} {{day}} ditandai. Jam ini dipilih otomatis saat checkout.",
     "daftar_tenant": "Tenant",
-    "urutan": "Urutan",
+    "urutan": "Urutkan",
     "urut_cepat": "Paling cepat",
     "urut_abjad": "A sampai Z",
     "kosong": "Belum ada tenant yang buka",
     "kosong_isi": "Kamu tetap bisa memesan untuk besok.",
-    "paling_cepat": "Paling cepat {{time}}",
-    "paling_cepat_besok": "Paling cepat besok {{time}}",
+    "paling_cepat": "Bisa diambil mulai {{time}}",
+    "paling_cepat_besok": "Bisa diambil besok mulai {{time}}",
     "tidak_ada_jam": "Tidak ada jam ambil hari ini atau besok",
     "jeda": "Tutup sementara",
     "buka_sampai": "Buka sampai {{time}}",
     "tutup_sekarang": "Sedang tutup",
-    "bisa_jam_ini": "Bisa di jam itu, sisa {{count}}"
+    "bisa_jam_ini": "Bisa di jam itu, sisa {{count}}",
+    "secepatnya": "Secepatnya",
+    "buka_24_jam": "Buka 24 jam"
   },
   "waktu": {
     "hari_ini": "Hari ini",
@@ -149,8 +170,8 @@
     "jeda": "Tenant sedang tutup sementara. Kamu tetap bisa memesan untuk jam setelah buka lagi.",
     "pengumuman": "Pengumuman",
     "menu_kosong": "Belum ada menu",
-    "menit": "{{count}} menit",
-    "bisa_diatur": "Bisa diatur",
+    "menit": "Siap dalam {{count}} menit",
+    "bisa_diatur": "Ada pilihan",
     "habis": "Habis",
     "habis_hari_ini": "Habis hari ini",
     "harga_contoh": "Harga contoh",
@@ -160,7 +181,8 @@
     "maksimal": "maksimal {{count}}",
     "jumlah": "Jumlah",
     "tambah": "Tambah ke keranjang, {{price}}",
-    "tambah_lalu_keranjang": "Tambah lalu buka keranjang"
+    "langsung_siap": "Langsung siap",
+    "buka_24_jam": "Buka 24 jam hari ini"
   },
   "penanda": {
     "pedas": "Pedas",
@@ -191,7 +213,10 @@
       "jeda": "tutup",
       "batas_harian": "penuh",
       "tutup": "tutup"
-    }
+    },
+    "tercepat": "paling cepat",
+    "rentang": "Bisa dipilih {{from}} sampai {{to}}.",
+    "pilih_dulu": "Pilih jam"
   },
   "checkout": {
     "judul": "Checkout",
@@ -241,7 +266,8 @@
     "habis_isi": "Pesanan dibatalkan dan jamnya dilepas. Kamu belum membayar apa pun.",
     "dibatalkan": "Pesanan dibatalkan",
     "dibatalkan_isi": "Pesanan dibatalkan sebelum dibayar.",
-    "pilih_jam_lagi": "Pilih jam lagi"
+    "pilih_jam_lagi": "Pilih jam lagi",
+    "bayar_sekarang": "Bayar sekarang {{total}}"
   },
   "pesanan": {
     "judul": "Pesanan saya",
@@ -273,8 +299,8 @@
     "catatan": "Catatan",
     "sudah_terima": "Sudah saya terima",
     "terima_konfirmasi": "Pesanan sudah kamu terima?",
-    "geser": "Geser jam ambil",
-    "promo_tidak_bisa_geser": "Pesanan dengan promo tidak bisa digeser. Kalau perlu jam lain, batalkan lalu pesan lagi.",
+    "geser": "Ubah jam ambil",
+    "promo_tidak_bisa_geser": "Jam ambil pesanan berpromo tidak bisa diubah. Kalau perlu jam lain, batalkan lalu pesan lagi.",
     "hubungi_penjual": "WhatsApp penjual",
     "wa_teks": "Halo, saya {{name}}, soal pesanan Jaminin {{number}}.",
     "wa_contoh": "Tenant contoh memakai nomor WhatsApp contoh.",
@@ -323,7 +349,8 @@
     "tambah": "Tambah ke kalender",
     "google": "Google Calendar",
     "judul_acara": "Ambil pesanan {{number}} di {{tenant}}",
-    "isi_acara": "Kode ambil {{code}}, atas nama {{name}}. Buka pesanan: {{url}}"
+    "isi_acara": "Kode ambil {{code}}, atas nama {{name}}. Buka pesanan: {{url}}",
+    "lainnya": "Kalender lain (Apple, Outlook)"
   },
   "chat": {
     "judul": "Chat dengan penjual",
@@ -399,8 +426,8 @@
     "tidak_ada_pengganti": "Tidak ada menu pengganti yang tersedia dengan harga itu."
   },
   "geser": {
-    "judul": "Geser jam ambil",
-    "isi": "Jam ambil hanya bisa digeser satu kali, sebelum pesanan mulai disiapkan.",
+    "judul": "Ubah jam ambil",
+    "isi": "Jam ambil hanya bisa diubah satu kali, sebelum pesanan mulai disiapkan.",
     "simpan": "Simpan jam baru"
   },
   "laporan": {
@@ -445,18 +472,18 @@
     "lengkapi_judul": "Lengkapi profil",
     "lengkapi_sub": "Sekali saja, sebelum pesanan pertama.",
     "simpan_lanjut": "Simpan dan lanjut",
-    "kabar": "Kabar pesanan",
+    "kabar": "Notifikasi pesanan",
     "kabar_isi": "Notifikasi saat pesanan diterima, mulai disiapkan, siap diambil, dan pengingat jam ambil.",
-    "kabar_menyala": "Kabar menyala di perangkat ini.",
-    "nyalakan_kabar": "Nyalakan kabar",
-    "matikan_kabar": "Matikan kabar di perangkat ini",
+    "kabar_menyala": "Notifikasi menyala di perangkat ini.",
+    "nyalakan_kabar": "Nyalakan notifikasi",
+    "matikan_kabar": "Matikan notifikasi di perangkat ini",
     "kabar_hasil": {
-      "ok": "Kabar menyala.",
+      "ok": "Notifikasi menyala.",
       "needs_install": "Di iPhone dan iPad, pasang Jaminin ke layar utama dulu, lalu buka dari ikon itu.",
-      "unsupported": "Browser ini belum bisa menerima kabar. Coba Chrome, Edge, atau Safari terbaru.",
+      "unsupported": "Browser ini belum bisa menerima notifikasi. Coba Chrome, Edge, atau Safari terbaru.",
       "denied": "Izin notifikasi ditolak. Nyalakan dari pengaturan browser, lalu coba lagi.",
-      "mati": "Kabar dimatikan di perangkat ini.",
-      "gagal": "Kabar gagal dinyalakan. Coba lagi sebentar lagi."
+      "mati": "Notifikasi dimatikan di perangkat ini.",
+      "gagal": "Notifikasi gagal dinyalakan. Coba lagi sebentar lagi."
     },
     "pengingat": "Ingatkan sebelum jam ambil",
     "menit": "{{count}} menit",
@@ -472,17 +499,16 @@
     "daftar_tenant_isi": "Punya tenant di kantin BINUS @Bekasi? Daftarkan supaya bisa menerima pesanan."
   },
   "kabar": {
-    "judul": "Kabar",
-    "sub": "Kabar pesanan dan akunmu, yang terbaru di atas.",
-    "kosong": "Belum ada kabar",
-    "kosong_isi": "Kabar pesanan muncul di sini, juga saat notifikasi di HP sedang mati.",
+    "judul": "Notifikasi",
+    "kosong": "Belum ada notifikasi",
+    "kosong_isi": "Notifikasi pesanan tetap tersimpan di sini, walaupun notifikasi di HP sedang mati.",
     "belum_dibaca": "{{count}} belum dibaca",
-    "tautan": "Kabar",
-    "tautan_belum_dibaca": "Kabar, {{count}} belum dibaca",
+    "tautan": "Notifikasi",
+    "tautan_belum_dibaca": "Notifikasi, {{count}} belum dibaca",
     "tandai_semua": "Tandai semua dibaca",
     "baru": "Baru",
     "lihat": "Lihat",
-    "umum_judul": "Kabar dari Jaminin",
+    "umum_judul": "Info dari Jaminin",
     "pesanan_diterima_judul": "Pesanan {{nomor}} diterima",
     "pesanan_diterima_isi": "Jam ambil {{jam}} di {{tenant}}.",
     "mulai_disiapkan_judul": "Pesanan {{nomor}} mulai disiapkan",
@@ -497,7 +523,7 @@
     "uang_kembali_isi": "Pesanan {{nomor}} di {{tenant}}.",
     "belum_siap_boleh_batal_judul": "Pesanan {{nomor}} belum siap",
     "belum_siap_boleh_batal_isi": "Jam ambil sudah lewat. Kamu boleh membatalkan dengan uang kembali penuh.",
-    "jam_ambil_digeser_judul": "Jam ambil {{nomor}} digeser",
+    "jam_ambil_digeser_judul": "Jam ambil {{nomor}} diubah",
     "jam_ambil_digeser_isi": "Jam ambil baru {{jam}}, {{tanggal}}.",
     "pesanan_dibatalkan_judul": "Pesanan {{nomor}} dibatalkan",
     "pesanan_dibatalkan_isi": "Jam ambil {{jam}}, {{tanggal}}, atas nama {{nama}}.",
@@ -515,7 +541,7 @@
     "aksi_ganti": "diganti",
     "aksi_hapus": "dihapus",
     "aksi_batal": "pesanan dibatalkan",
-    "setoran_terkirim_judul": "Setoran terkirim (simulasi)",
+    "setoran_terkirim_judul": "Setoran terkirim",
     "setoran_terkirim_isi": "{{jumlah}} untuk {{banyak}} pesanan.",
     "pendaftaran_disetujui_judul": "Pendaftaran disetujui",
     "pendaftaran_disetujui_isi": "{{tenant}} sudah tampil untuk pembeli.",
@@ -540,23 +566,24 @@
     "jam_tersedia_judul": "Jam {{jam}} di {{tenant}} tersedia",
     "jam_tersedia_isi": "Ada tempat kosong untuk {{tanggal}}. Yang lebih dulu membayar mendapat tempat.",
     "jadi_karyawan_judul": "Kamu jadi karyawan {{tenant}}",
-    "jadi_karyawan_isi": "Buka mode Penjual untuk menangani pesanan."
+    "jadi_karyawan_isi": "Buka mode Penjual untuk menangani pesanan.",
+    "sub_mode": "Notifikasi untuk mode {{mode}}, yang terbaru di atas."
   },
   "pasang": {
     "judul": "Pasang Jaminin",
-    "sub": "Jaminin bisa dipasang ke layar utama seperti aplikasi, supaya kabar pesanan masuk.",
+    "sub": "Jaminin bisa dipasang ke layar utama seperti aplikasi, supaya notifikasi pesanan masuk.",
     "sudah": "Jaminin sudah terpasang di perangkat ini.",
     "iphone_judul": "iPhone dan iPad (Safari)",
     "iphone_1": "Buka Jaminin di Safari.",
     "iphone_2": "Ketuk tombol Bagikan di bawah layar.",
     "iphone_3": "Pilih Tambahkan ke Layar Utama, lalu ketuk Tambah.",
-    "iphone_4": "Buka Jaminin dari ikon di layar utama, lalu nyalakan kabar di Profil.",
-    "iphone_catatan": "Kabar di iPhone dan iPad butuh iOS 16.4 atau lebih baru dan hanya berjalan dari ikon di layar utama.",
+    "iphone_4": "Buka Jaminin dari ikon di layar utama, lalu nyalakan notifikasi di Profil.",
+    "iphone_catatan": "Notifikasi di iPhone dan iPad butuh iOS 16.4 atau lebih baru dan hanya berjalan dari ikon di layar utama.",
     "android_judul": "Android dan laptop (Chrome atau Edge)",
     "tombol": "Pasang Jaminin",
     "android_isi": "Kalau tombol di atas tidak muncul, buka menu browser lalu pilih Instal aplikasi atau Tambahkan ke layar utama.",
-    "banner_judul": "Supaya kabar pesanan masuk",
-    "banner_isi": "Pasang Jaminin ke layar utama, lalu nyalakan kabar di Profil.",
+    "banner_judul": "Supaya notifikasi pesanan masuk",
+    "banner_isi": "Pasang Jaminin ke layar utama, lalu nyalakan notifikasi di Profil.",
     "lihat_panduan": "Lihat panduan pasang"
   },
   "pindai": {
@@ -582,7 +609,7 @@
   "penjual": {
     "belum_punya": "Kamu belum punya tenant",
     "belum_punya_isi": "Daftarkan tenant untuk mulai menerima pesanan, atau minta pemilik tenant menambahkanmu sebagai karyawan.",
-    "tenant_aktif": "Tenant",
+    "tenant_aktif": "Tenant yang dikelola",
     "alasan": "Alasan: {{reason}}",
     "perbaiki": "Perbaiki data dan kirim ulang",
     "menunggu_isi": "Tim Jaminin sedang memeriksa pendaftaran. Tenant tampil di beranda setelah disetujui.",
@@ -591,7 +618,8 @@
       "disetujui": "Disetujui",
       "ditolak": "Ditolak",
       "ditangguhkan": "Ditangguhkan"
-    }
+    },
+    "pesanan_aktif": "{{count}} pesanan aktif"
   },
   "papan": {
     "sub": "Pesanan yang sudah dibayar, per jam ambil.",
@@ -610,7 +638,7 @@
     "mulai_semua": "Mulai semua",
     "siap_semua": "Siap semua",
     "selesai_hari_ini": "Selesai dan batal ({{count}})",
-    "digeser": "jam digeser",
+    "digeser": "jam diubah",
     "masuk_jam": "masuk {{time}}",
     "menunggu_pembeli": "Menunggu pilihan pembeli",
     "tandai_habis": "Tandai habis",
@@ -618,10 +646,11 @@
     "riwayat_pembeli": "Riwayat pembeli di tenant ini: {{cancelled}} kali batal, {{notPicked}} kali tidak diambil.",
     "mulai": "Mulai siapkan",
     "siap": "Siap diambil",
-    "serahkan": "Serahkan"
+    "serahkan": "Serahkan",
+    "besok_info": "Ini pesanan untuk besok. Tombol Mulai siapkan dan Serahkan muncul besok, di hari pengambilannya."
   },
   "siap_masak": {
-    "judul": "Daftar siap-masak ({{count}} porsi)",
+    "judul": "Daftar masak ({{count}} porsi)",
     "isi": "Pesanan yang belum siap diambil. Menu habis yang menunggu pilihan pembeli belum dihitung.",
     "untuk": "Untuk {{time}}:"
   },
@@ -774,14 +803,14 @@
     "hapus_label": "Hapus pengaturan {{date}}",
     "galat_tanggal": "Pilih tanggal hari ini atau setelahnya.",
     "konfirmasi_judul": "Pesanan akan dibatalkan",
-    "konfirmasi_isi": "{{count}} pesanan lunas di tanggal itu jam ambilnya tidak lagi buka. Pesanan itu dibatalkan dengan uang kembali penuh, dan pembeli diberi kabar.",
+    "konfirmasi_isi": "{{count}} pesanan lunas di tanggal itu jam ambilnya tidak lagi buka. Pesanan itu dibatalkan dengan uang kembali penuh, dan pembeli mendapat notifikasi.",
     "periksa_lagi": "Periksa lagi",
     "lanjut": "Simpan dan batalkan pesanan",
     "tersimpan_batal": "Tersimpan. {{count}} pesanan dibatalkan dengan uang kembali penuh."
   },
   "promo": {
     "judul": "Promo jam sepi",
-    "isi": "Potongan untuk seluruh isi pesanan pada hari dan jam ambil tertentu, ditanggung tenant. Pesanan berpromo tidak bisa digeser.",
+    "isi": "Potongan untuk seluruh isi pesanan pada hari dan jam ambil tertentu, ditanggung tenant. Jam ambil pesanan berpromo tidak bisa diubah.",
     "daftar": "Promo yang ada",
     "kosong": "Belum ada promo.",
     "tambah": "Tambah promo",
@@ -873,7 +902,7 @@
     "tambah_kategori": "Tambah kategori",
     "pilihan_nanti": "Pilihan tambahan seperti level pedas diatur di halaman Menu setelah terdaftar.",
     "bagian_setoran": "Rekening setoran",
-    "setoran_isi": "Penjualan dikirim tiap hari setelah dipotong {{fee}} per pesanan selesai. Di prototipe, pengiriman ini simulasi.",
+    "setoran_isi": "Penjualan dikirim tiap hari setelah dipotong {{fee}} per pesanan selesai.",
     "bank": "Nama bank",
     "rekening": "Nomor rekening",
     "pemilik_rekening": "Nama pemilik rekening",
@@ -910,7 +939,7 @@
     "simulasi": "Di prototipe, setoran adalah simulasi. Tidak ada transfer sungguhan.",
     "kosong": "Belum ada setoran",
     "kosong_isi": "Setoran pertama dikirim setelah ada pesanan yang selesai.",
-    "terkirim": "Terkirim {{time}} (simulasi)",
+    "terkirim": "Terkirim {{time}}",
     "penjualan": "Penjualan ({{count}} pesanan)",
     "promo": "Potongan promo",
     "potongan": "Potongan Jaminin",
@@ -925,7 +954,7 @@
   },
   "tim": {
     "judul": "Ringkasan",
-    "sub": "Pesanan lunas per tanggal ambil. Data contoh dipisah dari data asli.",
+    "sub": "Pesanan lunas per tanggal ambil.",
     "rentang": "Rentang",
     "tujuh_hari": "7 hari",
     "tiga_puluh_hari": "30 hari",
@@ -1007,12 +1036,12 @@
     "balas_isi": "Kosongkan kalau hanya mengubah status.",
     "kirim_balasan": "Kirim balasan",
     "simpan_status": "Simpan status",
-    "terkirim": "Balasan tersimpan dan pembeli diberi kabar.",
+    "terkirim": "Balasan tersimpan dan pembeli mendapat notifikasi.",
     "tindakan": "Tindakan",
     "uang_kembali": "Uang kembali",
-    "uang_terkirim": "Uang kembali tercatat dan pembeli diberi kabar.",
+    "uang_terkirim": "Uang kembali tercatat dan pembeli mendapat notifikasi.",
     "batalkan": "Batalkan pesanan",
-    "batalkan_isi": "Pesanan dibatalkan dengan uang kembali penuh. Potongan penjual tidak ditagih, dan penjual diberi kabar.",
+    "batalkan_isi": "Pesanan dibatalkan dengan uang kembali penuh. Potongan penjual tidak ditagih, dan penjual mendapat notifikasi.",
     "batalkan_kirim": "Batalkan pesanan",
     "batal_terkirim": "Pesanan dibatalkan."
   },
@@ -1034,7 +1063,7 @@
   },
   "timsetoran": {
     "judul": "Setoran tenant",
-    "sub": "Setoran otomatis ke semua tenant (simulasi).",
+    "sub": "Setoran otomatis ke semua tenant.",
     "total": "Total setoran asli: {{amount}}",
     "kosong": "Belum ada setoran di rentang ini"
   },
@@ -1077,10 +1106,10 @@
     "not_authenticated": "Masuk dulu untuk melanjutkan.",
     "account_not_found": "Belum ada akun Jaminin dengan email itu.",
     "account_suspended": "Akun ini sedang ditangguhkan.",
-    "already_rescheduled": "Jam ambil pesanan ini sudah pernah digeser.",
+    "already_rescheduled": "Jam ambil pesanan ini sudah pernah diubah.",
     "already_paid": "Pesanan ini sudah lunas.",
     "cannot_cancel": "Pesanan ini sudah tidak bisa dibatalkan.",
-    "cannot_reschedule": "Jam ambil hanya bisa digeser sebelum pesanan mulai disiapkan.",
+    "cannot_reschedule": "Jam ambil hanya bisa diubah sebelum pesanan mulai disiapkan.",
     "cart_empty": "Keranjang kosong.",
     "cart_too_large": "Isi keranjang terlalu banyak.",
     "daily_limit": "Pesanan tenant di hari itu sudah penuh.",
@@ -1093,7 +1122,7 @@
     "invalid_option": "Ada pilihan menu yang sudah tidak tersedia.",
     "invalid_option_count": "Jumlah pilihan menu belum sesuai.",
     "invalid_quantity": "Jumlah menu harus 1 sampai 20.",
-    "invalid_subscription": "Perangkat ini belum bisa menerima kabar.",
+    "invalid_subscription": "Perangkat ini belum bisa menerima notifikasi.",
     "invalid_transition": "Pesanan sudah berpindah tahap. Muat ulang halaman.",
     "item_not_found": "Menu tidak ditemukan.",
     "item_sold_out": "Ada menu yang habis. Kembali ke tenant untuk mengubah keranjang.",
@@ -1116,7 +1145,7 @@
     "order_not_found": "Pesanan tidak ditemukan.",
     "pickup_name_required": "Tulis nama pengambil.",
     "profile_incomplete": "Lengkapi profil dulu.",
-    "promo_cannot_reschedule": "Pesanan dengan promo tidak bisa digeser.",
+    "promo_cannot_reschedule": "Jam ambil pesanan berpromo tidak bisa diubah.",
     "reason_required": "Tulis alasannya.",
     "refund_exceeds_paid": "Uang kembali melebihi yang dibayar.",
     "replacement_too_expensive": "Menu pengganti harus sama atau lebih murah.",
@@ -1160,7 +1189,7 @@
     "penanda": "Penanda menu",
     "hasil": "Hasil pencarian",
     "kosong": "Tidak ada yang cocok",
-    "kosong_isi": "Coba kata lain atau kurangi penanda yang dipilih."
+    "kosong_isi": "Coba kata lain."
   },
   "pesan_ulang": {
     "tombol": "Pesan lagi",
@@ -1205,8 +1234,13 @@
   },
   "tunggu": {
     "judul": "Jam yang kamu mau penuh?",
-    "isi": "Pilih jamnya. Kalau ada yang batal, semua yang menunggu dikabari bersamaan, dan yang lebih dulu membayar mendapat tempat.",
+    "isi": "Pilih jamnya. Kalau ada yang batal, semua yang menunggu mendapat notifikasi bersamaan, dan yang lebih dulu membayar mendapat tempat.",
     "label": "Daftar tunggu jam {{time}}",
     "masuk": "Kamu masuk daftar tunggu jam {{time}}."
+  },
+  "konfirmasi": {
+    "judul": "Konfirmasi",
+    "kembali": "Kembali",
+    "ya": "Ya, lanjutkan"
   }
 }

@@ -39,17 +39,19 @@ select is(
   0, 'lusa tidak ditawarkan'
 );
 
--- Sabtu tutup untuk tenant contoh saat mode demo mati.
+-- Hari tanpa jadwal buka tutup untuk tenant contoh saat mode demo mati.
+-- Tenant contoh kini buka tiap hari, jadi jadwal Sabtunya dihapus dulu di uji ini.
+delete from public.tenant_hours where weekday = 6 and tenant_id = (select id from public.tenants where slug = 'rustic-grill-bbq');
 select is(
   (select count(*)::int from private.slots((select id from public.tenants where slug = 'rustic-grill-bbq'), '2026-10-10', 0, '2026-10-10 08:00:00+07')),
   0, 'Sabtu tutup'
 );
 
--- Mode demo: tenant contoh buka 06.00 sampai 22.00 setiap hari.
+-- Mode demo: tenant contoh buka sepanjang hari, jam ambil terakhir 23.50.
 update public.app_settings set demo_mode = true where id = 1;
 select is(
   (select max(slot_time) from private.slots((select id from public.tenants where slug = 'rustic-grill-bbq'), '2026-10-10', 0, '2026-10-10 05:00:00+07')),
-  '21:55'::time, 'mode demo membuka tenant contoh sampai 22.00'
+  '23:50'::time, 'mode demo membuka tenant contoh sampai 23.59'
 );
 
 -- Kuota per rentang jam memakai aturan, jam lain memakai kuota dasar.

@@ -5,8 +5,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '@/components/AppShell'
 import { RequireAuth } from '@/components/Guard'
-import { SlotPicker, useSlots, type Slot } from '@/components/SlotPicker'
-import { Button, ButtonLink, Card, Choice, EmptyState, Field, Input, Notice, PageHeader, TextArea } from '@/components/ui'
+import { SlotPicker, useSlots } from '@/components/SlotPicker'
+import { Button, ButtonLink, Card, Choice, EmptyState, Field, Input, Notice, PageHeader, Switch, TextArea } from '@/components/ui'
 import { useAuth } from '@/lib/auth'
 import { cartMaxPrep, cartSubtotal, forgetSlot, recalledSlot, useCart } from '@/lib/cart'
 import { rupiah, todayWib, tomorrowWib } from '@/lib/format'
@@ -40,7 +40,6 @@ function Checkout() {
 
   const [pickedDate, setDate] = useState(() => recalledSlot()?.date ?? todayWib())
   const [pickedTime, setTime] = useState<string | null>(null)
-  const [pickedSlot, setSlot] = useState<Slot | null>(null)
   const [pickupNameInput, setPickupName] = useState<string | null>(null)
   // Nama pengambil mengikuti nama di profil sampai pembeli mengubahnya sendiri.
   const pickupName = pickupNameInput ?? profile?.full_name ?? ''
@@ -55,12 +54,13 @@ function Checkout() {
   const maxPrep = cartMaxPrep(cart)
   const slots = useSlots(cart?.tenantId, date, maxPrep)
 
-  // Jam dari tombol jam istirahat langsung terpilih kalau masih tersedia (usulan U7).
+  // Jam pilihan dari beranda terpilih kalau masih ada, atau jam terdekat sesudahnya (usulan U7).
+  // Tanpa pilihan, jam tercepat langsung terpilih supaya pembeli cukup mengubahnya kalau mau jam lain.
   const recalled = recalledSlot()
-  const autoSlot =
-    !pickedTime && recalled && recalled.date === date ? (slots.data?.find((s) => s.slot_time === recalled.time && s.status === 'tersedia') ?? null) : null
-  const time = pickedTime ?? autoSlot?.slot_time ?? null
-  const slot = pickedSlot ?? autoSlot
+  const openSlots = (slots.data ?? []).filter((s) => s.status === 'tersedia')
+  const autoSlot = (recalled?.date === date ? openSlots.find((s) => s.slot_time >= recalled.time) : undefined) ?? openSlots[0] ?? null
+  const slot = (pickedTime ? openSlots.find((s) => s.slot_time === pickedTime) : undefined) ?? autoSlot
+  const time = slot?.slot_time ?? null
 
   if (!cart) {
     return (
@@ -120,7 +120,6 @@ function Checkout() {
       if (['slot_full', 'slot_too_soon', 'slot_closed', 'daily_limit', 'tenant_paused'].includes(code)) {
         forgetSlot()
         setTime(null)
-        setSlot(null)
         void queryClient.invalidateQueries({ queryKey: ['jam'] })
       }
     } finally {
@@ -149,13 +148,9 @@ function Checkout() {
               onDateChange={(d) => {
                 setDate(d)
                 setTime(null)
-                setSlot(null)
               }}
               value={time}
-              onChange={(v, s) => {
-                setTime(v)
-                setSlot(s)
-              }}
+              onChange={(v) => setTime(v)}
             />
           </Card>
 
@@ -174,9 +169,9 @@ function Checkout() {
                 </Choice>
               </div>
             </fieldset>
-            <Choice type="checkbox" name="cutlery" value="ya" checked={cutlery} onChange={setCutlery}>
+            <Switch checked={cutlery} onChange={setCutlery}>
               {t('checkout.alat_makan')}
-            </Choice>
+            </Switch>
             <Field label={t('checkout.catatan')} optional hint={t('checkout.sisa_karakter', { count: 200 - note.length })}>
               {(p) => (
                 <TextArea id={p.id} aria-describedby={p.describedBy} value={note} onChange={(e) => setNote(e.target.value.slice(0, 200))} maxLength={200} rows={3} />
